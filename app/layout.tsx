@@ -1,13 +1,14 @@
+import { Sidebar } from "@/components/ui/sidebar"
 import React from "react"
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter, Almarai } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { MainNav } from '@/components/layout/main-nav'
+import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { LanguageProvider } from '@/lib/i18n/language-context'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const almarai = Almarai({ subsets: ["arabic"], weight: ["400", "700"], variable: "--font-arabic" });
 
 export const metadata: Metadata = {
   title: 'Yusrflow - Compliance Dashboard',
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
     initialScale: 1,
     maximumScale: 1,
     userScalable: false,
-    themeColor: '#6d5cff',
+    themeColor: '#2563eb',
   },
 }
 
@@ -45,11 +46,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark" dir="ltr">
+    <html lang="en" dir="ltr" className={`${inter.variable} ${almarai.variable}`}>
       <body className={`font-sans antialiased bg-background text-foreground`}>
         <LanguageProvider>
-          <MainNav />
-          {children}
+          <DashboardLayout>
+            {children}
+          </DashboardLayout>
         </LanguageProvider>
         <Analytics />
       </body>

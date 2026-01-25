@@ -3,9 +3,11 @@
 import { useRouter } from 'next/navigation';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { LoginForm } from '@/components/auth/login-form';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleLogin = async (email: string, password: string) => {
     // TODO: Replace with actual authentication logic
@@ -13,8 +15,8 @@ export default function LoginPage() {
 
     // Simulate successful login
     if (email && password.length >= 6) {
-      // Redirect to tenant setup or dashboard
-      router.push('/tenant-setup');
+      // Redirect to dashboard
+      router.push('/');
     } else {
       throw new Error('Invalid credentials');
     }
@@ -22,8 +24,8 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
-      title="Sign In to Yusrflow"
-      subtitle="Enter your credentials to access your compliance dashboard"
+      title={t('auth.signIn')}
+      subtitle={t('auth.startFreeUseCase')}
     >
       <LoginForm onSubmit={handleLogin} />
     </AuthLayout>
