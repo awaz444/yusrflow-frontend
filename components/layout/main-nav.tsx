@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from './language-switcher';
 
+import { signOut } from 'supertokens-auth-react/recipe/session';
+
 export function MainNav() {
   const pathname = usePathname();
   const { t } = useLanguage();
@@ -16,6 +18,11 @@ export function MainNav() {
   if (pathname.startsWith('/auth') || pathname === '/tenant-setup') {
     return null;
   }
+
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = "/auth/login";
+  };
 
   const navItems = [
     {
@@ -96,7 +103,12 @@ export function MainNav() {
               <User className="w-4 h-4" />
               <span className="sr-only">Profile</span>
             </Button>
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-red-400">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-red-400"
+              onClick={handleLogout}
+            >
               <LogOut className="w-4 h-4" />
               <span className="sr-only">Sign out</span>
             </Button>

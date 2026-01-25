@@ -1,13 +1,19 @@
-import React from "react"
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { MainNav } from '@/components/layout/main-nav'
 import { LanguageProvider } from '@/lib/i18n/language-context'
+import { Providers } from '@/components/providers';
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+});
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+});
 
 export const metadata: Metadata = {
   title: 'Yusrflow - Compliance Dashboard',
@@ -30,13 +36,14 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-icon.png',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    themeColor: '#6d5cff',
-  },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#6d5cff',
 }
 
 export default function RootLayout({
@@ -46,10 +53,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" dir="ltr">
-      <body className={`font-sans antialiased bg-background text-foreground`}>
+      <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
         <LanguageProvider>
-          <MainNav />
-          {children}
+          <Providers>
+            <MainNav />
+            {children}
+          </Providers>
         </LanguageProvider>
         <Analytics />
       </body>

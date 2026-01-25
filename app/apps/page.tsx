@@ -1,13 +1,25 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AppsHeader } from '@/components/apps/apps-header';
 import { FilterSidebar } from '@/components/apps/filter-sidebar';
 import { AppsTable } from '@/components/apps/apps-table';
 import { BulkActions } from '@/components/apps/bulk-actions';
-import { mockSaasApps } from '@/lib/mockData';
+import { fetchFromApi } from '@/lib/api';
 
 type SortColumn = 'name' | 'category' | 'complianceScore' | 'riskLevel' | 'status' | 'monthlySpend' | 'users';
+
+// Define the shape expected by the UI
+interface SaasApp {
+  id: string;
+  name: string;
+  category: string;
+  riskLevel: 'low' | 'medium' | 'high';
+  complianceScore: number;
+  monthlySpend: number;
+  users: number;
+  status: 'compliant' | 'partial' | 'non_compliant';
+}
 
 export default function AppsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,15 +30,46 @@ export default function AppsPage() {
   const [sortColumn, setSortColumn] = useState<SortColumn>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
+  const [apps, setApps] = useState<SaasApp[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadApps() {
+      try {
+        const data = await fetchFromApi('saas-scanner');
+        // Map backend data to frontend shape if necessary
+        // Assuming backend returns an array of objects that mostly match or we fill in defaults
+        const mappedApps = data.map((app: any) => ({
+          id: app.id,
+          name: app.name,
+          category: app.category || 'Uncategorized',
+          riskLevel: (app.riskLevel as 'low' | 'medium' | 'high') || 'medium',
+          // Defaulting missing fields for now as they are not yet in the basic backend response
+          complianceScore: 0,
+          monthlySpend: 0,
+          users: 0,
+          status: 'compliant', // Mapping to a valid status for UI for now
+        }));
+        setApps(mappedApps);
+      } catch (error) {
+        console.error('Failed to load apps:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadApps();
+  }, []);
+
   const categories = useMemo(
-    () => [...new Set(mockSaasApps.map((app) => app.category))].sort(),
-    []
+    () => [...new Set(apps.map((app) => app.category))].sort(),
+    [apps]
   );
   const riskLevels = ['low', 'medium', 'high'];
   const statuses = ['compliant', 'partial', 'non_compliant'];
 
   const filteredAndSortedApps = useMemo(() => {
-    let filtered = mockSaasApps.filter((app) => {
+    let filtered = apps.filter((app) => {
       const matchesSearch = app.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(app.category);
       const matchesRiskLevel =
@@ -52,7 +95,7 @@ export default function AppsPage() {
     });
 
     return filtered;
-  }, [searchTerm, selectedCategories, selectedRiskLevels, selectedStatuses, sortColumn, sortDirection]);
+  }, [apps, searchTerm, selectedCategories, selectedRiskLevels, selectedStatuses, sortColumn, sortDirection]);
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -126,6 +169,10 @@ export default function AppsPage() {
     // TODO: Implement add app modal
   };
 
+  if (loading) {
+    return <div className="p-8">Loading apps...</div>;
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -134,7 +181,7 @@ export default function AppsPage() {
           onSearchChange={setSearchTerm}
           onAddApp={handleAddApp}
           onExport={handleExport}
-          appCount={mockSaasApps.length}
+          appCount={apps.length}
         />
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6">

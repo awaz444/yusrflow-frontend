@@ -1,21 +1,16 @@
 'use client';
 
-import React from "react"
-
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { AlertCircle, Loader2, Shield } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { signIn } from 'supertokens-auth-react/recipe/emailpassword';
 
-interface LoginFormProps {
-  onSubmit: (email: string, password: string) => Promise<void>;
-}
-
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -29,8 +24,20 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
     setLoading(true);
 
     try {
-      await onSubmit(email, password);
-    } catch (err) {
+      const response = await signIn({
+        formFields: [
+          { id: 'email', value: email },
+          { id: 'password', value: password },
+        ],
+      });
+
+      if (response.status === 'OK') {
+        window.location.href = '/';
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (err: any) {
+      console.error(err);
       setError(err instanceof Error ? err.message : t('auth.errorMessage'));
     } finally {
       setLoading(false);
@@ -112,8 +119,8 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 
       <p className="text-center text-sm text-muted-foreground">
         {t('auth.noAccount')}{' '}
-        <Link href="/contact" className="text-accent hover:text-accent/80 font-medium">
-          {t('common.contactSales')}
+        <Link href="/auth/signup" className="text-accent hover:text-accent/80 font-medium">
+          Sign up
         </Link>
       </p>
     </form>

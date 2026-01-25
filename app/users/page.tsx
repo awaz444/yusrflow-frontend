@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Users, Plus, MoreHorizontal, Mail } from 'lucide-react';
+import { Users, MoreHorizontal, Mail } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { InviteUserDialog } from '@/components/users/invite-user-dialog';
+import { fetchFromApi } from '@/lib/api';
 
 interface User {
   id: string;
@@ -45,6 +47,23 @@ export default function UsersPage() {
     },
   ]);
 
+  const handleInvite = async (email: string, role: string) => {
+    try {
+      await fetchFromApi('/users/invite', {
+        method: 'POST',
+        body: JSON.stringify({ email, role }),
+        // Important: Send cookies for session auth
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        credentials: 'include',
+      });
+      alert(`Invitation sent to ${email} as ${role}`);
+    } catch (error) {
+      console.error('Invite failed:', error);
+      alert('Failed to send invitation. Check console.');
+    }
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'admin':
@@ -83,10 +102,7 @@ export default function UsersPage() {
             </div>
             <p className="text-muted-foreground">{t('users.subtitle')}</p>
           </div>
-          <Button className="bg-accent hover:bg-accent/90 text-white gap-2">
-            <Plus className="w-4 h-4" />
-            {t('users.addUser')}
-          </Button>
+          <InviteUserDialog onInvite={handleInvite} />
         </div>
 
         {/* Search Bar */}
@@ -145,11 +161,10 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                          user.status === 'active'
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'bg-red-500/20 text-red-400'
-                        }`}
+                        className={`text-xs font-semibold px-3 py-1 rounded-full ${user.status === 'active'
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-red-500/20 text-red-400'
+                          }`}
                       >
                         {user.status === 'active' ? 'Active' : 'Inactive'}
                       </span>
