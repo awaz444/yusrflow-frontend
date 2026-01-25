@@ -4,6 +4,8 @@ import React from "react"
 
 import { Card } from '@/components/ui/card';
 import { Shield } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { LanguageSwitcher } from '@/components/layout/language-switcher';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -12,16 +14,23 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
+  const { t, language } = useLanguage();
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+      {/* Language Switcher */}
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+
       <div className="w-full max-w-md space-y-6">
         {/* Logo Section */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Shield className="w-8 h-8 text-accent" />
-            <h1 className="text-2xl font-bold text-foreground">Yusrflow</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t('auth.title')}</h1>
           </div>
-          <p className="text-sm text-muted-foreground">Compliance & SaaS Management Platform</p>
+          <p className="text-sm text-muted-foreground">{t('auth.subtitle')}</p>
         </div>
 
         {/* Content Card */}
@@ -33,8 +42,14 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground space-y-2">
-          <p>Enterprise compliance management for GCC organizations</p>
-          <p className="text-purple-400">Secure • Compliant • Scalable</p>
+          <p>
+            {language === 'ar'
+              ? 'إدارة الامتثال للمؤسسات في منطقة الخليج'
+              : 'Enterprise compliance management for GCC organizations'}
+          </p>
+          <p className="text-accent">
+            {language === 'ar' ? 'آمن • متوافق • قابل للتوسع' : 'Secure • Compliant • Scalable'}
+          </p>
         </div>
       </div>
     </div>
