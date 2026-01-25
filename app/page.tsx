@@ -1,226 +1,130 @@
 'use client';
 
-import { SummaryCard } from '@/components/dashboard/summary-card';
-import { ComplianceMeter } from '@/components/dashboard/compliance-meter';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { DashboardHeader } from '@/components/dashboard/header';
+import { StatCard } from '@/components/dashboard/stat-card';
+import { ComplianceScores } from '@/components/dashboard/compliance-scores';
+import { AlertsSection } from '@/components/dashboard/alerts-section';
+import { TopAppsSection } from '@/components/dashboard/top-apps';
+import { SpendChart } from '@/components/dashboard/spend-chart';
 import { mockSaasApps, mockTenant } from '@/lib/mockData';
 import {
-  Activity,
-  AlertCircle,
-  Zap,
+  BarChart3,
+  AlertTriangle,
+  TrendingUp,
   DollarSign,
-  Clock,
 } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 
 export default function Home() {
-  const totalApps = mockSaasApps.length;
-  const shadowITApps = mockSaasApps.filter(app => app.category === 'Collaboration').length;
-  const averageComplianceScore = Math.round(
-    mockSaasApps.reduce((sum, app) => sum + app.complianceScore, 0) /
-      mockSaasApps.length
-  );
-  const highRiskApps = mockSaasApps.filter(
-    (app) => app.riskLevel === 'high' || app.riskLevel === 'critical'
-  ).length;
   const totalMonthlySpend = mockSaasApps.reduce(
     (sum, app) => sum + app.monthlySpend,
     0
   );
+  const averageComplianceScore =
+    Math.round(
+      mockSaasApps.reduce((sum, app) => sum + app.complianceScore, 0) /
+        mockSaasApps.length
+    ) || 0;
+  const highRiskApps = mockSaasApps.filter(
+    (app) => app.riskLevel === 'high' || app.riskLevel === 'critical'
+  ).length;
+  const totalUsers = mockSaasApps.reduce((sum, app) => sum + app.users, 0);
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <main className="p-8 space-y-8">
-        {/* Welcome Section */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+    <div className="min-h-screen bg-background">
+      <DashboardHeader />
+
+      <main className="px-6 py-8">
+        {/* Tenant Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-foreground">
             Welcome to {mockTenant.name}
-          </h1>
-          <p className="text-muted-foreground">
-            Real-time SaaS application monitoring and compliance tracking
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            Real-time compliance monitoring and SaaS management dashboard
           </p>
-          <Button className="mt-4 bg-primary hover:bg-primary/90 text-white">
-            <Zap className="w-4 h-4 mr-2" />
-            Scan Apps
-          </Button>
         </div>
 
-        {/* Summary Cards Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <SummaryCard
-            title="SaaS Applications"
-            value={totalApps}
-            subtext={`${shadowITApps} shadow IT detected`}
-            icon={<Activity className="w-6 h-6" />}
-            trend={{ value: 3, direction: 'up', label: 'from last month' }}
-            color="blue"
+        {/* Key Metrics */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+          <StatCard
+            title="Total SaaS Apps"
+            value={mockSaasApps.length}
+            icon={<BarChart3 className="h-5 w-5" />}
+            description="Applications in use"
           />
-          <SummaryCard
-            title="PDPL Compliance"
+          <StatCard
+            title="Monthly Spend"
+            value={`${(totalMonthlySpend / 1000).toFixed(0)}k`}
+            unit="SAR"
+            icon={<DollarSign className="h-5 w-5" />}
+            trend={8}
+          />
+          <StatCard
+            title="Avg Compliance"
             value={`${averageComplianceScore}%`}
-            subtext="Overall compliance score"
-            icon={<AlertCircle className="w-6 h-6" />}
-            trend={{ value: 2, direction: 'up', label: 'improved' }}
-            color={
-              averageComplianceScore >= 80
-                ? 'green'
-                : averageComplianceScore >= 60
-                  ? 'yellow'
-                  : 'red'
-            }
+            icon={<TrendingUp className="h-5 w-5" />}
+            trend={5}
           />
-          <SummaryCard
+          <StatCard
             title="High Risk Apps"
             value={highRiskApps}
-            subtext="Require immediate attention"
-            icon={<AlertCircle className="w-6 h-6" />}
-            color="red"
-          />
-          <SummaryCard
-            title="Monthly Spend"
-            value={`SAR ${(totalMonthlySpend / 1000).toFixed(1)}K`}
-            subtext="SAR 3,200 potential savings"
-            icon={<DollarSign className="w-6 h-6" />}
-            color="green"
+            icon={<AlertTriangle className="h-5 w-5" />}
+            trend={-2}
+            description="Immediate attention"
           />
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left Column - Compliance Issues */}
-          <div className="lg:col-span-2">
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-foreground mb-6">
-                Compliance Issues
-              </h2>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>App Name</TableHead>
-                      <TableHead>Issue</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockSaasApps.slice(0, 5).map((app) => (
-                      <TableRow key={app.id}>
-                        <TableCell className="font-medium">{app.name}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {app.riskLevel === 'critical'
-                            ? 'Data outside GCC'
-                            : 'Missing encryption'}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={
-                              app.riskLevel === 'critical'
-                                ? 'bg-red-100 text-red-800'
-                                : app.riskLevel === 'high'
-                                  ? 'bg-orange-100 text-orange-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                            }
-                          >
-                            {app.riskLevel === 'critical'
-                              ? 'Critical'
-                              : app.riskLevel === 'high'
-                                ? 'High'
-                                : 'Medium'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-blue-50">
-                            Open
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm" className="text-primary">
-                            Fix
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </Card>
-          </div>
+        {/* Compliance & Alerts Row */}
+        <div className="grid gap-6 lg:grid-cols-3 mb-6">
+          <ComplianceScores />
+          <AlertsSection />
+        </div>
 
-          {/* Right Column - Activity Feed */}
-          <div className="lg:col-span-1">
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-foreground mb-6">
-                Recent Activity
-              </h2>
-              <div className="space-y-4">
-                {[
-                  {
-                    icon: <Activity className="w-5 h-5 text-primary" />,
-                    title: 'Microsoft 365 connected',
-                    time: '2 hours ago',
-                  },
-                  {
-                    icon: <Zap className="w-5 h-5 text-green-600" />,
-                    title: 'Compliance scan completed',
-                    time: '1 day ago',
-                  },
-                  {
-                    icon: <Clock className="w-5 h-5 text-blue-600" />,
-                    title: 'PDF report generated',
-                    time: '2 days ago',
-                  },
-                  {
-                    icon: <Activity className="w-5 h-5 text-purple-600" />,
-                    title: 'New user added',
-                    time: '3 days ago',
-                  },
-                ].map((activity, index) => (
-                  <div key={index} className="flex gap-3 pb-4 border-b border-border last:border-0">
-                    <div className="flex-shrink-0 pt-1">{activity.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">
-                        {activity.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
+        {/* Charts Row */}
+        <div className="grid gap-6 lg:grid-cols-2 mb-6">
+          <SpendChart />
+          <div className="rounded-lg border border-border bg-card p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">
+              Quick Stats
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Total Users</span>
+                <span className="font-bold text-foreground">{totalUsers}</span>
               </div>
-            </Card>
+              <div className="h-px bg-border" />
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">
+                  Compliant Apps
+                </span>
+                <span className="font-bold text-green-400">
+                  {mockSaasApps.filter((a) => a.status === 'compliant').length}
+                </span>
+              </div>
+              <div className="h-px bg-border" />
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">
+                  Partial Compliance
+                </span>
+                <span className="font-bold text-yellow-400">
+                  {mockSaasApps.filter((a) => a.status === 'partial').length}
+                </span>
+              </div>
+              <div className="h-px bg-border" />
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">
+                  Non-Compliant
+                </span>
+                <span className="font-bold text-red-400">
+                  {mockSaasApps.filter((a) => a.status === 'non_compliant').length}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Compliance Breakdown */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-8">
-            Compliance Overview
-          </h2>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
-            {[
-              { label: 'PDPL', score: 78 },
-              { label: 'SDAIA', score: 72 },
-              { label: 'NCA', score: 65 },
-              { label: 'CITC', score: 80 },
-              { label: 'SOC2', score: 88 },
-            ].map((reg) => (
-              <div key={reg.label} className="flex flex-col items-center">
-                <ComplianceMeter score={reg.score} size="sm" />
-                <p className="mt-4 text-sm font-semibold text-foreground">{reg.label}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
+        {/* Top Applications Table */}
+        <TopAppsSection />
       </main>
     </div>
   );

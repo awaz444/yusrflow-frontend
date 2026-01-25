@@ -1,240 +1,195 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Send, Bot, User } from 'lucide-react';
-import { mockSaasApps } from '@/lib/mockData';
+import { Card } from '@/components/ui/card';
+import { Send, MessageCircle, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  type: 'user' | 'ai';
   content: string;
   timestamp: Date;
 }
 
-const exampleQuestions = [
-  'Which apps store data outside Saudi Arabia?',
-  "What's our overall compliance score?",
-  'How to fix Slack compliance issues?',
-  'Which apps are high risk?',
-  'Show me cost optimization opportunities',
-  'What are the PDPL requirements?',
-];
-
 export default function AIAssistantPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hi! I\'m your compliance assistant. I can help you understand your SaaS security posture, answer questions about regulations, and guide you through remediation steps. What would you like to know?',
-      timestamp: new Date(),
-    },
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t, language } = useLanguage();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const exampleQuestions = [
+    t('aiAssistant.whichAppsViolate'),
+    t('aiAssistant.complianceScore'),
+    t('aiAssistant.howToFix'),
+    t('aiAssistant.whichAppsStoreOutside'),
+  ];
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSendMessage = async (question: string = inputValue) => {
-    if (!question.trim()) return;
+  const handleSendMessage = async (text?: string) => {
+    const messageText = text || input;
+    if (!messageText.trim()) return;
 
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
-      role: 'user',
-      content: question,
+      type: 'user',
+      content: messageText,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInputValue('');
-    setIsLoading(true);
+    setInput('');
+    setLoading(true);
 
     // Simulate AI response
     setTimeout(() => {
-      let assistantResponse = '';
-
-      if (question.toLowerCase().includes('data') && question.toLowerCase().includes('outside')) {
-        assistantResponse = `Based on your connected applications, ${mockSaasApps
-          .filter((app) => app.dataRegion !== 'KSA')
-          .length} apps store data outside Saudi Arabia:\n\n${mockSaasApps
-          .filter((app) => app.dataRegion !== 'KSA')
-          .slice(0, 3)
-          .map((app) => `• ${app.name} (${app.dataRegion})`)
-          .join('\n')}\n\nThese violate PDPL requirements. I recommend migrating to GCC-compliant alternatives.`;
-      } else if (question.toLowerCase().includes('compliance') && question.toLowerCase().includes('score')) {
-        const avgScore = Math.round(
-          mockSaasApps.reduce((sum, app) => sum + app.complianceScore, 0) / mockSaasApps.length
-        );
-        assistantResponse = `Your overall compliance score is ${avgScore}%. Here's the breakdown by regulation:\n\n• PDPL: 78%\n• SDAIA: 72%\n• NCA: 65%\n• CITC: 80%\n• SOC2: 88%\n\nTo improve, focus on data localization and encryption requirements.`;
-      } else if (question.toLowerCase().includes('slack')) {
-        assistantResponse = `Slack has critical compliance issues:\n\n1. Data Storage: Messages stored in US data centers (PDPL violation)\n2. Encryption: Missing end-to-end encryption for compliance\n3. Data Residency: No Saudi Arabia data center option\n\nRecommendations:\n• Consider migrating to Microsoft Teams which has KSA data centers\n• Or negotiate with Slack for dedicated GCC infrastructure\n• Implement additional encryption layer for sensitive data`;
-      } else if (question.toLowerCase().includes('high risk')) {
-        const highRiskApps = mockSaasApps.filter(
-          (app) => app.riskLevel === 'high' || app.riskLevel === 'critical'
-        );
-        assistantResponse = `You have ${highRiskApps.length} high-risk applications:\n\n${highRiskApps
-          .slice(0, 5)
-          .map((app) => `• ${app.name} (${app.riskLevel.toUpperCase()})`)
-          .join('\n')}\n\nThese require immediate attention. I recommend creating an action plan with specific remediation steps for each application.`;
-      } else if (question.toLowerCase().includes('cost')) {
-        const totalSpend = mockSaasApps.reduce((sum, app) => sum + app.monthlySpend, 0);
-        const potentialSavings = Math.round(totalSpend * 0.15);
-        assistantResponse = `Your current SaaS spend is SAR ${totalSpend.toLocaleString()} per month.\n\nOptimization opportunities:\n• Unused licenses: ~${potentialSavings} potential savings\n• Duplicate tools: Consolidate similar applications\n• Negotiated discounts: Available for 3+ year commitments\n• Cloud optimization: Review usage patterns\n\nPotential annual savings: SAR ${(potentialSavings * 12).toLocaleString()}`;
-      } else if (question.toLowerCase().includes('pdpl')) {
-        assistantResponse = `PDPL (Personal Data Protection Law) Key Requirements:\n\n1. Data Localization: All personal data must be stored in Saudi Arabia\n2. Security Standards: Implement appropriate security measures\n3. User Rights: Provide data access and deletion rights\n4. Consent: Obtain explicit consent for data processing\n5. Breach Notification: Report breaches within 72 hours\n\nYour compliance: 78% - Focus on data localization first`;
-      } else {
-        assistantResponse =
-          'I can help with questions about:\n• Data compliance and regulations\n• Risk assessment of your applications\n• Cost optimization strategies\n• PDPL, SDAIA, and other local requirements\n• Remediation guidance\n\nWhat would you like to explore?';
-      }
-
-      const assistantMessage: Message = {
+      const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: assistantResponse,
+        type: 'ai',
+        content:
+          language === 'ar'
+            ? 'هذا مثال على رد من المساعد الذكي. في التطبيق الفعلي، سيتم ربط هذا بـ واجهة برمجية لنموذج AI يوفر إجابات ذات صلة بالامتثال.'
+            : 'This is an example AI Assistant response. In the production app, this would be connected to an AI model API that provides compliance-related answers.',
         timestamp: new Date(),
       };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsLoading(false);
+      setMessages((prev) => [...prev, aiMessage]);
+      setLoading(false);
     }, 1000);
   };
 
-  return (
-    <div className="flex-1 overflow-hidden flex flex-col">
-      <main className="flex-1 overflow-hidden flex gap-6 p-8">
-        {/* Chat Area */}
-        <div className="flex-1 flex flex-col">
-          <Card className="flex-1 p-6 flex flex-col overflow-hidden">
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {message.role === 'assistant' && (
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Bot className="w-4 h-4 text-primary" />
-                    </div>
-                  )}
-                  <div
-                    className={`max-w-md p-4 rounded-lg ${
-                      message.role === 'user'
-                        ? 'bg-primary text-white'
-                        : 'bg-secondary text-foreground'
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    <p
-                      className={`text-xs mt-2 ${
-                        message.role === 'user' ? 'text-white/70' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                  </div>
-                  {message.role === 'user' && (
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <User className="w-4 h-4 text-blue-600" />
-                    </div>
-                  )}
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-primary animate-pulse" />
-                  </div>
-                  <div className="bg-secondary text-foreground p-4 rounded-lg">
-                    <div className="flex gap-2">
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+  const handleExampleQuestion = (question: string) => {
+    handleSendMessage(question);
+  };
 
-            {/* Input Area */}
-            <div className="border-t border-border pt-4">
-              <div className="flex gap-3">
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <MessageCircle className="w-8 h-8 text-accent" />
+            <h1 className="text-3xl font-bold text-foreground">{t('aiAssistant.title')}</h1>
+          </div>
+          <p className="text-muted-foreground">{t('aiAssistant.subtitle')}</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]">
+          {/* Chat Interface */}
+          <div className="lg:col-span-3 flex flex-col">
+            <Card className="flex-1 bg-card border-border p-6 flex flex-col overflow-hidden">
+              {/* Messages Container */}
+              <div className="flex-1 overflow-y-auto mb-6 space-y-4">
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full text-center">
+                    <div>
+                      <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                      <p className="text-muted-foreground text-sm">{t('aiAssistant.subtitle')}</p>
+                    </div>
+                  </div>
+                ) : (
+                  messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-xs px-4 py-2 rounded-lg ${
+                          message.type === 'user'
+                            ? 'bg-accent text-white rounded-br-none'
+                            : 'bg-secondary text-foreground rounded-bl-none'
+                        }`}
+                      >
+                        <p className="text-sm">{message.content}</p>
+                        <p className="text-xs opacity-70 mt-1">
+                          {message.timestamp.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+                {loading && (
+                  <div className="flex justify-start">
+                    <div className="bg-secondary text-foreground px-4 py-2 rounded-lg rounded-bl-none">
+                      <div className="flex gap-2">
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce delay-100" />
+                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce delay-200" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Input Area */}
+              <div className="flex gap-2">
                 <Input
-                  placeholder="Ask me anything about compliance..."
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !isLoading) {
+                    if (e.key === 'Enter' && !loading) {
                       handleSendMessage();
                     }
                   }}
-                  disabled={isLoading}
-                  className="flex-1"
+                  placeholder={t('aiAssistant.inputPlaceholder')}
+                  disabled={loading}
+                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
                 />
                 <Button
                   onClick={() => handleSendMessage()}
-                  disabled={isLoading || !inputValue.trim()}
-                  className="bg-primary hover:bg-primary/90 text-white px-6"
+                  disabled={loading || !input.trim()}
+                  className="bg-accent hover:bg-accent/90 text-white"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
-            </div>
-          </Card>
-        </div>
+            </Card>
+          </div>
 
-        {/* Context Panel */}
-        <div className="w-80 flex flex-col gap-6">
-          {/* Using Data */}
-          <Card className="p-6">
-            <h3 className="font-semibold text-foreground mb-4">Context</h3>
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs text-muted-foreground uppercase font-semibold">Using company data</p>
-                <p className="text-lg font-bold text-foreground">{mockSaasApps.length} apps</p>
+          {/* Context Panel */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
+            {/* Company Data */}
+            <Card className="bg-card border-border p-4">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-accent" />
+                {t('aiAssistant.context')}
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div>
+                  <p className="text-muted-foreground">SaaS Apps</p>
+                  <p className="text-foreground font-semibold">47</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">PDPL Rules</p>
+                  <p className="text-foreground font-semibold">52</p>
+                </div>
               </div>
-              <div className="h-px bg-border" />
-              <div>
-                <p className="text-xs text-muted-foreground uppercase font-semibold">PDPL Rules Loaded</p>
-                <p className="text-lg font-bold text-foreground">52 requirements</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          {/* Example Questions */}
-          <Card className="p-6 flex-1 flex flex-col">
-            <h3 className="font-semibold text-foreground mb-4">Example Questions</h3>
-            <div className="space-y-2 flex-1">
-              {exampleQuestions.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSendMessage(question)}
-                  disabled={isLoading}
-                  className="w-full text-left p-2 rounded-lg hover:bg-secondary text-sm text-foreground hover:text-primary transition-colors disabled:opacity-50"
-                >
-                  <p className="text-xs text-muted-foreground mb-1">→</p>
-                  <p>{question}</p>
-                </button>
-              ))}
-            </div>
-          </Card>
+            {/* Example Questions */}
+            <Card className="bg-card border-border p-4">
+              <h3 className="font-semibold text-foreground mb-3">{t('aiAssistant.exampleQuestions')}</h3>
+              <div className="space-y-2">
+                {exampleQuestions.map((question, index) => (
+                  <Button
+                    key={index}
+                    onClick={() => handleExampleQuestion(question)}
+                    variant="outline"
+                    className="w-full justify-start text-left h-auto py-2 px-3 text-xs border-border hover:bg-secondary"
+                    disabled={loading}
+                  >
+                    <span className="text-muted-foreground">{question}</span>
+                  </Button>
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

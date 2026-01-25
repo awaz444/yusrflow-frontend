@@ -162,5 +162,49 @@
     "country": "Country",
     "employeeCount": "Employee Count",
     "updateSettings": "Update Settings"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Generate and manage compliance reports",
+    "complianceHealthCheck": "Compliance Health Check",
+    "saasInventory": "SaaS Inventory",
+    "executiveSummary": "Executive Summary",
+    "generatePDF": "Generate PDF",
+    "exportCSV": "Export CSV",
+    "scheduleReport": "Schedule Report",
+    "lastGenerated": "Last generated",
+    "daysAgo": "days ago",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "noReports": "No reports generated yet"
+  },
+  "aiAssistant": {
+    "title": "AI Assistant",
+    "subtitle": "Ask questions about your compliance and SaaS apps",
+    "inputPlaceholder": "Ask me about your compliance...",
+    "send": "Send",
+    "context": "Using company data",
+    "exampleQuestions": "Example questions",
+    "whichAppsViolate": "Which apps violate PDPL?",
+    "complianceScore": "What's our compliance score?",
+    "howToFix": "How to fix Slack compliance?",
+    "whichAppsStoreOutside": "Which apps store data outside Saudi Arabia?"
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Manage team members and roles",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "lastActive": "Last Active",
+    "status": "Status",
+    "actions": "Actions",
+    "admin": "Admin",
+    "auditor": "Auditor",
+    "viewer": "Viewer",
+    "addUser": "Add User",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "resendInvite": "Resend Invite"
   }
 }

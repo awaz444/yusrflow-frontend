@@ -162,5 +162,49 @@
     "country": "الدولة",
     "employeeCount": "عدد الموظفين",
     "updateSettings": "تحديث الإعدادات"
+  },
+  "reports": {
+    "title": "التقارير",
+    "subtitle": "إنشاء وإدارة تقارير الامتثال",
+    "complianceHealthCheck": "فحص صحة الامتثال",
+    "saasInventory": "جرد تطبيقات SaaS",
+    "executiveSummary": "الملخص التنفيذي",
+    "generatePDF": "إنشاء PDF",
+    "exportCSV": "تصدير CSV",
+    "scheduleReport": "جدولة التقرير",
+    "lastGenerated": "تم الإنشاء آخر مرة",
+    "daysAgo": "منذ أيام",
+    "weekly": "أسبوعي",
+    "monthly": "شهري",
+    "noReports": "لم يتم إنشاء تقارير بعد"
+  },
+  "aiAssistant": {
+    "title": "المساعد الذكي",
+    "subtitle": "اطرح أسئلة عن الامتثال والتطبيقات السحابية",
+    "inputPlaceholder": "اسأل عن الامتثال الخاص بك...",
+    "send": "إرسال",
+    "context": "باستخدام بيانات الشركة",
+    "exampleQuestions": "أسئلة نموذجية",
+    "whichAppsViolate": "أي تطبيقات تنتهك قانون حماية البيانات الشخصية؟",
+    "complianceScore": "ما هو مستوى الامتثال لدينا؟",
+    "howToFix": "كيفية إصلاح امتثال Slack؟",
+    "whichAppsStoreOutside": "أي تطبيقات تخزن البيانات خارج المملكة العربية السعودية؟"
+  },
+  "users": {
+    "title": "المستخدمون",
+    "subtitle": "إدارة أعضاء الفريق والأدوار",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "role": "الدور",
+    "lastActive": "آخر نشاط",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "admin": "مسؤول",
+    "auditor": "مدقق",
+    "viewer": "عارض",
+    "addUser": "إضافة مستخدم",
+    "edit": "تعديل",
+    "deactivate": "تعطيل",
+    "resendInvite": "إعادة إرسال الدعوة"
   }
 }

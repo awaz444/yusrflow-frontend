@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Shield, BarChart3, ListChecks as ListCheck, ShieldCheck, User, LogOut, Settings } from 'lucide-react';
+import { Shield, BarChart3, ListChecks as ListCheck, ShieldCheck, User, LogOut, Settings, FileText, MessageCircle, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from './language-switcher';
@@ -32,6 +32,21 @@ export function MainNav() {
       href: '/compliance',
       label: t('common.compliance'),
       icon: ShieldCheck,
+    },
+    {
+      href: '/reports',
+      label: t('reports.title'),
+      icon: FileText,
+    },
+    {
+      href: '/ai-assistant',
+      label: t('aiAssistant.title'),
+      icon: MessageCircle,
+    },
+    {
+      href: '/users',
+      label: t('users.title'),
+      icon: Users,
     },
     {
       href: '/admin/settings',
