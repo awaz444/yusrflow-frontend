@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,32 +20,37 @@ interface User {
 
 export default function UsersPage() {
   const { t } = useLanguage();
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      name: 'Ahmed Al-Rashid',
-      email: 'ahmed.rashid@company.com',
-      role: 'admin',
-      lastActive: '2 hours ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      name: 'Fatima Al-Saud',
-      email: 'fatima.saud@company.com',
-      role: 'auditor',
-      lastActive: '1 day ago',
-      status: 'active',
-    },
-    {
-      id: '3',
-      name: 'Mohammed Al-Dosari',
-      email: 'mohammed.dosari@company.com',
-      role: 'viewer',
-      lastActive: '3 days ago',
-      status: 'active',
-    },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch current user profile
+        const profileData = await fetchFromApi('/api/user/profile');
+        setCurrentUser(profileData.user); // Assuming endpoint returns { user: ... } or just user
+
+        // Fetch all users (only if allowed, or let the backend handle auth error)
+        const usersData = await fetchFromApi('/users');
+        // Map backend data to UI format if needed
+        const mappedUsers = usersData.map((u: any) => ({
+          id: u.id,
+          name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
+          email: u.email,
+          role: u.role,
+          lastActive: u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : 'Never',
+          status: 'active'
+        }));
+        setUsers(mappedUsers);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleInvite = async (email: string, role: string) => {
     try {
@@ -102,7 +107,9 @@ export default function UsersPage() {
             </div>
             <p className="text-muted-foreground">{t('users.subtitle')}</p>
           </div>
-          <InviteUserDialog onInvite={handleInvite} />
+          {currentUser?.role === 'admin' && (
+            <InviteUserDialog onInvite={handleInvite} />
+          )}
         </div>
 
         {/* Search Bar */}
