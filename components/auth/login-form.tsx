@@ -8,7 +8,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/language-context';
-import { signIn } from 'supertokens-auth-react/recipe/emailpassword';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -24,17 +23,25 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const response = await signIn({
-        formFields: [
-          { id: 'email', value: email },
-          { id: 'password', value: password },
-        ],
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (response.status === 'OK') {
+      const data = await response.json();
+
+      if (response.ok && data.accessToken) {
+        // Store the token in localStorage
+        localStorage.setItem('accessToken', data.accessToken);
+        if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
         window.location.href = '/';
       } else {
-        setError('Invalid credentials');
+        setError(data.message || 'Invalid credentials');
       }
     } catch (err: any) {
       console.error(err);

@@ -1,37 +1,50 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { SessionAuth, useSessionContext } from 'supertokens-auth-react/recipe/session';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter();
-
-    return (
-        <SessionAuth
-            onSessionExpired={() => {
-                router.push('/auth/login');
-            }}
-            overrideGlobalClaimValidators={() => []}
-        >
-            <AuthGuardContent>{children}</AuthGuardContent>
-        </SessionAuth>
-    );
-}
-
-function AuthGuardContent({ children }: { children: React.ReactNode }) {
-    const session = useSessionContext();
-    const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const [authenticated, setAuthenticated] = useState(false);
 
     useEffect(() => {
-        if (session.loading === false) {
-            if (!session.doesSessionExist) {
-                router.push('/auth/login');
-            }
-        }
-    }, [session, router]);
+        const checkAuth = async () => {
+            const token = localStorage.getItem('accessToken');
 
-    if (session.loading) {
+            if (!token) {
+                router.push('/auth/login');
+                return;
+            }
+
+            // Verify token with backend
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    setAuthenticated(true);
+                } else {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    router.push('/auth/login');
+                }
+            } catch (error) {
+                console.error('Auth verification failed:', error);
+                router.push('/auth/login');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        checkAuth();
+    }, [router]);
+
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <div className="text-center">
@@ -42,7 +55,7 @@ function AuthGuardContent({ children }: { children: React.ReactNode }) {
         );
     }
 
-    if (session.loading === false && !session.doesSessionExist) {
+    if (!authenticated) {
         return null;
     }
 

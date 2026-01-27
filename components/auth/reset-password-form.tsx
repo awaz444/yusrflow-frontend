@@ -5,8 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Layout } from 'lucide-react';
-import { submitNewPassword } from 'supertokens-auth-react/recipe/emailpassword';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
 export function ResetPasswordForm() {
@@ -16,14 +14,7 @@ export function ResetPasswordForm() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const router = useRouter();
-
-    // SuperTokens automatically reads the token from the URL query param 'token'
-    // But for custom UI with submitNewPassword, we don't strictly need to extract it manually 
-    // if the library handles it. However, the library 'submitNewPassword' function 
-    // usually requires form fields.
-    // Actually, 'submitNewPassword' might need custom logic if we are "consuming" the token.
-    // Let's check documentation pattern.
-    // Generally: capture new password, call submitNewPassword({ formFields: [...] })
+    const searchParams = useSearchParams();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,26 +30,34 @@ export function ResetPasswordForm() {
             return;
         }
 
+        const token = searchParams.get('token');
+        if (!token) {
+            setError('Invalid reset link - token missing');
+            return;
+        }
+
         setLoading(true);
         try {
-            const response = await submitNewPassword({
-                formFields: [
-                    {
-                        id: 'password',
-                        value: password,
-                    },
-                ],
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/reset-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    token,
+                    password,
+                }),
             });
 
-            if (response.status === 'OK') {
+            const data = await response.json();
+
+            if (response.ok) {
                 setSuccess(true);
                 setTimeout(() => {
                     router.push('/auth/login');
                 }, 2000);
             } else {
-                setError(response.status === 'RESET_PASSWORD_INVALID_TOKEN_ERROR'
-                    ? 'Invalid or expired reset link.'
-                    : 'Something went wrong. Please try again.');
+                setError(data.message || 'Invalid or expired reset link.');
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred');

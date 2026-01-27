@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { signUp } from 'supertokens-auth-react/recipe/emailpassword';
 
 export function SignupForm() {
   const [formData, setFormData] = useState({
@@ -77,26 +76,28 @@ export function SignupForm() {
 
     setLoading(true);
     try {
-      const response = await signUp({
-        formFields: [
-          { id: 'email', value: formData.email },
-          { id: 'password', value: formData.password },
-          { id: 'first_name', value: formData.firstName },
-          { id: 'last_name', value: formData.lastName },
-          { id: 'company_name', value: formData.companyName },
-          { id: 'industry', value: formData.industry },
-          { id: 'employee_count', value: formData.employeeCount },
-        ],
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          companyName: formData.companyName,
+          industry: formData.industry,
+          employeeCount: formData.employeeCount,
+        }),
       });
 
-      if (response.status === 'OK') {
+      const data = await response.json();
+
+      if (response.ok) {
         window.location.href = '/auth/login';
-      } else if (response.status === 'FIELD_ERROR') {
-        response.formFields.forEach((formField) => {
-          setError(`${formField.id}: ${formField.error}`);
-        });
       } else {
-        setError('Signup failed. Please try again.');
+        setError(data.message || 'Signup failed. Please try again.');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred. Please try again.');

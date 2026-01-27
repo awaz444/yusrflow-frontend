@@ -8,8 +8,6 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from './language-switcher';
 
-import { signOut } from 'supertokens-auth-react/recipe/session';
-
 export function MainNav() {
   const pathname = usePathname();
   const { t } = useLanguage();
@@ -20,7 +18,9 @@ export function MainNav() {
   }
 
   const handleLogout = async () => {
-    await signOut();
+    // Clear tokens from localStorage
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     window.location.href = "/auth/login";
   };
 
