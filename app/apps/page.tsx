@@ -38,21 +38,21 @@ export default function AppsPage() {
       try {
         const data = await fetchFromApi('saas-scanner');
         // Map backend data to frontend shape if necessary
-        // Assuming backend returns an array of objects that mostly match or we fill in defaults
         const mappedApps = data.map((app: any) => ({
           id: app.id,
           name: app.name,
           category: app.category || 'Uncategorized',
           riskLevel: (app.riskLevel as 'low' | 'medium' | 'high') || 'medium',
-          // Defaulting missing fields for now as they are not yet in the basic backend response
           complianceScore: 0,
           monthlySpend: 0,
           users: 0,
-          status: 'compliant', // Mapping to a valid status for UI for now
+          status: 'compliant',
         }));
         setApps(mappedApps);
       } catch (error) {
         console.error('Failed to load apps:', error);
+        // Set empty array so UI doesn't break
+        setApps([]);
       } finally {
         setLoading(false);
       }

@@ -28,22 +28,30 @@ export default function UsersPage() {
     const fetchData = async () => {
       try {
         // Fetch current user profile (backend returns user object directly)
-        const profileData = await fetchFromApi('/api/user/profile');
+        const profileData = await fetchFromApi('/auth/me');
         console.log('[Users] Profile data:', profileData); // Debug log
-        setCurrentUser(profileData); // Backend returns user object directly, not wrapped
 
-        // Fetch all users (only if allowed, or let the backend handle auth error)
-        const usersData = await fetchFromApi('/users');
-        // Map backend data to UI format if needed
-        const mappedUsers = usersData.map((u: any) => ({
-          id: u.id,
-          name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
-          email: u.email,
-          role: u.role,
-          lastActive: u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : 'Never',
+        // Backend returns { user: {...} }, so extract the user object
+        const user = profileData.user || profileData;
+        setCurrentUser({
+          id: user.id,
+          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+          email: user.email,
+          role: user.role,
+          lastActive: user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never',
           status: 'active'
-        }));
-        setUsers(mappedUsers);
+        });
+
+        // TODO: Backend doesn't have /users endpoint yet
+        // For now, just show the current user in the list
+        setUsers([{
+          id: user.id,
+          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+          email: user.email,
+          role: user.role,
+          lastActive: user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never',
+          status: 'active'
+        }]);
       } catch (err) {
         console.error('[Users] Error fetching data:', err);
       } finally {
@@ -55,15 +63,27 @@ export default function UsersPage() {
 
   const handleInvite = async (email: string, role: string) => {
     try {
-      await fetchFromApi('/users/invite', {
+      const response = await fetchFromApi('/users/invite', {
         method: 'POST',
         body: JSON.stringify({ email, role }),
-        // Important: Send cookies for session auth
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        credentials: 'include',
       });
-      alert(`Invitation sent to ${email} as ${role}`);
+
+      console.log('Invite response:', response);
+
+      // Show success message with credentials
+      const message = `✅ Invitation sent successfully!\n\n` +
+        `📧 Email: ${response.credentials?.email || email}\n` +
+        `🔑 Password: ${response.credentials?.temporaryPassword || 'Check backend console'}\n\n` +
+        `${response.loginUrl ? 'Opening login page in 3 seconds...' : 'Check backend console for login details'}`;
+
+      alert(message);
+
+      // Open login page after 3 seconds if URL exists
+      if (response.loginUrl) {
+        setTimeout(() => {
+          window.open(response.loginUrl, '_blank');
+        }, 3000);
+      }
     } catch (error) {
       console.error('Invite failed:', error);
       alert('Failed to send invitation. Check console.');
@@ -148,8 +168,8 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user.id} className="border-b border-border hover:bg-secondary/50 transition-colors">
+                {users.map((user, index) => (
+                  <tr key={user.id || `user-${index}`} className="border-b border-border hover:bg-secondary/50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="text-sm font-medium text-foreground">{user.name}</p>
                     </td>

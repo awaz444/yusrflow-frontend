@@ -1,12 +1,16 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export async function fetchFromApi(endpoint: string, options: RequestInit = {}) {
     const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+
+    // Get token from localStorage if available
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
     const response = await fetch(url, {
         ...options,
         headers: {
             'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` }), // Add token if available
             ...options.headers,
         },
     });
@@ -16,5 +20,19 @@ export async function fetchFromApi(endpoint: string, options: RequestInit = {}) 
         throw new Error(`API Error: ${response.statusText} - ${errorBody}`);
     }
 
-    return response.json();
+    // Try to parse as JSON, if it fails, return the text
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        try {
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to parse JSON response:', error);
+            throw new Error('Invalid JSON response from server');
+        }
+    } else {
+        // If response is not JSON, throw error with the text
+        const text = await response.text();
+        throw new Error(`Expected JSON response but got: ${contentType || 'unknown'}. Response: ${text.substring(0, 100)}`);
+    }
 }
+

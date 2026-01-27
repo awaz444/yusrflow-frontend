@@ -94,7 +94,6 @@ export function AppsTable({
               <th className="px-6 py-4 text-left">
                 <Checkbox
                   checked={apps.length > 0 && selectedIds.length === apps.length}
-                  indeterminate={selectedIds.length > 0 && selectedIds.length < apps.length}
                   onCheckedChange={(checked) => onSelectAll(checked as boolean)}
                 />
               </th>
@@ -126,9 +125,8 @@ export function AppsTable({
             {apps.map((app, index) => (
               <tr
                 key={app.id}
-                className={`border-b border-border transition-colors hover:bg-secondary/30 ${
-                  index % 2 === 0 ? 'bg-background' : 'bg-secondary/10'
-                }`}
+                className={`border-b border-border transition-colors hover:bg-secondary/30 ${index % 2 === 0 ? 'bg-background' : 'bg-secondary/10'
+                  }`}
               >
                 <td className="px-6 py-4">
                   <Checkbox
