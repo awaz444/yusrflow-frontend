@@ -27,9 +27,10 @@ export default function UsersPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch current user profile
+        // Fetch current user profile (backend returns user object directly)
         const profileData = await fetchFromApi('/api/user/profile');
-        setCurrentUser(profileData.user); // Assuming endpoint returns { user: ... } or just user
+        console.log('[Users] Profile data:', profileData); // Debug log
+        setCurrentUser(profileData); // Backend returns user object directly, not wrapped
 
         // Fetch all users (only if allowed, or let the backend handle auth error)
         const usersData = await fetchFromApi('/users');
@@ -44,7 +45,7 @@ export default function UsersPage() {
         }));
         setUsers(mappedUsers);
       } catch (err) {
-        console.error(err);
+        console.error('[Users] Error fetching data:', err);
       } finally {
         setLoading(false);
       }
