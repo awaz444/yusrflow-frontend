@@ -7,8 +7,7 @@ export default function AuthPage() {
     const router = useRouter();
 
     React.useEffect(() => {
-        // SuperTokens is trying to redirect to /auth but we don't need this route
-        // Redirect to login instead
+        // Redirect /auth to /auth/login
         router.replace('/auth/login');
     }, [router]);
 

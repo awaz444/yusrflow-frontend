@@ -57,6 +57,12 @@ export function SignupForm() {
       setError('Password must be at least 8 characters');
       return false;
     }
+    // Check for uppercase, lowercase, number, and special character
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError('Password must contain at least one uppercase letter, lowercase letter, number, and special character (@$!%*?&)');
+      return false;
+    }
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
@@ -76,7 +82,11 @@ export function SignupForm() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/register`, {
+      // Generate a temporary tenant ID (UUID v4) for the signup
+      // In production, you might want to handle this differently
+      const tempTenantId = crypto.randomUUID();
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,9 +96,10 @@ export function SignupForm() {
           password: formData.password,
           firstName: formData.firstName,
           lastName: formData.lastName,
-          companyName: formData.companyName,
-          industry: formData.industry,
-          employeeCount: formData.employeeCount,
+          tenantId: tempTenantId,
+          role: 'admin', // Default role for new signups
+          department: formData.industry, // Map industry to department
+          jobTitle: `${formData.companyName} - Employee`, // Optional field
         }),
       });
 
@@ -244,6 +255,9 @@ export function SignupForm() {
             disabled={loading}
             className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            Must include uppercase, lowercase, number, and special character (@$!%*?&)
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="confirmPassword" className="text-sm text-foreground">
