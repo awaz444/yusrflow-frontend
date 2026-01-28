@@ -42,16 +42,21 @@ export default function UsersPage() {
           status: 'active'
         });
 
-        // TODO: Backend doesn't have /users endpoint yet
-        // For now, just show the current user in the list
-        setUsers([{
-          id: user.id,
-          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
-          email: user.email,
-          role: user.role,
-          lastActive: user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never',
-          status: 'active'
-        }]);
+
+        // Fetch all users in the tenant
+        const usersData = await fetchFromApi('/users');
+        console.log('[Users] All users:', usersData);
+
+        // Map backend data to UI format
+        const mappedUsers = usersData.map((u: any) => ({
+          id: u.id,
+          name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
+          email: u.email,
+          role: u.role,
+          lastActive: u.last_login_at ? new Date(u.last_login_at).toLocaleDateString() : 'Never',
+          status: u.is_active ? 'active' : 'inactive'
+        }));
+        setUsers(mappedUsers);
       } catch (err) {
         console.error('[Users] Error fetching data:', err);
       } finally {
