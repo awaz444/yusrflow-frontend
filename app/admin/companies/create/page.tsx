@@ -54,7 +54,7 @@ export default function CreateCompanyPage() {
         },
         body: JSON.stringify({
            ...formData,
-           employeeCount: parseInt(formData.employeeCount) || 0
+           employeeCount: formData.employeeCount
         }),
       });
 
@@ -140,13 +140,19 @@ export default function CreateCompanyPage() {
                 <div className="grid grid-cols-2 gap-4">
                      <div className="space-y-2">
                         <Label htmlFor="employeeCount">Employee Count</Label>
-                        <Input
-                            id="employeeCount"
-                            type="number"
-                            value={formData.employeeCount}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
+                        <Select onValueChange={(val) => handleSelectChange(val, 'employeeCount')} disabled={loading}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select Range" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="1-10">1-10 employees</SelectItem>
+                                <SelectItem value="11-50">11-50 employees</SelectItem>
+                                <SelectItem value="51-200">51-200 employees</SelectItem>
+                                <SelectItem value="201-500">201-500 employees</SelectItem>
+                                <SelectItem value="501-1000">501-1000 employees</SelectItem>
+                                <SelectItem value="1001+">1001+ employees</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                      <div className="space-y-2">
                          <Label htmlFor="subscriptionTier">Subscription</Label>

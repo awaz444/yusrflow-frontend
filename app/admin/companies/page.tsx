@@ -12,12 +12,10 @@ interface Tenant {
   id: string;
   name: string;
   industry: string;
-  onboarding_status: 'pending' | 'active' | 'suspended' | 'cancelled';
-  contact_email: string;
-  created_at: string;
-  _count?: {
-      users: number;
-  }
+  onboardingStatus: 'pending' | 'active' | 'suspended' | 'cancelled';
+  contactEmail: string;
+  createdAt: string;
+  userCount: number;
 }
 
 export default function CompaniesPage() {
@@ -40,7 +38,7 @@ export default function CompaniesPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setCompanies(data.data || []);
+        setCompanies(data.tenants || []);
       }
     } catch (error) {
       console.error('Failed to fetch companies:', error);
@@ -51,7 +49,7 @@ export default function CompaniesPage() {
 
   const filteredCompanies = companies.filter(company =>
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.contact_email?.toLowerCase().includes(searchTerm.toLowerCase())
+    company.contactEmail?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -94,18 +92,18 @@ export default function CompaniesPage() {
                         {company.name}
                     </CardTitle>
                     <Badge variant={
-                        company.onboarding_status === 'active' ? 'default' :
-                        company.onboarding_status === 'pending' ? 'secondary' : 'destructive'
+                        company.onboardingStatus === 'active' ? 'default' :
+                        company.onboardingStatus === 'pending' ? 'secondary' : 'destructive'
                     }>
-                        {company.onboarding_status}
+                        {company.onboardingStatus}
                     </Badge>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-2 text-sm text-muted-foreground mt-2">
                         <p>Industry: {company.industry || 'N/A'}</p>
-                        <p>Contact: {company.contact_email || 'N/A'}</p>
-                        <p>Users: {company._count?.users || 0}</p>
-                        <p className="text-xs pt-2">Created: {new Date(company.created_at).toLocaleDateString()}</p>
+                        <p>Contact: {company.contactEmail || 'N/A'}</p>
+                        <p>Users: {company.userCount || 0}</p>
+                        <p className="text-xs pt-2">Created: {new Date(company.createdAt).toLocaleDateString()}</p>
                     </div>
                 </CardContent>
                 </Card>

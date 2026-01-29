@@ -13,17 +13,17 @@ interface Tenant {
   name: string;
   industry: string;
   country: string;
-  onboarding_status: string;
-  contact_email: string;
-  contact_phone: string;
-  created_at: string;
+  onboardingStatus: string;
+  contactEmail: string;
+  contactPhone: string;
+  createdAt: string;
   users: Array<{
       id: string;
-      first_name: string;
-      last_name: string;
+      firstName: string;
+      lastName: string;
       email: string;
       role: string;
-      is_active: boolean;
+      isActive: boolean;
   }>;
 }
 
@@ -89,11 +89,11 @@ export default function CompanyDetailsPage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
                 {company.name}
-                <Badge variant={company.onboarding_status === 'active' ? 'default' : 'secondary'}>
-                    {company.onboarding_status}
+                <Badge variant={company.onboardingStatus === 'active' ? 'default' : 'secondary'}>
+                    {company.onboardingStatus}
                 </Badge>
             </h1>
-            <p className="text-muted-foreground text-sm">Created on {new Date(company.created_at).toLocaleDateString()}</p>
+            <p className="text-muted-foreground text-sm">Created on {new Date(company.createdAt).toLocaleDateString()}</p>
           </div>
       </div>
 
@@ -117,11 +117,11 @@ export default function CompanyDetailsPage() {
                       </div>
                       <div>
                           <p className="text-muted-foreground"><Mail className="w-4 h-4 inline mr-1"/> Email</p>
-                          <p className="font-medium">{company.contact_email || 'N/A'}</p>
+                          <p className="font-medium">{company.contactEmail || 'N/A'}</p>
                       </div>
                       <div>
                           <p className="text-muted-foreground"><Phone className="w-4 h-4 inline mr-1"/> Phone</p>
-                          <p className="font-medium">{company.contact_phone || 'N/A'}</p>
+                          <p className="font-medium">{company.contactPhone || 'N/A'}</p>
                       </div>
                   </div>
               </CardContent>
@@ -143,7 +143,7 @@ export default function CompanyDetailsPage() {
                           company.users.map(user => (
                               <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-secondary/50">
                                   <div>
-                                      <p className="font-medium text-sm">{user.first_name} {user.last_name}</p>
+                                      <p className="font-medium text-sm">{user.firstName} {user.lastName}</p>
                                       <p className="text-xs text-muted-foreground">{user.email}</p>
                                   </div>
                                   <div className="text-right">
