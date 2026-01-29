@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Shield, BarChart3, ListChecks as ListCheck, ShieldCheck, User, LogOut, Settings, FileText, MessageCircle, Users } from 'lucide-react';
+import { Shield, BarChart3, ListChecks as ListCheck, ShieldCheck, User, LogOut, Settings, FileText, MessageCircle, Users, Plug } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from './language-switcher';
@@ -54,6 +54,11 @@ export function MainNav() {
       href: '/users',
       label: t('users.title'),
       icon: Users,
+    },
+    {
+      href: '/integrations',
+      label: 'Integrations',
+      icon: Plug,
     },
     {
       href: '/admin/settings',
