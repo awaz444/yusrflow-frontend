@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { IntegrationCard } from '@/components/integrations/integration-card';
 import { fetchFromApi } from '@/lib/api';
 import { Building2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface IntegrationStatus {
     provider: 'microsoft' | 'google';
@@ -16,6 +17,7 @@ export default function IntegrationsPage() {
     const [integrations, setIntegrations] = useState<IntegrationStatus[]>([]);
     const [loading, setLoading] = useState(true);
     const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
+    const [discovering, setDiscovering] = useState(false);
 
     useEffect(() => {
         loadIntegrationStatus();
@@ -49,6 +51,25 @@ export default function IntegrationsPage() {
         } catch (error) {
             console.error('Failed to get Microsoft auth URL:', error);
             setConnectingProvider(null);
+        }
+    };
+
+    const handleDiscoverSaasApps = async () => {
+        try {
+            setDiscovering(true);
+            const result = await fetchFromApi('integration/discover', {
+                method: 'POST',
+            });
+
+            alert(`✅ Discovery Complete! Found ${result.discoveredCount} SaaS applications`);
+
+            // Reload integration status to update last sync time
+            await loadIntegrationStatus();
+        } catch (error: any) {
+            console.error('Failed to discover SaaS apps:', error);
+            alert(`❌ Discovery Failed: ${error.message || 'Unknown error'}`);
+        } finally {
+            setDiscovering(false);
         }
     };
 
@@ -129,6 +150,28 @@ export default function IntegrationsPage() {
                         onConnect={handleConnectGoogle}
                     />
                 </div>
+
+                {/* Discovery Section - Only show if Microsoft is connected*/}
+                {microsoftStatus.isConnected && (
+                    <div className="mt-8 p-6 bg-card rounded-lg border border-border">
+                        <h2 className="text-xl font-semibold mb-2">Discover SaaS Applications</h2>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Scan your Microsoft 365 environment to discover all SaaS applications that users have authorized.
+                        </p>
+                        <Button
+                            onClick={handleDiscoverSaasApps}
+                            disabled={discovering}
+                            className="w-full sm:w-auto"
+                        >
+                            {discovering ? 'Discovering...' : 'Discover SaaS Apps'}
+                        </Button>
+                        {microsoftStatus.lastSyncAt && (
+                            <p className="text-xs text-muted-foreground mt-2">
+                                Last discovery: {new Date(microsoftStatus.lastSyncAt).toLocaleString()}
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 {/* Info Section */}
                 <div className="mt-12 p-6 bg-muted/50 rounded-lg border border-border">
