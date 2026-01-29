@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Users, MoreHorizontal, Mail } from 'lucide-react';
+import { Users, MoreHorizontal, Mail, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/language-context';
-import { InviteUserDialog } from '@/components/users/invite-user-dialog';
 import { fetchFromApi } from '@/lib/api';
 
 interface User {
@@ -66,34 +66,6 @@ export default function UsersPage() {
     fetchData();
   }, []);
 
-  const handleInvite = async (email: string, role: string) => {
-    try {
-      const response = await fetchFromApi('/users/invite', {
-        method: 'POST',
-        body: JSON.stringify({ email, role }),
-      });
-
-      console.log('Invite response:', response);
-
-      // Show success message with credentials
-      const message = `✅ Invitation sent successfully!\n\n` +
-        `📧 Email: ${response.credentials?.email || email}\n` +
-        `🔑 Password: ${response.credentials?.temporaryPassword || 'Check backend console'}\n\n` +
-        `${response.loginUrl ? 'Opening login page in 3 seconds...' : 'Check backend console for login details'}`;
-
-      alert(message);
-
-      // Open login page after 3 seconds if URL exists
-      if (response.loginUrl) {
-        setTimeout(() => {
-          window.open(response.loginUrl, '_blank');
-        }, 3000);
-      }
-    } catch (error) {
-      console.error('Invite failed:', error);
-      alert('Failed to send invitation. Check console.');
-    }
-  };
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -133,8 +105,13 @@ export default function UsersPage() {
             </div>
             <p className="text-muted-foreground">{t('users.subtitle')}</p>
           </div>
-          {currentUser?.role === 'admin' && (
-            <InviteUserDialog onInvite={handleInvite} />
+          {['admin', 'manager'].includes(currentUser?.role || '') && (
+            <Link href="/users/create">
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Add User
+              </Button>
+            </Link>
           )}
         </div>
 
