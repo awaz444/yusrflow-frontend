@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { BarChart3, Building2, Users, Settings, LogOut, Shield } from 'lucide-react';
+import { BarChart3, Building2, Users, Settings, LogOut, Shield, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 
@@ -27,20 +27,25 @@ export function AdminSidebar() {
       label: 'Users',
       icon: Users,
     },
-     {
+    {
       href: '/admin/settings',
       label: 'Settings',
       icon: Settings,
+    },
+    {
+      href: '/admin/saas-discovery',
+      label: 'SaaS Discovery',
+      icon: Search,
     },
   ];
 
   return (
     <div className="flex flex-col h-screen w-64 bg-card border-r border-border fixed left-0 top-0">
       <div className="p-6 border-b border-border">
-         <Link href="/admin/dashboard" className="flex items-center gap-2 text-xl font-bold text-foreground">
-            <Shield className="w-8 h-8 text-red-500" />
-            <span>Admin Portal</span>
-         </Link>
+        <Link href="/admin/dashboard" className="flex items-center gap-2 text-xl font-bold text-foreground">
+          <Shield className="w-8 h-8 text-red-500" />
+          <span>Admin Portal</span>
+        </Link>
       </div>
 
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
