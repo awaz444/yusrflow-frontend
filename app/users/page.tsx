@@ -35,10 +35,10 @@ export default function UsersPage() {
         const user = profileData.user || profileData;
         setCurrentUser({
           id: user.id,
-          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email,
           email: user.email,
           role: user.role,
-          lastActive: user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never',
+          lastActive: user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never',
           status: 'active'
         });
 

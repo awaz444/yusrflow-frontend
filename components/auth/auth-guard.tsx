@@ -1,48 +1,29 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
-    const [authenticated, setAuthenticated] = useState(false);
+    const pathname = usePathname();
+    const { user, loading, isAuthenticated } = useAuth();
 
     useEffect(() => {
-        const checkAuth = async () => {
-            const token = localStorage.getItem('accessToken');
-
-            if (!token) {
+        if (!loading) {
+            if (!isAuthenticated) {
                 router.push('/auth/login');
-                return;
+            } else if (user?.is_super_admin && !pathname.startsWith('/admin')) {
+                 // Optional: Redirect super admin to admin dashboard if they try to access tenant dashboard
+                 if (!pathname.startsWith('/settings')) { // Allow settings access
+                     router.push('/admin/dashboard');
+                 }
+            } else if (!user?.is_super_admin && pathname.startsWith('/admin')) {
+                // Prevent regular users from accessing admin
+                router.push('/');
             }
-
-            // Verify token with backend
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/me`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                if (response.ok) {
-                    setAuthenticated(true);
-                } else {
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    router.push('/auth/login');
-                }
-            } catch (error) {
-                console.error('Auth verification failed:', error);
-                router.push('/auth/login');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        checkAuth();
-    }, [router]);
+        }
+    }, [user, loading, isAuthenticated, router, pathname]);
 
     if (loading) {
         return (
@@ -55,7 +36,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         );
     }
 
-    if (!authenticated) {
+    if (!isAuthenticated) {
         return null;
     }
 

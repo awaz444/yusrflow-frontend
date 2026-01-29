@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { useAuth } from '@/lib/auth-context';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -16,6 +17,7 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { t } = useLanguage();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +25,7 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,12 +36,7 @@ export function LoginForm() {
       const data = await response.json();
 
       if (response.ok && data.accessToken) {
-        // Store the token in localStorage
-        localStorage.setItem('accessToken', data.accessToken);
-        if (data.refreshToken) {
-          localStorage.setItem('refreshToken', data.refreshToken);
-        }
-        window.location.href = '/';
+         await login(data.accessToken, data.refreshToken);
       } else {
         setError(data.message || 'Invalid credentials');
       }
@@ -124,12 +121,15 @@ export function LoginForm() {
         )}
       </Button>
 
+      {/* Public signup removed - only admin can create accounts */}
+      {/*
       <p className="text-center text-sm text-muted-foreground">
         {t('auth.noAccount')}{' '}
         <Link href="/auth/signup" className="text-accent hover:text-accent/80 font-medium">
           Sign up
         </Link>
       </p>
+      */}
     </form>
   );
 }
