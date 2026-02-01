@@ -174,8 +174,8 @@ export default function AppsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <>
+      <div className="max-w-7xl mx-auto">
         <AppsHeader
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -225,6 +225,6 @@ export default function AppsPage() {
           </div>
         </div>
       </div>
-    </main>
+    </>
   );
 }

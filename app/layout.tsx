@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { MainNav } from '@/components/layout/main-nav'
+import { AppLayout } from '@/components/layout/app-layout'
 import { LanguageProvider } from '@/lib/i18n/language-context'
 import { Providers } from '@/components/providers';
 import './globals.css'
@@ -56,8 +56,9 @@ export default function RootLayout({
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
         <LanguageProvider>
           <Providers>
-            <MainNav />
-            {children}
+            <AppLayout>
+              {children}
+            </AppLayout>
           </Providers>
         </LanguageProvider>
         <Analytics />

@@ -88,8 +88,8 @@ export default function IntegrationsPage() {
 
     if (loading) {
         return (
-            <main className="min-h-screen bg-background">
-                <div className="max-w-7xl mx-auto px-6 py-8">
+            <>
+                <div className="max-w-7xl mx-auto">
                     <div className="animate-pulse">
                         <div className="h-8 bg-muted rounded w-64 mb-2"></div>
                         <div className="h-4 bg-muted rounded w-96 mb-8"></div>
@@ -99,7 +99,7 @@ export default function IntegrationsPage() {
                         </div>
                     </div>
                 </div>
-            </main>
+            </>
         );
     }
 
@@ -107,8 +107,8 @@ export default function IntegrationsPage() {
     const googleStatus = getGoogleStatus();
 
     return (
-        <main className="min-h-screen bg-background">
-            <div className="max-w-7xl mx-auto px-6 py-8">
+        <>
+            <div className="max-w-7xl mx-auto">
                 {/* Page Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-foreground mb-2">Integrations</h1>
@@ -196,6 +196,6 @@ export default function IntegrationsPage() {
                     </ul>
                 </div>
             </div>
-        </main>
+        </>
     );
 }

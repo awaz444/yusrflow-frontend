@@ -62,8 +62,8 @@ export default function CompliancePage() {
   ];
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <>
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
@@ -138,6 +138,6 @@ export default function CompliancePage() {
           </Card>
         </div>
       </div>
-    </main>
+    </>
   );
 }

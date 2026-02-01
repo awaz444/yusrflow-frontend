@@ -64,8 +64,8 @@ export default function AIAssistantPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <>
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -95,11 +95,10 @@ export default function AIAssistantPage() {
                       className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-xs px-4 py-2 rounded-lg ${
-                          message.type === 'user'
-                            ? 'bg-accent text-white rounded-br-none'
-                            : 'bg-secondary text-foreground rounded-bl-none'
-                        }`}
+                        className={`max-w-xs px-4 py-2 rounded-lg ${message.type === 'user'
+                          ? 'bg-accent text-white rounded-br-none'
+                          : 'bg-secondary text-foreground rounded-bl-none'
+                          }`}
                       >
                         <p className="text-sm">{message.content}</p>
                         <p className="text-xs opacity-70 mt-1">
@@ -190,6 +189,6 @@ export default function AIAssistantPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
