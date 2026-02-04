@@ -48,7 +48,9 @@ export default function UsersPage() {
         console.log('[Users] All users:', usersData);
 
         // Map backend data to UI format
-        const mappedUsers = usersData.map((u: any) => ({
+        // Backend returns { users: [...], pagination: {...} }
+        const usersList = usersData.users || [];
+        const mappedUsers = usersList.map((u: any) => ({
           id: u.id,
           name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
           email: u.email,

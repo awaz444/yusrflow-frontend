@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Send, MessageCircle, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { fetchFromApi } from '@/lib/api';
 
 interface Message {
   id: string;
@@ -43,20 +44,32 @@ export default function AIAssistantPage() {
     setInput('');
     setLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    // Call AI API
+    try {
+      const response = await fetchFromApi('/ai-assistant/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: messageText }),
+      });
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content:
-          language === 'ar'
-            ? 'هذا مثال على رد من المساعد الذكي. في التطبيق الفعلي، سيتم ربط هذا بـ واجهة برمجية لنموذج AI يوفر إجابات ذات صلة بالامتثال.'
-            : 'This is an example AI Assistant response. In the production app, this would be connected to an AI model API that provides compliance-related answers.',
+        content: response.response,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('AI Error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: t('aiAssistant.error') || 'Sorry, I am unable to process your request at the moment.',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleExampleQuestion = (question: string) => {

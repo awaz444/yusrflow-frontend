@@ -16,6 +16,16 @@ export async function fetchFromApi(endpoint: string, options: RequestInit = {}) 
     });
 
     if (!response.ok) {
+        if (response.status === 401) {
+            // Clear token and redirect to login
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('accessToken');
+                window.location.href = '/auth/login';
+            }
+            // Stop execution to avoid further errors before redirect happens
+            throw new Error('Unauthorized: Redirecting to login...');
+        }
+
         const errorBody = await response.text();
         throw new Error(`API Error: ${response.statusText} - ${errorBody}`);
     }
