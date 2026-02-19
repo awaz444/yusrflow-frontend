@@ -15,9 +15,9 @@ export default function ContactPage() {
 
     // Simulate successful submission
     // In production, this would call an API endpoint
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       setTimeout(() => {
-        resolve(undefined);
+        resolve();
       }, 1500);
     });
   };
