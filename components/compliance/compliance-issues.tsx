@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, AlertTriangle, CheckCircle2, Clock, ChevronRight } from 'lucide-react';
 
-interface ComplianceIssue {
+export interface ComplianceIssue {
   id: string;
   title: string;
   description: string;

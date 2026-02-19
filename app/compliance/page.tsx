@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ComplianceOverview } from '@/components/compliance/compliance-overview';
 import { ComplianceStats } from '@/components/compliance/compliance-stats';
-import { ComplianceIssues } from '@/components/compliance/compliance-issues';
+import { ComplianceIssues, ComplianceIssue } from '@/components/compliance/compliance-issues';
 import { ComplianceTimeline } from '@/components/compliance/compliance-timeline';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import {
 } from '@/lib/mockData';
 
 export default function CompliancePage() {
-  const [issues, setIssues] = useState(mockComplianceIssues);
+  const [issues, setIssues] = useState<ComplianceIssue[]>(mockComplianceIssues);
 
   const handleResolveIssue = (id: string) => {
     setIssues((prev) =>
