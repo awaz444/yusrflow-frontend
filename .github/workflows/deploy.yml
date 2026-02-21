@@ -6,6 +6,9 @@ on:
 
 env:
   IMAGE_TAG: ${{ github.sha }}
+  OCIR_REGISTRY: ${{ secrets.OCIR_REGISTRY }}
+  TENANCY_NAMESPACE: ${{ secrets.OCI_TENANCY_NAMESPACE }}
+  REPO_NAME: ${{ secrets.OCIR_REPO_NAME }}
 
 jobs:
   deploy:
@@ -34,15 +37,30 @@ jobs:
             ${{ secrets.OCIR_REGISTRY }}/${{ secrets.OCI_TENANCY_NAMESPACE }}/${{ secrets.OCIR_REPO_NAME }}:latest
             ${{ secrets.OCIR_REGISTRY }}/${{ secrets.OCI_TENANCY_NAMESPACE }}/${{ secrets.OCIR_REPO_NAME }}:${{ env.IMAGE_TAG }}
       
+      - name: Test registry connection
+        run: |
+          echo "Testing registry connection..."
+          curl -I https://${{ secrets.OCIR_REGISTRY }}/v2/
+          nslookup ${{ secrets.OCIR_REGISTRY }}
+      
       - name: Deploy to OCI instance
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
-          envs: IMAGE_TAG
+          envs: IMAGE_TAG,OCIR_REGISTRY,TENANCY_NAMESPACE,REPO_NAME
           script: |
-            cd ~/yusrflow-backend/yusrflow-backend
+            echo "Testing registry connection from server..."
+            nslookup $OCIR_REGISTRY
+            
+            cd ~/yusrflow-backend/yusrflow-backend || exit 1
+            
+            # Login to OCI Registry
+            echo "${{ secrets.OCIR_AUTH_TOKEN }}" | docker login $OCIR_REGISTRY \
+              -u "${{ secrets.OCIR_USERNAME }}" --password-stdin
+            
+            # Pull and deploy
             docker compose pull backend
             docker compose up -d --no-deps backend
             docker image prune -f
