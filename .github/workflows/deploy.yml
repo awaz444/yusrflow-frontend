@@ -1,87 +1,66 @@
-name: Deploy Frontend to OCI
+name: Deploy Yusrflow Frontend
 
 on:
   push:
     branches: [ main, 4prod ]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Convert repository name to lowercase
+        run: |
+          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          node-version: '18'
-          cache: 'pnpm'
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Install pnpm
-        run: npm install -g pnpm
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: Build Next.js app
-        run: pnpm run build
-        env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-      
-      - name: Deploy to OCI instance via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
         with:
-          host: ${{ secrets.OCI_HOST }}
-          username: ${{ secrets.OCI_USERNAME }}
-          key: ${{ secrets.OCI_SSH_KEY }}
-          script: |
-            # Create frontend directory if it doesn't exist
-            mkdir -p ~/yusrflow-frontend
-            
-            # Clean old files (optional - be careful!)
-            # rm -rf ~/yusrflow-frontend/*
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ env.REPO_LOWER }}/frontend:latest
+            ghcr.io/${{ env.REPO_LOWER }}/frontend:${{ github.sha }}
+  
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Convert repository name to lowercase
+        run: |
+          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
       
-      - name: Copy files via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.OCI_HOST }}
-          username: ${{ secrets.OCI_USERNAME }}
-          key: ${{ secrets.OCI_SSH_KEY }}
-          source: ".,!node_modules,!*.log,!*.git"
-          target: ~/yusrflow-frontend
-          strip_components: 0
-      
-      - name: Restart frontend on server
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Deploy to OCI
+        uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
-            cd ~/yusrflow-frontend
+            # Go to the correct frontend directory (note the double path)
+            cd /home/ubuntu/yusrflow-frontend/yusrflow-frontend
             
-            # Install dependencies if needed
-            if [ -f "pnpm-lock.yaml" ]; then
-              export PNPM_HOME=~/.local/share/pnpm
-              export PATH=$PNPM_HOME:$PATH
-              npm install -g pnpm
-              pnpm install --frozen-lockfile
-            fi
+            echo "📂 Current directory: $(pwd)"
             
-            # Build if needed
-            if [ -f "next.config.mjs" ] || [ -f "next.config.js" ]; then
-              pnpm run build
-            fi
+            # Login to GitHub Container Registry
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # Start/Restart with PM2
-            if command -v pm2 &> /dev/null; then
-              pm2 delete yusrflow-frontend 2>/dev/null || true
-              pm2 start npm --name "yusrflow-frontend" -- start
-              pm2 save
-            else
-              npm install -g pm2
-              pm2 start npm --name "yusrflow-frontend" -- start
-              pm2 save
-              pm2 startup
-            fi
+            # Pull the new frontend image
+            docker compose pull frontend
+            
+            # Restart just frontend
+            docker compose up --no-deps -d frontend
+            
+            # Show status
+            docker compose ps
+            
+            # Clean up old images
+            docker image prune -f
