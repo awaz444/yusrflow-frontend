@@ -57,4 +57,4 @@ jobs:
             docker compose up --no-deps -d frontend
             
             # Clean up
-            docker image prune -
+            docker image prune -f
