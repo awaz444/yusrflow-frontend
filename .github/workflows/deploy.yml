@@ -3,6 +3,7 @@ name: Deploy Yusrflow Frontend
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
 
 jobs:
   build:
@@ -41,11 +42,11 @@ jobs:
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
-            # Go to the frontend directory
-            cd /home/ubuntu/yusrflow-frontend/yusrflow-frontend
+            # Go to the frontend directory (exit if not found)
+            cd /home/ubuntu/yusrflow-frontend/yusrflow-frontend || exit 1
             
-            # Login to GHCR using the token
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Login to GHCR using PERSONAL ACCESS TOKEN (not GITHUB_TOKEN)
+            echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             # Pull the latest image
             docker compose pull frontend
