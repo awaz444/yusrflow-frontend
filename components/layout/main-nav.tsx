@@ -13,7 +13,7 @@ export function MainNav() {
   const { t } = useLanguage();
 
   // Don't show nav on auth pages or admin pages (admin has its own layout)
-  if (pathname.startsWith('/auth') || pathname.startsWith('/admin') || pathname === '/tenant-setup') {
+  if (!pathname || pathname.startsWith('/auth') || pathname.startsWith('/admin') || pathname === '/tenant-setup') {
     return null;
   }
 

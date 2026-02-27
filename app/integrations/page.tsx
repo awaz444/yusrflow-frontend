@@ -5,6 +5,7 @@ import { IntegrationCard } from '@/components/integrations/integration-card';
 import { fetchFromApi } from '@/lib/api';
 import { Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface IntegrationStatus {
     provider: 'microsoft' | 'google';
@@ -14,6 +15,7 @@ interface IntegrationStatus {
 }
 
 export default function IntegrationsPage() {
+    const { t, language } = useLanguage();
     const [integrations, setIntegrations] = useState<IntegrationStatus[]>([]);
     const [loading, setLoading] = useState(true);
     const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
@@ -61,13 +63,13 @@ export default function IntegrationsPage() {
                 method: 'POST',
             });
 
-            alert(`✅ Discovery Complete! Found ${result.discoveredCount} SaaS applications`);
+            alert(t('integrations.discoveryComplete').replace('{count}', result.discoveredCount));
 
             // Reload integration status to update last sync time
             await loadIntegrationStatus();
         } catch (error: any) {
             console.error('Failed to discover SaaS apps:', error);
-            alert(`❌ Discovery Failed: ${error.message || 'Unknown error'}`);
+            alert(t('integrations.discoveryFailed').replace('{error}', error.message || 'Unknown error'));
         } finally {
             setDiscovering(false);
         }
@@ -111,9 +113,9 @@ export default function IntegrationsPage() {
             <div className="max-w-7xl mx-auto">
                 {/* Page Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-foreground mb-2">Integrations</h1>
+                    <h1 className="text-3xl font-bold text-foreground mb-2">{t('integrations.title')}</h1>
                     <p className="text-muted-foreground">
-                        Connect your cloud services to enable automated discovery and compliance monitoring
+                        {t('integrations.subtitle')}
                     </p>
                 </div>
 
@@ -122,8 +124,8 @@ export default function IntegrationsPage() {
                     {/* Microsoft 365 Integration */}
                     <IntegrationCard
                         provider="microsoft"
-                        displayName="Microsoft 365"
-                        description="Connect your Microsoft 365 account to discover SaaS applications, monitor user activity, and ensure compliance with organizational policies."
+                        displayName={t('integrations.microsoft365')}
+                        description={t('integrations.microsoft365Desc')}
                         icon={
                             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
                                 <path d="M11.5 0v11.5H0V0h11.5zm0 12.5V24H0V12.5h11.5zm12.5-12.5v11.5H12.5V0H24zm0 12.5V24H12.5V12.5H24z" fill="#f25022" />
@@ -140,8 +142,8 @@ export default function IntegrationsPage() {
                     {/* Google Workspace Integration */}
                     <IntegrationCard
                         provider="google"
-                        displayName="Google Workspace"
-                        description="Connect your Google Workspace to discover cloud applications, track usage patterns, and maintain security compliance standards."
+                        displayName={t('integrations.googleWorkspace')}
+                        description={t('integrations.googleWorkspaceDesc')}
                         icon={
                             <Building2 className="w-6 h-6 text-blue-500" />
                         }
@@ -154,20 +156,20 @@ export default function IntegrationsPage() {
                 {/* Discovery Section - Only show if Microsoft is connected*/}
                 {microsoftStatus.isConnected && (
                     <div className="mt-8 p-6 bg-card rounded-lg border border-border">
-                        <h2 className="text-xl font-semibold mb-2">Discover SaaS Applications</h2>
+                        <h2 className="text-xl font-semibold mb-2">{t('integrations.discoverSaaS')}</h2>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Scan your Microsoft 365 environment to discover all SaaS applications that users have authorized.
+                            {t('integrations.discoverSaaSDesc')}
                         </p>
                         <Button
                             onClick={handleDiscoverSaasApps}
                             disabled={discovering}
                             className="w-full sm:w-auto"
                         >
-                            {discovering ? 'Discovering...' : 'Discover SaaS Apps'}
+                            {discovering ? t('integrations.discovering') : t('integrations.discoverApps')}
                         </Button>
                         {microsoftStatus.lastSyncAt && (
                             <p className="text-xs text-muted-foreground mt-2">
-                                Last discovery: {new Date(microsoftStatus.lastSyncAt).toLocaleString()}
+                                {t('integrations.lastDiscovery')}: {new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date(microsoftStatus.lastSyncAt))}
                             </p>
                         )}
                     </div>
@@ -175,23 +177,23 @@ export default function IntegrationsPage() {
 
                 {/* Info Section */}
                 <div className="mt-12 p-6 bg-muted/50 rounded-lg border border-border">
-                    <h2 className="text-lg font-semibold mb-2">Why Connect Integrations?</h2>
+                    <h2 className="text-lg font-semibold mb-2">{t('integrations.whyConnect')}</h2>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                         <li className="flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
-                            <span><strong>Automated Discovery:</strong> Automatically discover all SaaS applications used in your organization</span>
+                            <span><strong>{t('integrations.automatedDiscoveryTitle')}:</strong> {t('integrations.automatedDiscoveryDesc')}</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
-                            <span><strong>Compliance Monitoring:</strong> Track compliance with regulations like PDPL, GDPR, and internal policies</span>
+                            <span><strong>{t('integrations.complianceMonitoringTitle')}:</strong> {t('integrations.complianceMonitoringDesc')}</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
-                            <span><strong>Security Insights:</strong> Identify shadow IT and assess security risks across your applications</span>
+                            <span><strong>{t('integrations.securityInsightsTitle')}:</strong> {t('integrations.securityInsightsDesc')}</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
-                            <span><strong>User Activity:</strong> Monitor employee productivity and optimize application usage</span>
+                            <span><strong>{t('integrations.userActivityTitle')}:</strong> {t('integrations.userActivityDesc')}</span>
                         </li>
                     </ul>
                 </div>

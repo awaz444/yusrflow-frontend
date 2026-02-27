@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockComplianceScores } from '@/lib/mockData';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 function getScoreColor(score: number) {
   if (score >= 80) return 'text-green-400';
@@ -13,7 +13,9 @@ function getScoreBgColor(score: number) {
   return 'from-red-500/20 to-red-500/0';
 }
 
-export function ComplianceScores() {
+export function ComplianceScores({ scores }: { scores: any }) {
+  const { t } = useLanguage();
+
   const regulations = [
     { key: 'pdpl', label: 'PDPL' },
     { key: 'sdaia', label: 'SDAIA' },
@@ -24,23 +26,23 @@ export function ComplianceScores() {
   return (
     <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle className="text-lg">Compliance Scores</CardTitle>
+        <CardTitle className="text-lg">{t('dashboard.overview.complianceScores')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {/* Overall Score */}
           <div
             className={`rounded-lg border border-border/50 p-4 bg-gradient-to-r ${getScoreBgColor(
-              mockComplianceScores.overall
+              scores.overall
             )}`}
           >
-            <p className="text-sm text-muted-foreground mb-2">Overall Score</p>
+            <p className="text-sm text-muted-foreground mb-2">{t('dashboard.overview.overallScore')}</p>
             <div className="flex items-end gap-3">
-              <div className={`text-4xl font-bold ${getScoreColor(mockComplianceScores.overall)}`}>
-                {mockComplianceScores.overall}
+              <div className={`text-4xl font-bold ${getScoreColor(scores.overall)}`}>
+                {scores.overall}
               </div>
               <div className="text-sm text-green-400 font-semibold">
-                ↑ {mockComplianceScores.trend}%
+                ↑ {scores.trend}%
               </div>
             </div>
           </div>
@@ -48,8 +50,8 @@ export function ComplianceScores() {
           {/* Regulation Scores */}
           <div className="grid grid-cols-2 gap-2">
             {regulations.map((reg) => {
-              const score = mockComplianceScores[
-                reg.key as keyof typeof mockComplianceScores
+              const score = scores[
+                reg.key as keyof typeof scores
               ] as number;
               return (
                 <div

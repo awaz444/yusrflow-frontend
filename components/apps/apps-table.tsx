@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface App {
   id: string;
@@ -11,7 +12,6 @@ interface App {
   category: string;
   riskLevel: 'low' | 'medium' | 'high';
   complianceScore: number;
-  monthlySpend: number;
   users: number;
   status: 'compliant' | 'partial' | 'non_compliant';
 }
@@ -35,6 +35,28 @@ export function AppsTable({
   sortColumn,
   sortDirection,
 }: AppsTableProps) {
+  const { t } = useLanguage();
+
+  const translateCategory = (category: string) => {
+    if (!category) return '';
+    const key = `categories.${category.toLowerCase().replace(/ /g, '_')}`;
+    const translated = t(key);
+    return translated !== key ? translated : category;
+  };
+
+  const translateRisk = (risk: string) => {
+    if (!risk) return '';
+    const key = `applications.${risk.toLowerCase()}`;
+    const translated = t(key);
+    return translated !== key ? translated : risk;
+  };
+
+  const translateStatus = (status: string) => {
+    if (!status) return '';
+    const key = `applications.${status === 'non_compliant' ? 'nonCompliant' : status.toLowerCase()}`;
+    const translated = t(key);
+    return translated !== key ? translated : status.replace('_', ' ');
+  };
   const getRiskLevelColor = (level: string) => {
     switch (level) {
       case 'low':
@@ -98,27 +120,24 @@ export function AppsTable({
                 />
               </th>
               <th className="px-6 py-4 text-left">
-                <SortHeader column="name" label="Application" />
+                <SortHeader column="name" label={t('dashboard.table.application')} />
               </th>
               <th className="px-6 py-4 text-left">
-                <SortHeader column="category" label="Category" />
+                <SortHeader column="category" label={t('applications.category')} />
               </th>
               <th className="px-6 py-4 text-left">
-                <SortHeader column="complianceScore" label="Compliance Score" />
+                <SortHeader column="complianceScore" label={t('dashboard.complianceScore')} />
               </th>
               <th className="px-6 py-4 text-left">
-                <SortHeader column="riskLevel" label="Risk Level" />
+                <SortHeader column="riskLevel" label={t('applications.riskLevel')} />
               </th>
               <th className="px-6 py-4 text-left">
-                <SortHeader column="status" label="Status" />
+                <SortHeader column="status" label={t('dashboard.table.status')} />
               </th>
               <th className="px-6 py-4 text-left">
-                <SortHeader column="monthlySpend" label="Monthly Spend" />
+                <SortHeader column="users" label={t('applications.users')} />
               </th>
-              <th className="px-6 py-4 text-left">
-                <SortHeader column="users" label="Users" />
-              </th>
-              <th className="px-6 py-4 text-left">Actions</th>
+              <th className="px-6 py-4 text-left">{t('applications.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -137,7 +156,7 @@ export function AppsTable({
                 <td className="px-6 py-4">
                   <div className="font-medium text-foreground">{app.name}</div>
                 </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">{app.category}</td>
+                <td className="px-6 py-4 text-sm text-muted-foreground">{translateCategory(app.category)}</td>
                 <td className="px-6 py-4">
                   <span className={`font-semibold ${getScoreColor(app.complianceScore)}`}>
                     {app.complianceScore}%
@@ -145,19 +164,14 @@ export function AppsTable({
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRiskLevelColor(app.riskLevel)}`}>
-                    {app.riskLevel.charAt(0).toUpperCase() + app.riskLevel.slice(1)}
+                    {translateRisk(app.riskLevel)}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(app.status)}`}>
-                    {app.status === 'compliant'
-                      ? 'Compliant'
-                      : app.status === 'partial'
-                        ? 'Partial'
-                        : 'Non-Compliant'}
+                    {translateStatus(app.status)}
                   </span>
                 </td>
-                <td className="px-6 py-4 font-medium text-foreground">SR {app.monthlySpend.toLocaleString()}</td>
                 <td className="px-6 py-4 text-sm text-muted-foreground">{app.users}</td>
                 <td className="px-6 py-4">
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -173,7 +187,7 @@ export function AppsTable({
 
       {apps.length === 0 && (
         <div className="px-6 py-12 text-center">
-          <p className="text-muted-foreground">No applications found matching your filters.</p>
+          <p className="text-muted-foreground">{t('applications.noResults')}</p>
         </div>
       )}
     </Card>

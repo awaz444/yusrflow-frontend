@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Send, MessageCircle, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { fetchFromApi } from '@/lib/api';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -108,12 +109,14 @@ export default function AIAssistantPage() {
                       className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-xs px-4 py-2 rounded-lg ${message.type === 'user'
+                        className={`max-w-[80%] px-4 py-2 rounded-lg ${message.type === 'user'
                           ? 'bg-accent text-white rounded-br-none'
                           : 'bg-secondary text-foreground rounded-bl-none'
                           }`}
                       >
-                        <p className="text-sm">{message.content}</p>
+                        <div className="text-sm prose dark:prose-invert max-w-none">
+                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
                         <p className="text-xs opacity-70 mt-1">
                           {message.timestamp.toLocaleTimeString([], {
                             hour: '2-digit',

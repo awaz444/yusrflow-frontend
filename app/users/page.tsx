@@ -19,7 +19,7 @@ interface User {
 }
 
 export default function UsersPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ export default function UsersPage() {
           name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email,
           email: user.email,
           role: user.role,
-          lastActive: user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never',
+          lastActive: user.last_login_at ? new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(user.last_login_at)) : t('users.never'),
           status: 'active'
         });
 
@@ -55,7 +55,7 @@ export default function UsersPage() {
           name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
           email: u.email,
           role: u.role,
-          lastActive: u.last_login_at ? new Date(u.last_login_at).toLocaleDateString() : 'Never',
+          lastActive: u.last_login_at ? new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(u.last_login_at)) : t('users.never'),
           status: u.is_active ? 'active' : 'inactive'
         }));
         setUsers(mappedUsers);
@@ -111,7 +111,7 @@ export default function UsersPage() {
             <Link href="/users/create">
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
-                Add User
+                {t('users.addUser')}
               </Button>
             </Link>
           )}
@@ -178,7 +178,7 @@ export default function UsersPage() {
                           : 'bg-red-500/20 text-red-400'
                           }`}
                       >
-                        {user.status === 'active' ? 'Active' : 'Inactive'}
+                        {user.status === 'active' ? t('users.active') : t('users.inactive')}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -204,15 +204,15 @@ export default function UsersPage() {
         {/* User Count Summary */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="bg-card border-border p-4">
-            <p className="text-sm text-muted-foreground mb-1">Total Users</p>
+            <p className="text-sm text-muted-foreground mb-1">{t('users.totalUsers')}</p>
             <p className="text-2xl font-bold text-foreground">{users.length}</p>
           </Card>
           <Card className="bg-card border-border p-4">
-            <p className="text-sm text-muted-foreground mb-1">Admins</p>
+            <p className="text-sm text-muted-foreground mb-1">{t('users.admins')}</p>
             <p className="text-2xl font-bold text-blue-400">{users.filter((u) => u.role === 'admin').length}</p>
           </Card>
           <Card className="bg-card border-border p-4">
-            <p className="text-sm text-muted-foreground mb-1">Active Users</p>
+            <p className="text-sm text-muted-foreground mb-1">{t('users.activeUsers')}</p>
             <p className="text-2xl font-bold text-green-400">{users.filter((u) => u.status === 'active').length}</p>
           </Card>
         </div>

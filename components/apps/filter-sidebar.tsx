@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { X } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface FilterSidebarProps {
   categories: string[];
@@ -31,12 +32,28 @@ export function FilterSidebar({
   onStatusChange,
   onReset,
 }: FilterSidebarProps) {
+  const { t } = useLanguage();
+
+  const translateCategory = (category: string) => {
+    if (!category) return '';
+    const key = `categories.${category.toLowerCase().replace(/ /g, '_')}`;
+    const translated = t(key);
+    return translated !== key ? translated : category;
+  };
+
+  const translateRisk = (risk: string) => {
+    if (!risk) return '';
+    const key = `applications.${risk.toLowerCase()}`;
+    const translated = t(key);
+    return translated !== key ? translated : risk;
+  };
+
   const totalFilters = selectedCategories.length + selectedRiskLevels.length + selectedStatuses.length;
 
   return (
     <Card className="p-6 bg-card border-border h-fit sticky top-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-semibold text-foreground">Filters</h3>
+        <h3 className="font-semibold text-foreground">{t('dashboard.table.filters')}</h3>
         {totalFilters > 0 && (
           <Button
             variant="ghost"
@@ -45,7 +62,7 @@ export function FilterSidebar({
             className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
           >
             <X className="w-3 h-3 mr-1" />
-            Clear
+            {t('common.clear')}
           </Button>
         )}
       </div>
@@ -53,7 +70,7 @@ export function FilterSidebar({
       <div className="space-y-6">
         {/* Category Filter */}
         <div>
-          <h4 className="text-sm font-medium text-foreground mb-3">Category</h4>
+          <h4 className="text-sm font-medium text-foreground mb-3">{t('applications.category')}</h4>
           <div className="space-y-2">
             {categories.map((category) => (
               <div key={category} className="flex items-center gap-2">
@@ -63,7 +80,7 @@ export function FilterSidebar({
                   onCheckedChange={(checked) => onCategoryChange(category, checked as boolean)}
                 />
                 <Label htmlFor={`category-${category}`} className="text-sm cursor-pointer">
-                  {category}
+                  {translateCategory(category)}
                 </Label>
               </div>
             ))}
@@ -72,7 +89,7 @@ export function FilterSidebar({
 
         {/* Risk Level Filter */}
         <div>
-          <h4 className="text-sm font-medium text-foreground mb-3">Risk Level</h4>
+          <h4 className="text-sm font-medium text-foreground mb-3">{t('applications.riskLevel')}</h4>
           <div className="space-y-2">
             {riskLevels.map((level) => {
               const colorMap: { [key: string]: string } = {
@@ -90,7 +107,7 @@ export function FilterSidebar({
                   />
                   <Label htmlFor={`risk-${level}`} className="text-sm cursor-pointer flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${colorMap[level] || 'bg-gray-400'}`} />
-                    {level.charAt(0).toUpperCase() + level.slice(1)}
+                    {translateRisk(level)}
                   </Label>
                 </div>
               );
@@ -100,13 +117,13 @@ export function FilterSidebar({
 
         {/* Compliance Status Filter */}
         <div>
-          <h4 className="text-sm font-medium text-foreground mb-3">Status</h4>
+          <h4 className="text-sm font-medium text-foreground mb-3">{t('applications.complianceStatus')}</h4>
           <div className="space-y-2">
             {statuses.map((status) => {
               const statusLabels: { [key: string]: string } = {
-                compliant: 'Compliant',
-                partial: 'Partially Compliant',
-                non_compliant: 'Non-Compliant',
+                compliant: t('applications.compliant'),
+                partial: t('applications.partial'),
+                non_compliant: t('applications.nonCompliant'),
               };
 
               return (

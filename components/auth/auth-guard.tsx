@@ -13,12 +13,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         if (!loading) {
             if (!isAuthenticated) {
                 router.push('/auth/login');
-            } else if (user?.is_super_admin && !pathname.startsWith('/admin')) {
-                 // Optional: Redirect super admin to admin dashboard if they try to access tenant dashboard
-                 if (!pathname.startsWith('/settings')) { // Allow settings access
-                     router.push('/admin/dashboard');
-                 }
-            } else if (!user?.is_super_admin && pathname.startsWith('/admin')) {
+            } else if (user?.is_super_admin && !pathname?.startsWith('/admin')) {
+                // Optional: Redirect super admin to admin dashboard if they try to access tenant dashboard
+                if (!pathname?.startsWith('/settings')) { // Allow settings access
+                    router.push('/admin/dashboard');
+                }
+            } else if (!user?.is_super_admin && pathname?.startsWith('/admin')) {
                 // Prevent regular users from accessing admin
                 router.push('/');
             }

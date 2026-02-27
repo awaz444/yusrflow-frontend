@@ -5,9 +5,12 @@ import { AppsHeader } from '@/components/apps/apps-header';
 import { FilterSidebar } from '@/components/apps/filter-sidebar';
 import { AppsTable } from '@/components/apps/apps-table';
 import { BulkActions } from '@/components/apps/bulk-actions';
+import { AddAppModal } from '@/components/apps/add-app-modal';
+import { ReviewRisksModal } from '@/components/apps/review-risks-modal';
 import { fetchFromApi } from '@/lib/api';
+import { useLanguage } from '@/lib/i18n/language-context';
 
-type SortColumn = 'name' | 'category' | 'complianceScore' | 'riskLevel' | 'status' | 'monthlySpend' | 'users';
+type SortColumn = 'name' | 'category' | 'complianceScore' | 'riskLevel' | 'status' | 'users';
 
 // Define the shape expected by the UI
 interface SaasApp {
@@ -16,12 +19,12 @@ interface SaasApp {
   category: string;
   riskLevel: 'low' | 'medium' | 'high';
   complianceScore: number;
-  monthlySpend: number;
   users: number;
   status: 'compliant' | 'partial' | 'non_compliant';
 }
 
 export default function AppsPage() {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedRiskLevels, setSelectedRiskLevels] = useState<string[]>([]);
@@ -32,32 +35,35 @@ export default function AppsPage() {
 
   const [apps, setApps] = useState<SaasApp[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isReviewRisksModalOpen, setIsReviewRisksModalOpen] = useState(false);
+
+  const loadApps = async () => {
+    try {
+      const response = await fetchFromApi('/tenants/apps');
+      const data = response.data || response;
+
+      // Map backend data to frontend shape if necessary
+      const mappedApps = data.map((app: any) => ({
+        id: app.id,
+        name: app.name,
+        category: app.category || 'Uncategorized',
+        riskLevel: (app.riskLevel as 'low' | 'medium' | 'high') || 'medium',
+        complianceScore: app.complianceScore || 0,
+        users: app.users || 0,
+        status: app.status || 'compliant',
+      }));
+      setApps(mappedApps);
+    } catch (error) {
+      console.error('Failed to load apps:', error);
+      // Set empty array so UI doesn't break
+      setApps([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadApps() {
-      try {
-        const data = await fetchFromApi('saas-scanner');
-        // Map backend data to frontend shape if necessary
-        const mappedApps = data.map((app: any) => ({
-          id: app.id,
-          name: app.name,
-          category: app.category || 'Uncategorized',
-          riskLevel: (app.riskLevel as 'low' | 'medium' | 'high') || 'medium',
-          complianceScore: 0,
-          monthlySpend: 0,
-          users: 0,
-          status: 'compliant',
-        }));
-        setApps(mappedApps);
-      } catch (error) {
-        console.error('Failed to load apps:', error);
-        // Set empty array so UI doesn't break
-        setApps([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadApps();
   }, []);
 
@@ -144,33 +150,89 @@ export default function AppsPage() {
     setSelectedAppIds([]);
   };
 
-  const handleExportCompliance = () => {
-    console.log('Exporting compliance report for:', selectedAppIds);
-    // TODO: Implement export functionality
+  const downloadCSV = (data: SaasApp[], filename: string) => {
+    const headers = ['URL / ID', 'Name', 'Category', 'Compliance Score', 'Risk Level', 'Status', 'Active Users'];
+
+    const csvContent = [
+      headers.join(','),
+      ...data.map((app) =>
+        [
+          `"${app.id}"`,
+          `"${app.name}"`,
+          `"${app.category}"`,
+          `${app.complianceScore}%`,
+          `"${app.riskLevel}"`,
+          `"${app.status}"`,
+          app.users,
+        ].join(',')
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
+
+  const handleExportCompliance = () => {
+    const selectedAppsData = apps.filter((app) => selectedAppIds.includes(app.id));
+    downloadCSV(selectedAppsData, 'compliance-report.csv');
+  };
+
+  const selectedAppsData = useMemo(() => {
+    return apps.filter((app) => selectedAppIds.includes(app.id));
+  }, [apps, selectedAppIds]);
 
   const handleReviewRisks = () => {
-    console.log('Reviewing risks for:', selectedAppIds);
-    // TODO: Implement risk review functionality
+    setIsReviewRisksModalOpen(true);
   };
 
-  const handleRemoveApps = () => {
-    console.log('Removing apps:', selectedAppIds);
-    // TODO: Implement remove functionality
+  const handleRemoveApps = async () => {
+    try {
+      if (!confirm(t('applications.deleteAppConfirm').replace('{count}', selectedAppIds.length.toString()))) return;
+
+      await fetchFromApi('/tenants/apps', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appIds: selectedAppIds })
+      });
+
+      setSelectedAppIds([]);
+      await loadApps();
+    } catch (error) {
+      console.error('Failed to remove apps:', error);
+      alert(t('applications.deleteFailed'));
+    }
   };
 
   const handleExport = () => {
-    console.log('Exporting all apps');
-    // TODO: Implement export functionality
+    downloadCSV(filteredAndSortedApps, 'saas-applications.csv');
   };
 
   const handleAddApp = () => {
-    console.log('Adding new app');
-    // TODO: Implement add app modal
+    setIsAddModalOpen(true);
+  };
+
+  const handleSaveApp = async (data: any) => {
+    try {
+      await fetchFromApi('/tenants/apps', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      await loadApps();
+    } catch (error) {
+      console.error('Failed to save app:', error);
+      alert('Failed to save application. Please try again.');
+    }
   };
 
   if (loading) {
-    return <div className="p-8">Loading apps...</div>;
+    return <div className="p-8">{t('applications.loading')}</div>;
   }
 
   return (
@@ -225,6 +287,18 @@ export default function AppsPage() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <AddAppModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={handleSaveApp}
+      />
+      <ReviewRisksModal
+        isOpen={isReviewRisksModalOpen}
+        onClose={() => setIsReviewRisksModalOpen(false)}
+        apps={selectedAppsData}
+      />
     </>
   );
 }

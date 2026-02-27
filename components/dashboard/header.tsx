@@ -1,7 +1,10 @@
 import { Bell, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 export function DashboardHeader() {
+  const { t } = useLanguage();
+
   return (
     <header className="border-b border-border bg-card">
       <div className="flex items-center justify-between px-6 py-4">
@@ -11,7 +14,7 @@ export function DashboardHeader() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">Yusrflow</h1>
-            <p className="text-xs text-muted-foreground">Compliance Dashboard</p>
+            <p className="text-xs text-muted-foreground">{t('compliance.title')}</p>
           </div>
         </div>
 

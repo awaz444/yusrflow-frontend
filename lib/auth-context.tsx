@@ -32,15 +32,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = async (token: string): Promise<User | null> => {
     try {
+      console.log('Fetching user profile for token:', token.substring(0, 10) + '...');
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      console.log('auth/me response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('auth/me data received successfully');
         return data.user; // Assumes backend returns user object directly
+      } else {
+        const text = await response.text();
+        console.error('auth/me failed. Status:', response.status, 'Body:', text);
       }
       return null;
     } catch (error) {
@@ -69,8 +76,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     } else {
-        // Token valid but user fetch failed
-        logout();
+      console.warn('Token saved but user profile failed to load on login. Waiting for next checkAuth cycle.');
+      // Fallback redirect even if the user profile fetch timed out, 
+      // the `checkAuth` guard will re-verify it later without breaking the loop.
+      if (pathname === '/auth/login') {
+        router.push('/');
+      }
     }
   };
 
@@ -89,16 +100,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const userData = await fetchUserProfile(token);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-    if (userData) {
-      setUser(userData);
-    } else {
-      // Token invalid
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user || data); // Store robust user profile
+      } else if (response.status === 401 || response.status === 403) {
+        // Token strictly invalid or expired
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Network error during auth check, preserving token.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {

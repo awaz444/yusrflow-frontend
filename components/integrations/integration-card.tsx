@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface IntegrationCardProps {
     provider: 'microsoft' | 'google';
@@ -28,12 +29,14 @@ export function IntegrationCard({
     onConnect,
     onDisconnect,
 }: IntegrationCardProps) {
+    const { t } = useLanguage();
+
     return (
         <Card className="relative overflow-hidden transition-all hover:shadow-lg">
             {isComingSoon && (
                 <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center">
                     <Badge variant="secondary" className="text-lg px-4 py-2">
-                        Coming Soon
+                        {t('integrations.comingSoon')}
                     </Badge>
                 </div>
             )}
@@ -50,12 +53,12 @@ export function IntegrationCard({
                                 {isConnected ? (
                                     <Badge variant="default" className="bg-green-500/10 text-green-600 dark:text-green-400">
                                         <CheckCircle2 className="w-3 h-3 mr-1" />
-                                        Connected
+                                        {t('integrations.connected')}
                                     </Badge>
                                 ) : (
                                     <Badge variant="secondary" className="bg-muted">
                                         <XCircle className="w-3 h-3 mr-1" />
-                                        Not Connected
+                                        {t('integrations.notConnected')}
                                     </Badge>
                                 )}
                             </div>
@@ -73,7 +76,7 @@ export function IntegrationCard({
                     {isConnected ? (
                         <>
                             <Button variant="outline" size="sm" disabled>
-                                Manage
+                                {t('integrations.manage')}
                             </Button>
                             {onDisconnect && (
                                 <Button
@@ -83,7 +86,7 @@ export function IntegrationCard({
                                     disabled={isLoading}
                                 >
                                     {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                    Disconnect
+                                    {t('integrations.disconnect')}
                                 </Button>
                             )}
                         </>
@@ -94,7 +97,7 @@ export function IntegrationCard({
                             className="w-full"
                         >
                             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                            Connect {displayName}
+                            {t('integrations.connect').replace('{app}', displayName)}
                         </Button>
                     )}
                 </div>

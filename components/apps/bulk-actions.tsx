@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertCircle, Shield, Trash2 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface BulkActionsProps {
   selectedCount: number;
@@ -19,6 +20,8 @@ export function BulkActions({
   onRemove,
   onClose,
 }: BulkActionsProps) {
+  const { t } = useLanguage();
+
   if (selectedCount === 0) return null;
 
   return (
@@ -26,7 +29,7 @@ export function BulkActions({
       <div className="flex items-center gap-3">
         <AlertCircle className="w-5 h-5 text-accent" />
         <span className="text-sm font-medium">
-          {selectedCount} application{selectedCount !== 1 ? 's' : ''} selected
+          {selectedCount} {t('common.applications')}
         </span>
       </div>
 
@@ -38,7 +41,7 @@ export function BulkActions({
           className="border-border hover:bg-background bg-transparent"
         >
           <AlertCircle className="w-4 h-4 mr-2" />
-          Export Report
+          {t('applications.exportReport')}
         </Button>
 
         <Button
@@ -48,7 +51,7 @@ export function BulkActions({
           className="border-border hover:bg-background bg-transparent"
         >
           <Shield className="w-4 h-4 mr-2" />
-          Review Risks
+          {t('applications.reviewRisks')}
         </Button>
 
         <Button
@@ -58,7 +61,7 @@ export function BulkActions({
           className="border-red-500/30 text-red-400 hover:bg-red-500/10 bg-transparent"
         >
           <Trash2 className="w-4 h-4 mr-2" />
-          Remove
+          {t('common.delete')}
         </Button>
 
         <div className="w-px h-6 bg-border mx-2" />
@@ -69,7 +72,7 @@ export function BulkActions({
           onClick={onClose}
           className="text-muted-foreground hover:text-foreground"
         >
-          Clear Selection
+          {t('common.clearSelection')}
         </Button>
       </div>
     </Card>

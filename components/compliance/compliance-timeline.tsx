@@ -2,6 +2,7 @@
 
 import { Card } from '@/components/ui/card';
 import { CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface TimelineEvent {
   id: string;
@@ -16,6 +17,8 @@ interface ComplianceTimelineProps {
 }
 
 export function ComplianceTimeline({ events }: ComplianceTimelineProps) {
+  const { t, language } = useLanguage();
+
   const getIcon = (type: string) => {
     switch (type) {
       case 'success':
@@ -42,19 +45,24 @@ export function ComplianceTimeline({ events }: ComplianceTimelineProps) {
     }
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
+  const formatDate = (date: Date | string) => {
+    try {
+      const d = new Date(date);
+      return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(d);
+    } catch (e) {
+      return t('compliance.pending');
+    }
   };
 
   return (
     <Card className="p-6 bg-card border-border">
-      <h3 className="text-lg font-semibold text-foreground mb-6">Compliance Activity</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-6">{t('compliance.complianceActivity')}</h3>
 
       <div className="relative space-y-6">
         {events.map((event, index) => (
@@ -72,10 +80,18 @@ export function ComplianceTimeline({ events }: ComplianceTimelineProps) {
             {/* Timeline content */}
             <div className="flex-1 pt-1">
               <div className="flex items-start justify-between mb-1">
-                <h4 className="font-semibold text-foreground">{event.title}</h4>
+                <h4 className="font-semibold text-foreground">
+                  {event.title.endsWith(' integration detected')
+                    ? t('compliance.integrationDetected').replace('{app}', event.title.replace(' integration detected', ''))
+                    : event.title}
+                </h4>
                 <span className="text-xs text-muted-foreground">{formatDate(event.date)}</span>
               </div>
-              <p className="text-sm text-muted-foreground">{event.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {event.description === 'New SaaS application discovered and logged by Yusrflow scanner.'
+                  ? t('compliance.newAppDiscovered')
+                  : event.description}
+              </p>
             </div>
           </div>
         ))}
@@ -83,7 +99,7 @@ export function ComplianceTimeline({ events }: ComplianceTimelineProps) {
 
       {events.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-muted-foreground">No compliance events yet.</p>
+          <p className="text-muted-foreground">{t('compliance.noEvents')}</p>
         </div>
       )}
     </Card>

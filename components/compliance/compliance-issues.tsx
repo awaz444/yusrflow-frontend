@@ -4,6 +4,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, AlertTriangle, CheckCircle2, Clock, ChevronRight } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { IssueRemediationModal } from './issue-remediation-modal';
+import { useState } from 'react';
 
 export interface ComplianceIssue {
   id: string;
@@ -14,6 +17,8 @@ export interface ComplianceIssue {
   status: 'open' | 'in-progress' | 'resolved';
   affectedApps: string[];
   dueDate: Date;
+  appId: string;
+  ruleId: string;
 }
 
 interface ComplianceIssuesProps {
@@ -22,6 +27,15 @@ interface ComplianceIssuesProps {
 }
 
 export function ComplianceIssues({ issues, onResolve }: ComplianceIssuesProps) {
+  const { t, language } = useLanguage();
+  const [selectedIssue, setSelectedIssue] = useState<ComplianceIssue | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenRemediation = (issue: ComplianceIssue) => {
+    setSelectedIssue(issue);
+    setIsModalOpen(true);
+  };
+
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'critical':
@@ -55,22 +69,53 @@ export function ComplianceIssues({ issues, onResolve }: ComplianceIssuesProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return { color: 'bg-red-500/20 text-red-400', label: 'Open' };
+        return { color: 'bg-red-500/20 text-red-400', label: t('compliance.open') };
       case 'in-progress':
-        return { color: 'bg-blue-500/20 text-blue-400', label: 'In Progress' };
+        return { color: 'bg-blue-500/20 text-blue-400', label: t('compliance.inProgress') };
       case 'resolved':
-        return { color: 'bg-green-500/20 text-green-400', label: 'Resolved' };
+        return { color: 'bg-green-500/20 text-green-400', label: t('compliance.resolved') };
       default:
         return { color: 'bg-gray-500/20 text-gray-400', label: status };
     }
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(date);
+  const formatDate = (date: Date | string) => {
+    try {
+      const d = new Date(date);
+      return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }).format(d);
+    } catch (e) {
+      return t('compliance.pending');
+    }
+  };
+
+  const getTranslatedTitle = (title: string, appName: string) => {
+    if (title.includes('Critical Security Policy Gap')) {
+      return t('compliance.criticalIssueTitle').replace('{app}', appName);
+    }
+    if (title.includes('Data Residency Verification')) {
+      return t('compliance.highIssueTitle').replace('{app}', appName);
+    }
+    if (title.includes('Audit Logging Configuration')) {
+      return t('compliance.mediumIssueTitle').replace('{app}', appName);
+    }
+    return title;
+  };
+
+  const getTranslatedDescription = (desc: string, appName: string) => {
+    if (desc.includes('critical risk')) {
+      return t('compliance.criticalIssueDesc').replace('{app}', appName);
+    }
+    if (desc.includes('Verify data residency')) {
+      return t('compliance.highIssueDesc').replace('{app}', appName);
+    }
+    if (desc.includes('audit logging configuration')) {
+      return t('compliance.mediumIssueDesc').replace('{app}', appName);
+    }
+    return desc;
   };
 
   return (
@@ -78,8 +123,8 @@ export function ComplianceIssues({ issues, onResolve }: ComplianceIssuesProps) {
       {issues.length === 0 ? (
         <Card className="p-12 text-center bg-card border-border">
           <CheckCircle2 className="w-12 h-12 text-green-400 mx-auto mb-4" />
-          <p className="text-foreground font-semibold mb-2">All compliance issues resolved!</p>
-          <p className="text-muted-foreground">Your organization is in good standing.</p>
+          <p className="text-foreground font-semibold mb-2">{t('compliance.allResolved')}</p>
+          <p className="text-muted-foreground">{t('compliance.goodStanding')}</p>
         </Card>
       ) : (
         issues.map((issue) => {
@@ -97,8 +142,12 @@ export function ComplianceIssues({ issues, onResolve }: ComplianceIssuesProps) {
                   <div className="flex items-start gap-3 mb-3">
                     <div className="mt-1">{getSeverityIcon(issue.severity)}</div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-foreground mb-1">{issue.title}</h4>
-                      <p className="text-sm text-muted-foreground mb-3">{issue.description}</p>
+                      <h4 className="font-semibold text-foreground mb-1">
+                        {getTranslatedTitle(issue.title, issue.affectedApps[0] || 'App')}
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {getTranslatedDescription(issue.description, issue.affectedApps[0] || 'App')}
+                      </p>
 
                       <div className="flex items-center gap-2 flex-wrap mb-3">
                         <Badge variant="outline" className="bg-background/50">
@@ -111,10 +160,10 @@ export function ComplianceIssues({ issues, onResolve }: ComplianceIssuesProps) {
 
                       <div className="text-xs text-muted-foreground">
                         <p className="mb-2">
-                          <span className="font-medium">Affected Apps:</span> {issue.affectedApps.join(', ')}
+                          <span className="font-medium">{t('compliance.affectedApps')}:</span> {issue.affectedApps.join(', ')}
                         </p>
                         <p>
-                          <span className="font-medium">Due Date:</span> {formatDate(issue.dueDate)}
+                          <span className="font-medium">{t('compliance.dueDate')}:</span> {formatDate(issue.dueDate)}
                         </p>
                       </div>
                     </div>
@@ -124,7 +173,7 @@ export function ComplianceIssues({ issues, onResolve }: ComplianceIssuesProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onResolve(issue.id)}
+                  onClick={() => handleOpenRemediation(issue)}
                   disabled={issue.status === 'resolved'}
                   className="ml-2 flex-shrink-0"
                 >
@@ -135,6 +184,13 @@ export function ComplianceIssues({ issues, onResolve }: ComplianceIssuesProps) {
           );
         })
       )}
+
+      <IssueRemediationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        issue={selectedIssue}
+        onResolved={onResolve}
+      />
     </div>
   );
 }

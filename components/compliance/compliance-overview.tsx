@@ -2,6 +2,7 @@
 
 import { Card } from '@/components/ui/card';
 import { TrendingUp, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface ComplianceScore {
   regulation: string;
@@ -15,6 +16,8 @@ interface ComplianceOverviewProps {
 }
 
 export function ComplianceOverview({ scores }: ComplianceOverviewProps) {
+  const { t } = useLanguage();
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'compliant':
@@ -37,11 +40,11 @@ export function ComplianceOverview({ scores }: ComplianceOverviewProps) {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'compliant':
-        return 'Compliant';
+        return t('applications.compliant');
       case 'partial':
-        return 'Partial';
+        return t('applications.partial');
       case 'at-risk':
-        return 'At Risk';
+        return t('compliance.atRisk');
       default:
         return status;
     }
@@ -60,9 +63,8 @@ export function ComplianceOverview({ scores }: ComplianceOverviewProps) {
               <h3 className="text-3xl font-bold">{score.score}%</h3>
             </div>
             <div
-              className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded ${
-                score.trend >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-              }`}
+              className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded ${score.trend >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                }`}
             >
               <TrendingUp className="w-3 h-3" />
               {score.trend >= 0 ? '+' : ''}{score.trend}%

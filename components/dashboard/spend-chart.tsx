@@ -11,17 +11,19 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockSpendData } from '@/lib/mockData';
+import { useLanguage } from '@/lib/i18n/language-context';
 
-export function SpendChart() {
+export function SpendChart({ data }: { data: any[] }) {
+  const { t } = useLanguage();
+
   return (
     <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle className="text-lg">Monthly SaaS Spend</CardTitle>
+        <CardTitle className="text-lg">{t('dashboard.monthlySpend')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={mockSpendData}>
+          <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3e" />
             <XAxis dataKey="month" stroke="#a0a0a0" />
             <YAxis stroke="#a0a0a0" />
@@ -38,7 +40,7 @@ export function SpendChart() {
               dataKey="spend"
               fill="#6d5cff"
               radius={[8, 8, 0, 0]}
-              name="Actual Spend"
+              name={t('dashboard.monthlySpend')}
             />
             <Bar
               dataKey="budget"

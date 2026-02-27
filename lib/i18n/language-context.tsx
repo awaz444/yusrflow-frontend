@@ -53,7 +53,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t, dir }}>
-      {mounted && children}
+      {children}
     </LanguageContext.Provider>
   );
 }

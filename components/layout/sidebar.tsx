@@ -64,7 +64,7 @@ export function Sidebar() {
         },
         {
             href: '/integrations',
-            label: 'Integrations',
+            label: t('integrations.title'),
             icon: Plug,
         },
         {
@@ -114,7 +114,7 @@ export function Sidebar() {
                 <div className="pt-2 border-t border-border mt-2">
                     <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground gap-3">
                         <User className="w-5 h-5" />
-                        Profile
+                        {t('common.profile')}
                     </Button>
                     <Button
                         variant="ghost"
@@ -122,7 +122,7 @@ export function Sidebar() {
                         onClick={handleLogout}
                     >
                         <LogOut className="w-5 h-5" />
-                        Sign out
+                        {t('common.logout')}
                     </Button>
                 </div>
             </div>

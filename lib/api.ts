@@ -17,10 +17,20 @@ export async function fetchFromApi(endpoint: string, options: RequestInit = {}) 
 
     if (!response.ok) {
         if (response.status === 401) {
-            // Clear token and redirect to login
-            if (typeof window !== 'undefined') {
+            console.warn(`[Auth Debug] API ${endpoint} triggered 401. Current Path: ${typeof window !== 'undefined' ? window.location.pathname : 'server'}`);
+            // Check if we are already on login page to avoid infinite redirect loops
+            const isLoginPage = typeof window !== 'undefined' && window.location.pathname.includes('/auth/login');
+
+            if (typeof window !== 'undefined' && !isLoginPage) {
+                // Only clear and redirect if we actually had a token that expired, 
+                // or if we're on a protected route without one
                 localStorage.removeItem('accessToken');
-                window.location.href = '/auth/login';
+                localStorage.removeItem('refreshToken');
+
+                // Use a short timeout to allow current render cycle to finish before hard redirect
+                setTimeout(() => {
+                    window.location.href = '/auth/login';
+                }, 100);
             }
             // Stop execution to avoid further errors before redirect happens
             throw new Error('Unauthorized: Redirecting to login...');

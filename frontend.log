@@ -1,0 +1,18 @@
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+   ▲ Next.js 16.0.10 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.18.43:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Ready in 520ms
+ GET /ai-assistant 200 in 2.1s (compile: 1941ms, render: 113ms)
+ GET /sw.js 404 in 314ms (compile: 263ms, render: 51ms)
+ ✓ Compiled in 248ms
+ GET /ai-assistant 200 in 119ms (compile: 70ms, render: 49ms)
+ GET /sw.js 404 in 47ms (compile: 22ms, render: 25ms)
+[?25h

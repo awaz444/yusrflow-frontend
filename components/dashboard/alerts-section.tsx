@@ -1,6 +1,7 @@
 import { AlertCircle, AlertTriangle, PaletteIcon as AlertIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockAlerts } from '@/lib/mockData';
+import { useLanguage } from '@/lib/i18n/language-context';
+import Link from 'next/link';
 
 function getSeverityIcon(severity: string) {
   switch (severity) {
@@ -24,18 +25,21 @@ function getSeverityBadgeClass(severity: string) {
   }
 }
 
-export function AlertsSection() {
+export function AlertsSection({ alerts }: { alerts: any[] }) {
+  const { t } = useLanguage();
+
   return (
     <Card className="border-border bg-card col-span-1 lg:col-span-2">
       <CardHeader>
-        <CardTitle className="text-lg">Active Alerts</CardTitle>
+        <CardTitle className="text-lg">{t('dashboard.overview.activeAlerts')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {mockAlerts.map((alert) => (
-            <div
+          {alerts.map((alert) => (
+            <Link
+              href="/compliance"
               key={alert.id}
-              className="flex gap-3 rounded-lg border border-border/50 bg-secondary/20 p-3"
+              className="flex gap-3 rounded-lg border border-border/50 bg-secondary/20 p-3 hover:bg-secondary/40 transition-colors"
             >
               <div className="flex-shrink-0 pt-0.5">
                 {getSeverityIcon(alert.severity)}
@@ -59,14 +63,10 @@ export function AlertsSection() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  {alert.app} •{' '}
-                  {alert.timestamp.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  {alert.source} • {alert.time === 'Just now' ? t('dashboard.alerts.justNow') : alert.time}
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </CardContent>

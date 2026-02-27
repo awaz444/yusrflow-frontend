@@ -54,6 +54,19 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" dir="ltr">
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for(let registration of registrations) {
+                    registration.unregister();
+                  }
+                });
+              }
+            `,
+          }}
+        />
         <LanguageProvider>
           <Providers>
             <AppLayout>
@@ -61,7 +74,7 @@ export default function RootLayout({
             </AppLayout>
           </Providers>
         </LanguageProvider>
-        <Analytics />
+        {/* <Analytics /> */}
       </body>
     </html>
   )
