@@ -148,7 +148,7 @@ function AppRiskCard({ app }: { app: any }) {
                         }`}>
                         {currentOverallScore}%
                     </div>
-                    {compliances.every(c => c.status === 'pending') ? (
+                    {compliances.every((c: any) => c.status === 'pending') ? (
                         <Button size="sm" variant="secondary" onClick={handleScanApp} disabled={isScanning}>
                             {isScanning ? (
                                 <span className="flex items-center gap-2">
