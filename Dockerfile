@@ -8,8 +8,12 @@ COPY package*.json ./
 COPY yarn.lock* ./
 COPY pnpm-lock.yaml* ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies - FIXED: works with or without lock file
+RUN if [ -f package-lock.json ]; then \
+      npm ci; \
+    else \
+      npm install; \
+    fi
 
 # Copy source code
 COPY . .
