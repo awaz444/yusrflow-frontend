@@ -22,7 +22,7 @@ export default function CreateCompanyPage() {
     employeeCount: '',
     contactEmail: '',
     contactPhone: '',
-    subscriptionTier: 'free'
+    subscriptionTier: 'enterprise'
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,8 +165,6 @@ export default function CreateCompanyPage() {
                                 <SelectValue placeholder="Select Tier" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="free">Free</SelectItem>
-                                <SelectItem value="pro">Pro</SelectItem>
                                 <SelectItem value="enterprise">Enterprise</SelectItem>
                             </SelectContent>
                         </Select>
