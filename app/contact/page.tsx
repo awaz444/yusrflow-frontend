@@ -25,7 +25,6 @@ export default function ContactPage() {
   return (
     <AuthLayout
       title={t('contact.title')}
-      subtitle={t('contact.description')}
     >
       <ContactForm onSubmit={handleSubmit} />
     </AuthLayout>

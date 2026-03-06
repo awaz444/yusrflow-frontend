@@ -33,15 +33,15 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-          {/* Recent Activity or Quick Actions could go here */}
-          <Card>
-              <CardHeader>
-                  <CardTitle>Recent Companies</CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <p className="text-muted-foreground text-sm">No recent activity.</p>
-              </CardContent>
-          </Card>
+        {/* Recent Activity or Quick Actions could go here */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Companies</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-sm">No recent activity.</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

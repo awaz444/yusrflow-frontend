@@ -36,7 +36,7 @@ export function LoginForm() {
       const data = await response.json();
 
       if (response.ok && data.accessToken) {
-         await login(data.accessToken, data.refreshToken);
+        await login(data.accessToken, data.refreshToken);
       } else {
         setError(data.message || 'Invalid credentials');
       }
@@ -49,7 +49,7 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30">
           <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />

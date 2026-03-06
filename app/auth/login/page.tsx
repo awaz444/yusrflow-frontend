@@ -10,7 +10,6 @@ export default function LoginPage() {
   return (
     <AuthLayout
       title={t('auth.signIn')}
-      subtitle={t('auth.startFreeUseCase')}
     >
       <LoginForm />
     </AuthLayout>

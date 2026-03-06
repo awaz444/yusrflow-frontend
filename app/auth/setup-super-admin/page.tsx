@@ -74,26 +74,24 @@ export default function SuperAdminSetupPage() {
 
   if (success) {
     return (
-        <AuthLayout
-            title="Setup Complete"
-            subtitle="Your super admin account has been created."
-        >
-            <div className="flex flex-col items-center justify-center space-y-4 py-8">
-                <div className="rounded-full bg-green-500/10 p-4">
-                    <CheckCircle className="h-12 w-12 text-green-500" />
-                </div>
-                <p className="text-center text-muted-foreground">
-                    Redirecting you to login...
-                </p>
-            </div>
-        </AuthLayout>
+      <AuthLayout
+        title="Setup Complete"
+      >
+        <div className="flex flex-col items-center justify-center space-y-4 py-8">
+          <div className="rounded-full bg-green-500/10 p-4">
+            <CheckCircle className="h-12 w-12 text-green-500" />
+          </div>
+          <p className="text-center text-muted-foreground">
+            Redirecting you to login...
+          </p>
+        </div>
+      </AuthLayout>
     );
   }
 
   return (
     <AuthLayout
       title="Super Admin Setup"
-      subtitle="Create the first super admin account for the platform"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
@@ -146,49 +144,49 @@ export default function SuperAdminSetupPage() {
         </div>
 
         <div className="space-y-2">
-            <Label htmlFor="setupKey" className="text-accent font-semibold">Setup Key</Label>
-            <Input
-              id="setupKey"
-              type="password"
-              placeholder="Enter the secret setup key"
-              value={formData.setupKey}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="bg-secondary border-accent/50 focus:border-accent"
-            />
-            <p className="text-xs text-muted-foreground">
-                This key must match the SUPER_ADMIN_SETUP_KEY environment variable.
-            </p>
+          <Label htmlFor="setupKey" className="text-accent font-semibold">Setup Key</Label>
+          <Input
+            id="setupKey"
+            type="password"
+            placeholder="Enter the secret setup key"
+            value={formData.setupKey}
+            onChange={handleChange}
+            required
+            disabled={loading}
+            className="bg-secondary border-accent/50 focus:border-accent"
+          />
+          <p className="text-xs text-muted-foreground">
+            This key must match the SUPER_ADMIN_SETUP_KEY environment variable.
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
-                id="password"
-                type="password"
-                placeholder="******"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="bg-secondary border-border"
+              id="password"
+              type="password"
+              placeholder="******"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              disabled={loading}
+              className="bg-secondary border-border"
             />
-            </div>
-            <div className="space-y-2">
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="******"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="bg-secondary border-border"
+              id="confirmPassword"
+              type="password"
+              placeholder="******"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              disabled={loading}
+              className="bg-secondary border-border"
             />
-            </div>
+          </div>
         </div>
 
         <Button

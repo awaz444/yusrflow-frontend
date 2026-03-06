@@ -10,10 +10,9 @@ import { LanguageSwitcher } from '@/components/layout/language-switcher';
 interface AuthLayoutProps {
   children: React.ReactNode;
   title: string;
-  subtitle?: string;
 }
 
-export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
+export function AuthLayout({ children, title }: AuthLayoutProps) {
   const { t, language } = useLanguage();
 
   return (
@@ -23,20 +22,18 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         <LanguageSwitcher />
       </div>
 
-      <div className="w-full max-w-md space-y-6">
+      <div className="w-full max-w-md space-y-4">
         {/* Logo Section */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Shield className="w-8 h-8 text-accent" />
             <h1 className="text-2xl font-bold text-foreground">{t('auth.title')}</h1>
           </div>
-          <p className="text-sm text-muted-foreground">{t('auth.subtitle')}</p>
         </div>
 
         {/* Content Card */}
-        <Card className="bg-card border-border p-8">
-          <h2 className="text-xl font-semibold text-foreground mb-2">{title}</h2>
-          {subtitle && <p className="text-sm text-muted-foreground mb-6">{subtitle}</p>}
+        <Card className="bg-card border-border p-6">
+          <h2 className="text-2xl font-semibold text-foreground text-center mb-4">{title}</h2>
           {children}
         </Card>
 
