@@ -1,51 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Building2, Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Search, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-
-interface Tenant {
-  id: string;
-  name: string;
-  industry: string;
-  onboardingStatus: 'pending' | 'active' | 'suspended' | 'cancelled';
-  contactEmail: string;
-  createdAt: string;
-  userCount: number;
-}
+import { useTenants } from '@/lib/hooks/use-tenants';
 
 export default function CompaniesPage() {
-  const [companies, setCompanies] = useState<Tenant[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
-
-  const fetchCompanies = async () => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/tenants`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCompanies(data.tenants || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch companies:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, isLoading: loading, isError } = useTenants();
+  const companies = data?.tenants ?? [];
 
   const filteredCompanies = companies.filter(company =>
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -77,9 +45,26 @@ export default function CompaniesPage() {
         />
       </div>
 
+      {isError && (
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          Failed to load companies. Please try again.
+        </div>
+      )}
+
       {loading ? (
-        <div className="flex justify-center p-8">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-5 w-2/3" />
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

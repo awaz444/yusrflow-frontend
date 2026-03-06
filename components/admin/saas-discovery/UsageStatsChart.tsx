@@ -1,34 +1,27 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { useEffect, useState } from "react";
-import { saasDiscoveryService, AppUsageStats } from "@/lib/services/saas-discovery-service";
+import { useUsageStats } from "@/lib/hooks/use-saas-discovery";
 
 export default function UsageStatsChart() {
-    const [data, setData] = useState<{ name: string; users: number }[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: stats, isLoading: loading } = useUsageStats(30);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const stats = await saasDiscoveryService.getAppUsage(30);
-                const chartData = Object.entries(stats).map(([name, users]) => ({
-                    name,
-                    users,
-                }));
-                setData(chartData);
-            } catch (error) {
-                console.error("Failed to fetch usage stats", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const data = stats
+        ? Object.entries(stats).map(([name, users]) => ({ name, users }))
+        : [];
 
-        fetchData();
-    }, []);
-
-    if (loading) return <div>Loading chart...</div>;
+    if (loading) return (
+        <Card className="col-span-4">
+            <CardHeader>
+                <CardTitle>Application Usage (Last 30 Days)</CardTitle>
+            </CardHeader>
+            <CardContent className="pl-2">
+                <Skeleton className="h-[350px] w-full" />
+            </CardContent>
+        </Card>
+    );
     if (data.length === 0) return <div>No usage data available</div>;
 
     return (

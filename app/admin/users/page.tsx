@@ -1,66 +1,25 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Search, Users, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-
-interface User {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  role: string;
-  tenant_id: string;
-  created_at: string;
-  is_active: boolean;
-  tenant?: {
-    name: string;
-  }
-}
+import { useAdminUsers } from '@/lib/hooks/use-admin-users';
 
 function UsersPageContent() {
   const searchParams = useSearchParams();
-  const tenantIdFilter = searchParams.get('tenantId');
+  const tenantIdFilter = searchParams.get('tenantId') ?? undefined;
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-    fetchUsers();
-  }, [tenantIdFilter]);
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('accessToken');
-      let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/users`;
-
-      if (tenantIdFilter) {
-        url += `?tenantId=${tenantIdFilter}`;
-      }
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.data || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, isLoading: loading, isError } = useAdminUsers(
+    tenantIdFilter ? { tenantId: tenantIdFilter } : undefined
+  );
+  const users = data?.data ?? [];
 
   const filteredUsers = users.filter(user =>
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -95,10 +54,28 @@ function UsersPageContent() {
         />
       </div>
 
-      {loading ? (
-        <div className="flex justify-center p-8">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      {isError && (
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          Failed to load users. Please try again.
         </div>
+      )}
+
+      {loading ? (
+        <Card>
+          <CardHeader><CardTitle>User Directory</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4 py-2">
+                  <Skeleton className="h-4 w-36" />
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardHeader>

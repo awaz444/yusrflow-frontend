@@ -1,64 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Users, AppWindow, CheckCircle2, Loader2 } from 'lucide-react';
-import { fetchFromApi } from '@/lib/api';
-
-interface RecentCompany {
-  id: string;
-  name: string;
-  industry: string | null;
-  country: string | null;
-  subscriptionTier: string | null;
-  isActive: boolean | null;
-  onboardingStatus: string | null;
-  contactEmail: string | null;
-  userCount: number;
-  createdAt: string | null;
-}
-
-interface SubscriptionBreakdown {
-  tier: string;
-  count: number;
-}
-
-interface DashboardStats {
-  totalCompanies: number;
-  activeCompanies: number;
-  totalUsers: number;
-  totalSaasApps: number;
-  recentCompanies: RecentCompany[];
-  subscriptionBreakdown: SubscriptionBreakdown[];
-}
+import { Skeleton } from '@/components/ui/skeleton';
+import { Building2, Users, AppWindow, CheckCircle2 } from 'lucide-react';
+import { useAdminDashboard } from '@/lib/hooks/use-admin-dashboard';
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchFromApi('/admin/dashboard')
-      .then((data: DashboardStats) => setStats(data))
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: stats, isLoading: loading, isError, error } = useAdminDashboard();
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-foreground">Super Admin Dashboard</h1>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">Loading dashboard data...</span>
-        </div>
-      )}
-
-      {error && (
+      {isError && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          Failed to load dashboard: {error}
+          Failed to load dashboard: {(error as Error)?.message}
         </div>
       )}
 
@@ -69,9 +26,7 @@ export default function AdminDashboardPage() {
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '--' : stats?.totalCompanies ?? 0}
-            </div>
+            {loading ? <Skeleton className="h-8 w-16 mt-1" /> : <div className="text-2xl font-bold">{stats?.totalCompanies ?? 0}</div>}
             <p className="text-xs text-muted-foreground">Registered tenants</p>
           </CardContent>
         </Card>
@@ -82,9 +37,7 @@ export default function AdminDashboardPage() {
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '--' : stats?.activeCompanies ?? 0}
-            </div>
+            {loading ? <Skeleton className="h-8 w-16 mt-1" /> : <div className="text-2xl font-bold">{stats?.activeCompanies ?? 0}</div>}
             <p className="text-xs text-muted-foreground">Currently active tenants</p>
           </CardContent>
         </Card>
@@ -95,9 +48,7 @@ export default function AdminDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '--' : stats?.totalUsers ?? 0}
-            </div>
+            {loading ? <Skeleton className="h-8 w-16 mt-1" /> : <div className="text-2xl font-bold">{stats?.totalUsers ?? 0}</div>}
             <p className="text-xs text-muted-foreground">Across all tenants</p>
           </CardContent>
         </Card>
@@ -108,9 +59,7 @@ export default function AdminDashboardPage() {
             <AppWindow className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '--' : stats?.totalSaasApps ?? 0}
-            </div>
+            {loading ? <Skeleton className="h-8 w-16 mt-1" /> : <div className="text-2xl font-bold">{stats?.totalSaasApps ?? 0}</div>}
             <p className="text-xs text-muted-foreground">Discovered applications</p>
           </CardContent>
         </Card>
@@ -123,7 +72,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-muted-foreground text-sm">Loading...</p>
+              <div className="space-y-3">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-md" />)}</div>
             ) : !stats?.recentCompanies?.length ? (
               <p className="text-muted-foreground text-sm">No companies yet.</p>
             ) : (
@@ -171,7 +120,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-muted-foreground text-sm">Loading...</p>
+              <div className="space-y-2">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-10 w-full rounded-md" />)}</div>
             ) : !stats?.subscriptionBreakdown?.length ? (
               <p className="text-muted-foreground text-sm">No data available.</p>
             ) : (

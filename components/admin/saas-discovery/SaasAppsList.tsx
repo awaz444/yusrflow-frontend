@@ -11,47 +11,20 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { saasDiscoveryService, SaasApp } from "@/lib/services/saas-discovery-service";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useSaasApps, useTriggerDiscovery } from "@/lib/hooks/use-saas-discovery";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
 
 export default function SaasAppsList() {
-    const [apps, setApps] = useState<SaasApp[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [discovering, setDiscovering] = useState(false);
+    const { data: apps = [], isLoading: loading } = useSaasApps();
+    const { mutate: triggerDiscovery, isPending: discovering } = useTriggerDiscovery();
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            // Since we don't have a direct "list" endpoint yet properly exposed or documented to return JUST list without trigger,
-            // we will use the discover endpoint which returns the list.
-            // Ideally should separate list from trigger, but for now this works as "Refresh/List".
-            const data = await saasDiscoveryService.triggerDiscovery();
-            setApps(data);
-        } catch (error) {
-            console.error("Failed to fetch apps", error);
-            toast.error("Failed to load applications");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const handleDiscover = async () => {
-        setDiscovering(true);
-        try {
-            const data = await saasDiscoveryService.triggerDiscovery();
-            setApps(data);
-            toast.success("Discovery completed successfully");
-        } catch (error) {
-            toast.error("Discovery failed");
-        } finally {
-            setDiscovering(false);
-        }
+    const handleDiscover = () => {
+        triggerDiscovery(undefined, {
+            onSuccess: () => toast.success("Discovery completed successfully"),
+            onError: () => toast.error("Discovery failed"),
+        });
     };
 
     return (
@@ -78,9 +51,14 @@ export default function SaasAppsList() {
                     </TableHeader>
                     <TableBody>
                         {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={4} className="text-center h-24">Loading...</TableCell>
-                            </TableRow>
+                            [...Array(4)].map((_, i) => (
+                                <TableRow key={i}>
+                                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                                </TableRow>
+                            ))
                         ) : apps.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={4} className="text-center h-24">No applications found.</TableCell>

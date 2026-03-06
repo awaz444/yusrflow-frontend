@@ -1,31 +1,14 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { useEffect, useState } from "react";
-import { saasDiscoveryService, SaasApp } from "@/lib/services/saas-discovery-service";
+import { useShadowIT } from "@/lib/hooks/use-saas-discovery";
 import { AlertTriangle } from "lucide-react";
 
 export default function ShadowITReport() {
-    const [shadowApps, setShadowApps] = useState<SaasApp[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchShadowIT = async () => {
-            try {
-                const data = await saasDiscoveryService.getShadowIT();
-                setShadowApps(data);
-            } catch (error) {
-                console.error("Failed to fetch Shadow IT", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchShadowIT();
-    }, []);
+    const { data: shadowApps = [], isLoading: loading } = useShadowIT();
 
     if (loading) return null;
-    if (shadowApps.length === 0) return null; // Don't show if no shadow IT
+    if (shadowApps.length === 0) return null;
 
     return (
         <Card className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900">
