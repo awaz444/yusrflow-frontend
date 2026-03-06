@@ -15,6 +15,7 @@ interface IntegrationCardProps {
     isComingSoon?: boolean;
     isLoading?: boolean;
     onConnect: () => void;
+    onReconnect?: () => void;
     onDisconnect?: () => void;
 }
 
@@ -27,6 +28,7 @@ export function IntegrationCard({
     isComingSoon = false,
     isLoading = false,
     onConnect,
+    onReconnect,
     onDisconnect,
 }: IntegrationCardProps) {
     const { t } = useLanguage();
@@ -78,6 +80,17 @@ export function IntegrationCard({
                             <Button variant="outline" size="sm" disabled>
                                 {t('integrations.manage')}
                             </Button>
+                            {onReconnect && (
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={onReconnect}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                    {t('integrations.reconnect')}
+                                </Button>
+                            )}
                             {onDisconnect && (
                                 <Button
                                     variant="destructive"

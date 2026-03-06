@@ -137,6 +137,7 @@ export default function IntegrationsPage() {
                         isConnected={microsoftStatus.isConnected}
                         isLoading={connectingProvider === 'microsoft'}
                         onConnect={handleConnectMicrosoft}
+                        onReconnect={handleConnectMicrosoft}
                     />
 
                     {/* Google Workspace Integration */}

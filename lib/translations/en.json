@@ -263,6 +263,7 @@
     "notConnected": "Not Connected",
     "manage": "Manage",
     "disconnect": "Disconnect",
+    "reconnect": "Reconnect",
     "connect": "Connect {app}",
     "microsoft365": "Microsoft 365",
     "microsoft365Desc": "Connect your Microsoft 365 account to discover SaaS applications, monitor user activity, and ensure compliance with organizational policies.",
