@@ -9,8 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { AlertTriangle, CheckCircle2, Clock, Download, FileText, ShieldCheck, Loader2 } from 'lucide-react';
-import { fetchFromApi } from '@/lib/api';
+import { fetchFromApi, downloadFile } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n/language-context';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function CompliancePage() {
   const { t } = useLanguage();
@@ -18,6 +24,7 @@ export default function CompliancePage() {
   const [scores, setScores] = useState<any[]>([]);
   const [timelineEvents, setTimelineEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   // Compliance Scan state
   const [isScanning, setIsScanning] = useState(false);
@@ -93,6 +100,18 @@ export default function CompliancePage() {
     );
   };
 
+  const handleDownloadReport = async (lang: string = 'en') => {
+    setDownloading(true);
+    try {
+      const timestamp = new Date().toISOString().split('T')[0];
+      await downloadFile(`/reports/compliance-health/pdf?lang=${lang}`, `Yusrflow_Compliance_Report_${lang.toUpperCase()}_${timestamp}.pdf`);
+    } catch (error) {
+      console.error('Failed to download report:', error);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const criticalIssues = issues.filter((issue) => issue.severity === 'critical').length;
   const openIssues = issues.filter((issue) => issue.status === 'open').length;
   const resolvedIssues = issues.filter((issue) => issue.status === 'resolved').length;
@@ -157,10 +176,25 @@ export default function CompliancePage() {
                 {isScanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
                 {isScanning ? 'Scanning...' : 'Run Compliance Check'}
               </Button>
-              <Button className="bg-accent hover:bg-accent/90 text-white gap-2">
-                <Download className="w-4 h-4" />
-                {t('compliance.generateReport')}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    disabled={downloading}
+                    className="bg-accent hover:bg-accent/90 text-white gap-2"
+                  >
+                    {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    {downloading ? t('reports.generating') : t('compliance.generateReport')}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleDownloadReport('en')}>
+                    {t('common.english')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownloadReport('ar')}>
+                    {t('common.arabic')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

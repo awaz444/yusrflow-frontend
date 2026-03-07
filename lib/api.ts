@@ -56,3 +56,33 @@ export async function fetchFromApi(endpoint: string, options: RequestInit = {}) 
     }
 }
 
+export async function downloadFile(endpoint: string, filename: string) {
+    const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Download failed: ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode?.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+        console.error('File download error:', error);
+        throw error;
+    }
+}
+
