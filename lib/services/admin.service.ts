@@ -72,6 +72,13 @@ export function fetchAdminTenantById(id: string): Promise<Tenant & { users: any[
   return fetchFromApi(`/admin/tenants/${id}`);
 }
 
+export function updateAdminTenantStatus(id: string, status: Tenant['onboardingStatus']): Promise<{ message: string; tenant: any }> {
+  return fetchFromApi(`/admin/tenants/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
 // ── Users ─────────────────────────────────────────────────────────────────────
 
 export interface AdminUser {
