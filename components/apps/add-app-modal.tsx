@@ -22,14 +22,31 @@ export function AddAppModal({ isOpen, onClose, onSubmit }: AddAppModalProps) {
         name: '',
         category: '',
         riskLevel: 'medium',
+        costPerUser: '',
+        manualMonthlyCost: '',
+        billingCycle: 'monthly',
+        renewalDate: '',
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             setLoading(true);
-            await onSubmit(formData);
-            setFormData({ name: '', category: '', riskLevel: 'medium' });
+            await onSubmit({
+                ...formData,
+                costPerUser: formData.costPerUser ? parseFloat(formData.costPerUser) : undefined,
+                manualMonthlyCost: formData.manualMonthlyCost ? parseFloat(formData.manualMonthlyCost) : undefined,
+                renewalDate: formData.renewalDate ? new Date(formData.renewalDate) : undefined,
+            });
+            setFormData({
+                name: '',
+                category: '',
+                riskLevel: 'medium',
+                costPerUser: '',
+                manualMonthlyCost: '',
+                billingCycle: 'monthly',
+                renewalDate: '',
+            });
             onClose();
         } catch (error) {
             console.error('Failed to add app:', error);
@@ -85,17 +102,70 @@ export function AddAppModal({ isOpen, onClose, onSubmit }: AddAppModalProps) {
                                 <SelectItem value="critical">{t('dashboard.riskLevels.critical') || 'Critical Risk'}</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="costPerUser">Cost Per User (SAR)</Label>
+                                <Input
+                                    id="costPerUser"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={formData.costPerUser}
+                                    onChange={(e) => setFormData({ ...formData, costPerUser: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="manualMonthlyCost">Flat Monthly Cost (SAR)</Label>
+                                <Input
+                                    id="manualMonthlyCost"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={formData.manualMonthlyCost}
+                                    onChange={(e) => setFormData({ ...formData, manualMonthlyCost: e.target.value })}
+                                />
+                            </div>
+                        </div>
 
-                    <DialogFooter className="pt-4">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                            {t('applications.cancel')}
-                        </Button>
-                        <Button type="submit" disabled={!formData.name || loading}>
-                            {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                            {t('applications.saveApplication')}
-                        </Button>
-                    </DialogFooter>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="billingCycle">Billing Cycle</Label>
+                                <Select
+                                    value={formData.billingCycle}
+                                    onValueChange={(value) => setFormData({ ...formData, billingCycle: value })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select cycle" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="monthly">Monthly</SelectItem>
+                                        <SelectItem value="annual">Annual</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="renewalDate">Renewal Date</Label>
+                                <Input
+                                    id="renewalDate"
+                                    type="date"
+                                    value={formData.renewalDate}
+                                    onChange={(e) => setFormData({ ...formData, renewalDate: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <DialogFooter className="pt-4">
+                            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+                                {t('applications.cancel')}
+                            </Button>
+                            <Button type="submit" disabled={!formData.name || loading}>
+                                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                {t('applications.saveApplication')}
+                            </Button>
+                        </DialogFooter>
+                    </div>
                 </form>
             </DialogContent>
         </Dialog>

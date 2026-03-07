@@ -155,7 +155,7 @@ function AppRiskCard({ app }: { app: any }) {
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                     Scanning...
                                 </span>
-                            ) : 'Scan with AI'}
+                            ) : 'Run a Compliance Test'}
                         </Button>
                     ) : (
                         <div className="flex items-center gap-1.5 text-sm text-green-500 font-medium bg-green-500/10 px-2 py-1 rounded-md">

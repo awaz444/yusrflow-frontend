@@ -9,19 +9,10 @@ import { AddAppModal } from '@/components/apps/add-app-modal';
 import { ReviewRisksModal } from '@/components/apps/review-risks-modal';
 import { fetchFromApi } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { ImportAppModal } from '@/components/apps/import-app-modal';
+import type { App } from '@/lib/types';
 
 type SortColumn = 'name' | 'category' | 'complianceScore' | 'riskLevel' | 'status' | 'users';
-
-// Define the shape expected by the UI
-interface SaasApp {
-  id: string;
-  name: string;
-  category: string;
-  riskLevel: 'low' | 'medium' | 'high';
-  complianceScore: number;
-  users: number;
-  status: 'compliant' | 'partial' | 'non_compliant';
-}
 
 export default function AppsPage() {
   const { t } = useLanguage();
@@ -33,33 +24,43 @@ export default function AppsPage() {
   const [sortColumn, setSortColumn] = useState<SortColumn>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const [apps, setApps] = useState<SaasApp[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isReviewRisksModalOpen, setIsReviewRisksModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<App | null>(null); // Assuming App type is compatible with SaasApp
+  const [apps, setApps] = useState<App[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   const loadApps = async () => {
     try {
+      setIsLoading(true);
       const response = await fetchFromApi('/tenants/apps');
       const data = response.data || response;
 
-      // Map backend data to frontend shape if necessary
+      // Map backend data to frontend shape
       const mappedApps = data.map((app: any) => ({
         id: app.id,
         name: app.name,
         category: app.category || 'Uncategorized',
-        riskLevel: (app.riskLevel as 'low' | 'medium' | 'high') || 'medium',
+        riskLevel: (app.riskLevel as 'low' | 'medium' | 'high' | 'critical') || 'medium',
         complianceScore: app.complianceScore || 0,
         users: app.users || 0,
         status: app.status || 'compliant',
+        costPerUser: app.costPerUser,
+        manualMonthlyCost: app.manualMonthlyCost,
+        monthlySpend: app.monthlySpend,
+        billingCycle: app.billingCycle,
+        renewalDate: app.renewalDate,
       }));
       setApps(mappedApps);
-    } catch (error) {
-      console.error('Failed to load apps:', error);
-      // Set empty array so UI doesn't break
+      setError(null);
+    } catch (err: any) {
+      console.error('Failed to load apps:', err);
+      setError(err);
       setApps([]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -68,14 +69,14 @@ export default function AppsPage() {
   }, []);
 
   const categories = useMemo(
-    () => [...new Set(apps.map((app) => app.category))].sort(),
+    () => [...new Set((apps || []).map((app: App) => app.category))].sort(),
     [apps]
   );
   const riskLevels = ['low', 'medium', 'high'];
   const statuses = ['compliant', 'partial', 'non_compliant'];
 
   const filteredAndSortedApps = useMemo(() => {
-    let filtered = apps.filter((app) => {
+    let filtered = (apps || []).filter((app: App) => {
       const matchesSearch = app.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(app.category);
       const matchesRiskLevel =
@@ -86,14 +87,20 @@ export default function AppsPage() {
     });
 
     // Sort
-    filtered.sort((a, b) => {
-      let aValue = a[sortColumn];
-      let bValue = b[sortColumn];
+    filtered.sort((a: App, b: App) => {
+      let aValue: any = a[sortColumn as keyof App];
+      let bValue: any = b[sortColumn as keyof App];
 
       if (typeof aValue === 'string') {
         aValue = aValue.toLowerCase();
-        bValue = (bValue as string).toLowerCase();
       }
+      if (typeof bValue === 'string') {
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return sortDirection === 'asc' ? 1 : -1;
+      if (bValue === undefined) return sortDirection === 'asc' ? -1 : 1;
 
       if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
@@ -131,11 +138,11 @@ export default function AppsPage() {
   };
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectedAppIds(checked ? filteredAndSortedApps.map((app) => app.id) : []);
+    setSelectedAppIds(checked ? filteredAndSortedApps.map((app: App) => app.id) : []);
   };
 
   const handleSelectApp = (id: string, checked: boolean) => {
-    setSelectedAppIds((prev) =>
+    setSelectedAppIds((prev: string[]) =>
       checked ? [...prev, id] : prev.filter((appId) => appId !== id)
     );
   };
@@ -150,7 +157,7 @@ export default function AppsPage() {
     setSelectedAppIds([]);
   };
 
-  const downloadCSV = (data: SaasApp[], filename: string) => {
+  const downloadCSV = (data: App[], filename: string) => {
     const headers = ['URL / ID', 'Name', 'Category', 'Compliance Score', 'Risk Level', 'Status', 'Active Users'];
 
     const csvContent = [
@@ -179,12 +186,12 @@ export default function AppsPage() {
   };
 
   const handleExportCompliance = () => {
-    const selectedAppsData = apps.filter((app) => selectedAppIds.includes(app.id));
+    const selectedAppsData = (apps || []).filter((app: App) => selectedAppIds.includes(app.id));
     downloadCSV(selectedAppsData, 'compliance-report.csv');
   };
 
   const selectedAppsData = useMemo(() => {
-    return apps.filter((app) => selectedAppIds.includes(app.id));
+    return (apps || []).filter((app: App) => selectedAppIds.includes(app.id)) as App[];
   }, [apps, selectedAppIds]);
 
   const handleReviewRisks = () => {
@@ -202,7 +209,7 @@ export default function AppsPage() {
       });
 
       setSelectedAppIds([]);
-      await loadApps();
+      loadApps(); // Refresh apps list
     } catch (error) {
       console.error('Failed to remove apps:', error);
       alert(t('applications.deleteFailed'));
@@ -224,15 +231,20 @@ export default function AppsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      await loadApps();
+      loadApps(); // Refresh apps list
     } catch (error) {
       console.error('Failed to save app:', error);
       alert('Failed to save application. Please try again.');
     }
   };
 
-  if (loading) {
+
+  if (isLoading) {
     return <div className="p-8">{t('applications.loading')}</div>;
+  }
+
+  if (error) {
+    return <div className="p-8 text-red-500">Error loading applications: {error.message}</div>;
   }
 
   return (
@@ -241,9 +253,10 @@ export default function AppsPage() {
         <AppsHeader
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          onAddApp={handleAddApp}
+          onAddApp={() => setIsAddModalOpen(true)}
+          onImportApp={() => setIsImportModalOpen(true)}
           onExport={handleExport}
-          appCount={apps.length}
+          appCount={filteredAndSortedApps?.length || 0}
         />
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -293,6 +306,11 @@ export default function AppsPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleSaveApp}
+      />
+      <ImportAppModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={() => loadApps()}
       />
       <ReviewRisksModal
         isOpen={isReviewRisksModalOpen}

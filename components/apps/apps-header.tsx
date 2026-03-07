@@ -2,13 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Download, Plus, Search } from 'lucide-react';
+import { Download, Plus, Search, UploadCloud } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 interface AppsHeaderProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
   onAddApp: () => void;
+  onImportApp: () => void;
   onExport: () => void;
   appCount: number;
 }
@@ -17,6 +18,7 @@ export function AppsHeader({
   searchTerm,
   onSearchChange,
   onAddApp,
+  onImportApp,
   onExport,
   appCount,
 }: AppsHeaderProps) {
@@ -45,6 +47,11 @@ export function AppsHeader({
         <Button onClick={onExport} variant="outline" className="border-border hover:bg-background gap-2 bg-transparent">
           <Download className="w-4 h-4" />
           {t('common.export')}
+        </Button>
+
+        <Button onClick={onImportApp} variant="outline" className="border-border hover:bg-background gap-2 bg-transparent">
+          <UploadCloud className="w-4 h-4" />
+          Import Application
         </Button>
 
         <Button onClick={onAddApp} className="bg-accent hover:bg-accent/90 text-white gap-2">

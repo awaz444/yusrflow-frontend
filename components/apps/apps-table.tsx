@@ -6,15 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
 
-interface App {
-  id: string;
-  name: string;
-  category: string;
-  riskLevel: 'low' | 'medium' | 'high';
-  complianceScore: number;
-  users: number;
-  status: 'compliant' | 'partial' | 'non_compliant';
-}
+import type { App } from '@/lib/types';
 
 interface AppsTableProps {
   apps: App[];
@@ -137,6 +129,10 @@ export function AppsTable({
               <th className="px-6 py-4 text-left">
                 <SortHeader column="users" label={t('applications.users')} />
               </th>
+              <th className="px-6 py-4 text-left">
+                <SortHeader column="monthlySpend" label="Monthly Spend" />
+              </th>
+              <th className="px-6 py-4 text-left">Billing Cycle</th>
               <th className="px-6 py-4 text-left">{t('applications.actions')}</th>
             </tr>
           </thead>
@@ -173,6 +169,25 @@ export function AppsTable({
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-muted-foreground">{app.users}</td>
+                <td className="px-6 py-4">
+                  {app.monthlySpend ? (
+                    <span className="font-medium text-foreground">
+                      {new Intl.NumberFormat('en-SA', { style: 'currency', currency: 'SAR' }).format(app.monthlySpend)}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground italic truncate max-w-[100px] block" title="Data required">Pending</span>
+                  )}
+                  {app.costPerUser ? (
+                    <span className="text-xs text-muted-foreground block mt-1">
+                      ({app.costPerUser} / user)
+                    </span>
+                  ) : app.manualMonthlyCost ? (
+                    <span className="text-xs text-muted-foreground block mt-1">
+                      (Flat fee)
+                    </span>
+                  ) : null}
+                </td>
+                <td className="px-6 py-4 text-sm text-muted-foreground capitalize">{app.billingCycle || 'Monthly'}</td>
                 <td className="px-6 py-4">
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                     <MoreVertical className="w-4 h-4" />
