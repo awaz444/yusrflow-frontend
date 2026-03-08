@@ -18,9 +18,9 @@ export function ComplianceScores({ scores }: { scores: any }) {
 
   const regulations = [
     { key: 'pdpl', label: 'PDPL' },
+    { key: 'ndmo', label: 'NDMO' },
     { key: 'sdaia', label: 'SDAIA' },
     { key: 'nca', label: 'NCA' },
-    { key: 'citc', label: 'CITC' },
   ];
 
   return (

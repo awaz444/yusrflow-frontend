@@ -64,7 +64,7 @@ function AppRiskCard({ app }: { app: any }) {
         }
         return [
             { id: 'pdpl', name: 'PDPL (Pending Scan)', score: a.complianceScore, isFixed: false, status: 'pending' },
-            { id: 'gdpr', name: 'GDPR (Pending Scan)', score: a.complianceScore, isFixed: false, status: 'pending' }
+            { id: 'ndmo', name: 'NDMO (Pending Scan)', score: a.complianceScore, isFixed: false, status: 'pending' }
         ];
     };
 
