@@ -58,7 +58,7 @@ export function LoginForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-sm text-foreground font-medium">
+        <Label htmlFor="email" className="text-sm text-foreground font-semibold">
           {t('auth.email')}
         </Label>
         <Input
@@ -69,16 +69,16 @@ export function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={loading}
-          className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+          className="bg-background/50 border-white/10 focus:border-accent transition-all duration-300 h-11 text-foreground placeholder:text-muted-foreground/70"
         />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password" className="text-sm text-foreground font-medium">
+          <Label htmlFor="password" className="text-sm text-foreground font-semibold">
             {t('auth.password')}
           </Label>
-          <Link href="/auth/forgot-password" className="text-xs text-accent hover:text-accent/80">
+          <Link href="/auth/forgot-password" className="text-sm text-accent hover:text-accent/80 transition-colors font-medium">
             {t('auth.forgotPassword')}
           </Link>
         </div>
@@ -90,18 +90,19 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           disabled={loading}
-          className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+          className="bg-background/50 border-white/10 focus:border-accent transition-all duration-300 h-11 text-foreground placeholder:text-muted-foreground/70"
         />
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 pt-2">
         <Checkbox
           id="remember"
           checked={rememberMe}
           onCheckedChange={(checked) => setRememberMe(checked as boolean)}
           disabled={loading}
+          className="data-[state=checked]:bg-accent data-[state=checked]:border-accent"
         />
-        <Label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
+        <Label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors font-medium">
           {t('auth.rememberMe')}
         </Label>
       </div>
@@ -109,7 +110,7 @@ export function LoginForm() {
       <Button
         type="submit"
         disabled={loading || !email || !password}
-        className="w-full bg-accent hover:bg-accent/90 text-white font-medium"
+        className="w-full h-12 mt-4 bg-accent hover:bg-accent/90 text-white font-semibold text-base shadow-lg shadow-accent/20 transition-all active:scale-[0.98]"
       >
         {loading ? (
           <>
