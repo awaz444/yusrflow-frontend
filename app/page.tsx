@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { ComplianceScores } from '@/components/dashboard/compliance-scores';
@@ -13,23 +12,13 @@ import {
   Loader2
 } from 'lucide-react';
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { fetchFromApi } from '@/lib/api';
+import { useTenantDashboard } from '@/lib/hooks/use-tenant-dashboard';
 
 import { useLanguage } from '@/lib/i18n/language-context';
 
 export default function Home() {
   const { t } = useLanguage();
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchFromApi('/tenants/dashboard')
-      .then(res => {
-        setData(res.data || res);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading } = useTenantDashboard();
 
   if (loading) {
     return (
@@ -49,7 +38,7 @@ export default function Home() {
     );
   }
 
-  const dashboard = data.data || data;
+  const dashboard = data;
 
   const averageComplianceScore =
     Math.round(

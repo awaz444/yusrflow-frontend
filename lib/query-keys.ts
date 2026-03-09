@@ -15,3 +15,15 @@ export const adminKeys = {
   shadowIT: () => [...adminKeys.all, 'shadow-it'] as const,
   usageStats: (days: number) => [...adminKeys.all, 'usage-stats', days] as const,
 };
+
+export const tenantKeys = {
+  all: ['tenant'] as const,
+  dashboard: () => [...tenantKeys.all, 'dashboard'] as const,
+  compliance: () => [...tenantKeys.all, 'compliance'] as const,
+  scanStatus: () => [...tenantKeys.all, 'scan-status'] as const,
+};
+
+export const appsKeys = {
+  all: ['apps'] as const,
+  list: () => [...appsKeys.all, 'list'] as const,
+};

@@ -1,6 +1,37 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export async function fetchFromApi(endpoint: string, options: RequestInit = {}) {
+// Singleton refresh promise — deduplicates concurrent 401 retries
+let _refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+    try {
+        const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+        if (!refreshToken) return null;
+
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken }),
+        });
+
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        const newAccessToken = data.accessToken || data.data?.accessToken;
+        const newRefreshToken = data.refreshToken || data.data?.refreshToken;
+
+        if (newAccessToken) {
+            localStorage.setItem('accessToken', newAccessToken);
+            if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
+            return newAccessToken;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+export async function fetchFromApi(endpoint: string, options: RequestInit = {}, _isRetry = false) {
     const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
     // Get token from localStorage if available
@@ -17,22 +48,29 @@ export async function fetchFromApi(endpoint: string, options: RequestInit = {}) 
 
     if (!response.ok) {
         if (response.status === 401) {
+            // Attempt a transparent token refresh (only once per original call)
+            if (!_isRetry) {
+                if (!_refreshPromise) {
+                    _refreshPromise = refreshAccessToken().finally(() => { _refreshPromise = null; });
+                }
+                const newToken = await _refreshPromise;
+                if (newToken) {
+                    // Retry original request with new token
+                    return fetchFromApi(endpoint, options, true);
+                }
+            }
+
             console.warn(`[Auth Debug] API ${endpoint} triggered 401. Current Path: ${typeof window !== 'undefined' ? window.location.pathname : 'server'}`);
-            // Check if we are already on login page to avoid infinite redirect loops
             const isLoginPage = typeof window !== 'undefined' && window.location.pathname.includes('/auth/login');
 
             if (typeof window !== 'undefined' && !isLoginPage) {
-                // Only clear and redirect if we actually had a token that expired, 
-                // or if we're on a protected route without one
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
 
-                // Use a short timeout to allow current render cycle to finish before hard redirect
                 setTimeout(() => {
                     window.location.href = '/auth/login';
                 }, 100);
             }
-            // Stop execution to avoid further errors before redirect happens
             throw new Error('Unauthorized: Redirecting to login...');
         }
 

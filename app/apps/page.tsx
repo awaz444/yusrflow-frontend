@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { AppsHeader } from '@/components/apps/apps-header';
 import { FilterSidebar } from '@/components/apps/filter-sidebar';
 import { AppsTable } from '@/components/apps/apps-table';
 import { BulkActions } from '@/components/apps/bulk-actions';
 import { AddAppModal } from '@/components/apps/add-app-modal';
 import { ReviewRisksModal } from '@/components/apps/review-risks-modal';
-import { fetchFromApi } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { ImportAppModal } from '@/components/apps/import-app-modal';
+import { useApps, useAddApp, useDeleteApps } from '@/lib/hooks/use-apps';
+import { useQueryClient } from '@tanstack/react-query';
+import { appsKeys } from '@/lib/query-keys';
 import type { App } from '@/lib/types';
 
 type SortColumn = 'name' | 'category' | 'complianceScore' | 'riskLevel' | 'status' | 'users';
@@ -27,46 +29,12 @@ export default function AppsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isReviewRisksModalOpen, setIsReviewRisksModalOpen] = useState(false);
-  const [selectedApp, setSelectedApp] = useState<App | null>(null); // Assuming App type is compatible with SaasApp
-  const [apps, setApps] = useState<App[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [selectedApp, setSelectedApp] = useState<App | null>(null);
 
-  const loadApps = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetchFromApi('/tenants/apps');
-      const data = response.data || response;
-
-      // Map backend data to frontend shape
-      const mappedApps = data.map((app: any) => ({
-        id: app.id,
-        name: app.name,
-        category: app.category || 'Uncategorized',
-        riskLevel: (app.riskLevel as 'low' | 'medium' | 'high' | 'critical') || 'medium',
-        complianceScore: app.complianceScore || 0,
-        users: app.users || 0,
-        status: app.status || 'compliant',
-        costPerUser: app.costPerUser,
-        manualMonthlyCost: app.manualMonthlyCost,
-        monthlySpend: app.monthlySpend,
-        billingCycle: app.billingCycle,
-        renewalDate: app.renewalDate,
-      }));
-      setApps(mappedApps);
-      setError(null);
-    } catch (err: any) {
-      console.error('Failed to load apps:', err);
-      setError(err);
-      setApps([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadApps();
-  }, []);
+  const { data: apps = [], isLoading, error } = useApps();
+  const addApp = useAddApp();
+  const deleteApps = useDeleteApps();
+  const queryClient = useQueryClient();
 
   const categories = useMemo(
     () => [...new Set((apps || []).map((app: App) => app.category))].sort(),
@@ -202,14 +170,8 @@ export default function AppsPage() {
     try {
       if (!confirm(t('applications.deleteAppConfirm').replace('{count}', selectedAppIds.length.toString()))) return;
 
-      await fetchFromApi('/tenants/apps', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ appIds: selectedAppIds })
-      });
-
+      await deleteApps.mutateAsync(selectedAppIds);
       setSelectedAppIds([]);
-      loadApps(); // Refresh apps list
     } catch (error) {
       console.error('Failed to remove apps:', error);
       alert(t('applications.deleteFailed'));
@@ -226,12 +188,7 @@ export default function AppsPage() {
 
   const handleSaveApp = async (data: any) => {
     try {
-      await fetchFromApi('/tenants/apps', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      loadApps(); // Refresh apps list
+      await addApp.mutateAsync(data);
     } catch (error) {
       console.error('Failed to save app:', error);
       alert('Failed to save application. Please try again.');
@@ -244,7 +201,7 @@ export default function AppsPage() {
   }
 
   if (error) {
-    return <div className="p-8 text-red-500">Error loading applications: {error.message}</div>;
+    return <div className="p-8 text-red-500">Error loading applications: {String(error)}</div>;
   }
 
   return (
@@ -310,7 +267,7 @@ export default function AppsPage() {
       <ImportAppModal
         open={isImportModalOpen}
         onOpenChange={setIsImportModalOpen}
-        onSuccess={() => loadApps()}
+        onSuccess={() => queryClient.invalidateQueries({ queryKey: appsKeys.list() })}
       />
       <ReviewRisksModal
         isOpen={isReviewRisksModalOpen}

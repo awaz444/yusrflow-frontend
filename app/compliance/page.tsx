@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ComplianceOverview } from '@/components/compliance/compliance-overview';
 import { ComplianceStats } from '@/components/compliance/compliance-stats';
 import { ComplianceIssues, ComplianceIssue } from '@/components/compliance/compliance-issues';
@@ -11,6 +11,9 @@ import { Progress } from '@/components/ui/progress';
 import { AlertTriangle, CheckCircle2, Clock, Download, FileText, ShieldCheck, Loader2 } from 'lucide-react';
 import { fetchFromApi, downloadFile } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { useComplianceDashboard } from '@/lib/hooks/use-compliance-dashboard';
+import { tenantKeys } from '@/lib/query-keys';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,17 +23,35 @@ import {
 
 export default function CompliancePage() {
   const { t } = useLanguage();
-  const [issues, setIssues] = useState<ComplianceIssue[]>([]);
-  const [scores, setScores] = useState<any[]>([]);
-  const [timelineEvents, setTimelineEvents] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: complianceData, isLoading: loading } = useComplianceDashboard();
   const [downloading, setDownloading] = useState(false);
 
   // Compliance Scan state
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState<{ scanned: number; total: number; lastApp: string }>({ scanned: 0, total: 0, lastApp: '' });
   const [scanComplete, setScanComplete] = useState(false);
-  const pollRef = useRef<NodeJS.Timeout | null>(null);
+  const [resolvedIssueIds, setResolvedIssueIds] = useState<Set<string>>(new Set());
+
+  const scores = complianceData?.scores || [];
+  const timelineEvents = complianceData?.timelineEvents || [];
+  const issues = useMemo(() => {
+    const rawIssues = (complianceData?.issues || []) as ComplianceIssue[];
+    return rawIssues.map((issue) =>
+      resolvedIssueIds.has(issue.id) ? { ...issue, status: 'resolved' as const } : issue
+    );
+  }, [complianceData?.issues, resolvedIssueIds]);
+
+  const { data: statusData } = useQuery({
+    queryKey: tenantKeys.scanStatus(),
+    queryFn: async () => {
+      const status = await fetchFromApi('/reports/engine/status');
+      return status.data || status;
+    },
+    enabled: isScanning,
+    refetchInterval: isScanning ? 2000 : false,
+    refetchOnWindowFocus: false,
+  });
 
   const handleRunScan = async () => {
     setScanComplete(false);
@@ -44,60 +65,26 @@ export default function CompliancePage() {
       setIsScanning(false);
       return;
     }
-
-    // Poll the lightweight /reports/engine/status endpoint every 2.5s
-    // This gives us real-time currentApp name directly from the engine
-    if (pollRef.current) clearInterval(pollRef.current);
-
-    pollRef.current = setInterval(async () => {
-      try {
-        const status = await fetchFromApi('/reports/engine/status');
-        setScanProgress({
-          scanned: status.scanned,
-          total: status.total,
-          lastApp: status.currentApp || 'Processing...'
-        });
-
-        if (!status.isRunning && status.total > 0) {
-          clearInterval(pollRef.current!);
-          setIsScanning(false);
-          setScanComplete(true);
-          // Refresh the compliance dashboard data with the new scan results
-          await loadComplianceData();
-        }
-      } catch (e) {
-        console.error('Status poll error', e);
-      }
-    }, 2000);
-  };
-
-  // Cleanup poll on unmount
-  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
-
-  const loadComplianceData = async () => {
-    try {
-      const response = await fetchFromApi('/tenants/compliance');
-      const data = response.data || response;
-      setScores(data.scores || []);
-      setIssues(data.issues || []);
-      setTimelineEvents(data.timelineEvents || []);
-    } catch (error) {
-      console.error('Failed to load compliance data:', error);
-    } finally {
-      setLoading(false);
-    }
   };
 
   useEffect(() => {
-    loadComplianceData();
-  }, []);
+    if (!statusData || !isScanning) return;
+
+    setScanProgress({
+      scanned: statusData.scanned,
+      total: statusData.total,
+      lastApp: statusData.currentApp || 'Processing...'
+    });
+
+    if (!statusData.isRunning && statusData.total > 0) {
+      setIsScanning(false);
+      setScanComplete(true);
+      queryClient.invalidateQueries({ queryKey: tenantKeys.compliance() });
+    }
+  }, [statusData, isScanning, queryClient]);
 
   const handleResolveIssue = (id: string) => {
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === id ? { ...issue, status: 'resolved' as const } : issue
-      )
-    );
+    setResolvedIssueIds((prev) => new Set(prev).add(id));
   };
 
   const handleDownloadReport = async (lang: string = 'en') => {
