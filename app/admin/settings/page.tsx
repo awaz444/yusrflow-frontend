@@ -2,20 +2,22 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/lib/auth-context';
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { Settings } from 'lucide-react';
 
 export default function AdminSettingsPage() {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Admin Settings</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage platform-wide settings and your admin profile
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Admin Settings"
+        description="Manage platform-wide settings and your admin profile"
+        icon={Settings}
+      />
 
-      <Card>
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle>Admin Profile</CardTitle>
           <CardDescription>Your super admin account information</CardDescription>
@@ -81,6 +83,6 @@ export default function AdminSettingsPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   );
 }

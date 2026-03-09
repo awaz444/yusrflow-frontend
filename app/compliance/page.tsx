@@ -8,7 +8,7 @@ import { ComplianceTimeline } from '@/components/compliance/compliance-timeline'
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, CheckCircle2, Clock, Download, FileText, ShieldCheck, Loader2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, Download, FileText, ShieldCheck, Loader2, RefreshCw } from 'lucide-react';
 import { fetchFromApi, downloadFile } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { useComplianceDashboard } from '@/lib/hooks/use-compliance-dashboard';
@@ -20,6 +20,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
 
 export default function CompliancePage() {
   const { t } = useLanguage();
@@ -136,55 +140,44 @@ export default function CompliancePage() {
   ];
 
   if (loading) {
-    return <div className="p-8">{t('compliance.loading')}</div>;
+    return <PageContainer><LoadingState message={t('compliance.loading') || "Loading compliance data..."} /></PageContainer>;
   }
 
   return (
-    <>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">{t('compliance.title')}</h1>
-              <p className="text-muted-foreground">
-                {t('compliance.subtitle')}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {scanComplete && (
-                <span className="text-sm text-green-400 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Scan complete!</span>
-              )}
-              <Button
-                onClick={handleRunScan}
-                disabled={isScanning}
-                className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
-              >
-                {isScanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                {isScanning ? 'Scanning...' : 'Run Compliance Check'}
+    <PageContainer>
+      <PageHeader
+        title={t('compliance.title')}
+        description={t('compliance.subtitle')}
+        icon={ShieldCheck}
+      >
+        <div className="flex gap-4">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handleRunScan}
+            disabled={isScanning}
+          >
+            {isScanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            {isScanning ? t('compliance.scanning') : t('compliance.runScan')}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="flex items-center gap-2" disabled={downloading}>
+                {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                {downloading ? t('compliance.downloading') : t('compliance.downloadReport')}
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    disabled={downloading}
-                    className="bg-accent hover:bg-accent/90 text-white gap-2"
-                  >
-                    {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                    {downloading ? t('reports.generating') : t('compliance.generateReport')}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleDownloadReport('en')}>
-                    {t('common.english')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDownloadReport('ar')}>
-                    {t('common.arabic')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleDownloadReport('en')}>
+                English
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDownloadReport('ar')}>
+                العربية
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
+      </PageHeader>
 
         {/* Live Compliance Scan Progress */}
         {isScanning && (
@@ -269,7 +262,6 @@ export default function CompliancePage() {
             </ul>
           </Card>
         </div>
-      </div>
-    </>
+    </PageContainer>
   );
 }

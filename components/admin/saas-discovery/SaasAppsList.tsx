@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSaasApps, useTriggerDiscovery } from "@/lib/hooks/use-saas-discovery";
 import { toast } from "sonner";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AppWindow } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default function SaasAppsList() {
     const { data: apps = [], isLoading: loading } = useSaasApps();
@@ -61,7 +62,14 @@ export default function SaasAppsList() {
                             ))
                         ) : apps.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={4} className="text-center h-24">No applications found.</TableCell>
+                                <TableCell colSpan={4} className="h-64 p-0">
+                                    <EmptyState
+                                        icon={AppWindow}
+                                        title="No applications found"
+                                        description="Run a discovery scan to detect SaaS applications."
+                                        className="border-none min-h-[300px]"
+                                    />
+                                </TableCell>
                             </TableRow>
                         ) : (
                             apps.map((app) => (

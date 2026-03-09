@@ -16,6 +16,13 @@ import { useTenantDashboard } from '@/lib/hooks/use-tenant-dashboard';
 
 import { useLanguage } from '@/lib/i18n/language-context';
 
+import { NavigationMenu } from '@radix-ui/react-navigation-menu';
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { LoadingState } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
+import { StaggerContainer, StaggerItem } from '@/components/ui/fade-in';
+
 export default function Home() {
   const { t } = useLanguage();
   const { data, isLoading: loading } = useTenantDashboard();
@@ -23,9 +30,9 @@ export default function Home() {
   if (loading) {
     return (
       <AuthGuard>
-        <div className="flex items-center justify-center h-[50vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground font-bold" />
-        </div>
+        <PageContainer>
+          <LoadingState message="Loading dashboard..." />
+        </PageContainer>
       </AuthGuard>
     );
   }
@@ -33,7 +40,14 @@ export default function Home() {
   if (!data) {
     return (
       <AuthGuard>
-        <div className="text-center text-red-500 mt-10">{t('dashboard.overview.failedLoad')}</div>
+        <PageContainer>
+          <EmptyState
+            icon={AlertTriangle}
+            title={t('dashboard.overview.failedLoad') || "Dashboard failed to load"}
+            description="We couldn't retrieve your dashboard data."
+            className="border-destructive/20 bg-destructive/5"
+          />
+        </PageContainer>
       </AuthGuard>
     );
   }
@@ -63,89 +77,98 @@ export default function Home() {
 
   return (
     <AuthGuard>
-      {/* Tenant Welcome Section */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-foreground">
-          {t('dashboard.overview.welcome')} {dashboard.tenantName}
-        </h2>
-        <p className="text-muted-foreground mt-1">
-          {t('dashboard.overview.subtitle')}
-        </p>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
-        <StatCard
-          title={t('dashboard.stats.totalApps')}
-          value={dashboard.saasApps.length}
-          icon={<BarChart3 className="h-5 w-5" />}
-          description={t('dashboard.stats.appsInUse')}
+      <PageContainer>
+        <PageHeader
+          title={`${t('dashboard.overview.welcome')} ${dashboard.tenantName}`}
+          description={t('dashboard.overview.subtitle')}
         />
-        <StatCard
-          title={t('dashboard.stats.avgCompliance')}
-          value={`${averageComplianceScore}%`}
-          icon={<TrendingUp className="h-5 w-5" />}
-          trend={5}
-        />
-        <StatCard
-          title={t('dashboard.stats.highRiskApps')}
-          value={highRiskApps}
-          icon={<AlertTriangle className="h-5 w-5" />}
-          trend={-2}
-          description={t('dashboard.stats.immediateAttention')}
-        />
-      </div>
 
-      {/* Compliance & Alerts Row */}
-      <div className="grid gap-6 lg:grid-cols-3 mb-6">
-        <ComplianceScores scores={complianceScores} />
-        <AlertsSection alerts={dashboard.alerts || []} />
-      </div>
+        <StaggerContainer>
+          {/* Key Metrics */}
+          <StaggerItem>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+              <StatCard
+                title={t('dashboard.stats.totalApps')}
+                value={dashboard.saasApps.length}
+              icon={<BarChart3 className="h-5 w-5" />}
+              description={t('dashboard.stats.appsInUse')}
+            />
+            <StatCard
+              title={t('dashboard.stats.avgCompliance')}
+              value={`${averageComplianceScore}%`}
+              icon={<TrendingUp className="h-5 w-5" />}
+              trend={5}
+            />
+            <StatCard
+              title={t('dashboard.stats.highRiskApps')}
+              value={highRiskApps}
+              icon={<AlertTriangle className="h-5 w-5" />}
+              trend={-2}
+              description={t('dashboard.stats.immediateAttention')}
+            />
+            </div>
+          </StaggerItem>
 
-      {/* Charts Row */}
-      <div className="grid gap-6 lg:grid-cols-1 mb-6">
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
-            {t('dashboard.overview.quickStats')}
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">{t('dashboard.overview.totalUsers')}</span>
-              <span className="font-bold text-foreground">{totalUsers}</span>
+          {/* Compliance & Alerts Row */}
+          <StaggerItem>
+            <div className="grid gap-6 lg:grid-cols-3 mb-6">
+              <ComplianceScores scores={complianceScores} />
+              <AlertsSection alerts={dashboard.alerts || []} />
             </div>
-            <div className="h-px bg-border" />
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                {t('dashboard.overview.compliantApps')}
-              </span>
-              <span className="font-bold text-green-400">
-                {dashboard.saasApps.filter((a: any) => a.status === 'compliant').length}
-              </span>
-            </div>
-            <div className="h-px bg-border" />
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                {t('dashboard.overview.partialCompliance')}
-              </span>
-              <span className="font-bold text-yellow-400">
-                {dashboard.saasApps.filter((a: any) => a.status === 'partial').length}
-              </span>
-            </div>
-            <div className="h-px bg-border" />
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                {t('dashboard.overview.nonCompliantApps')}
-              </span>
-              <span className="font-bold text-red-400">
-                {dashboard.saasApps.filter((a: any) => a.status === 'non_compliant').length}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+          </StaggerItem>
 
-      {/* Top Applications Table */}
-      <TopAppsSection apps={dashboard.saasApps} />
+          {/* Charts Row */}
+          <StaggerItem>
+            <div className="grid gap-6 lg:grid-cols-1 mb-6">
+              <div className="rounded-lg border border-border bg-card p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">
+                  {t('dashboard.overview.quickStats')}
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t('dashboard.overview.totalUsers')}</span>
+                    <span className="font-bold text-foreground">{totalUsers}</span>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      {t('dashboard.overview.compliantApps')}
+                    </span>
+                    <span className="font-bold text-green-400">
+                      {dashboard.saasApps.filter((a: any) => a.status === 'compliant').length}
+                    </span>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      {t('dashboard.overview.partialCompliance')}
+                    </span>
+                    <span className="font-bold text-yellow-400">
+                      {dashboard.saasApps.filter((a: any) => a.status === 'partial').length}
+                    </span>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      {t('dashboard.overview.nonCompliantApps')}
+                    </span>
+                    <span className="font-bold text-red-400">
+                      {dashboard.saasApps.filter((a: any) => a.status === 'non_compliant').length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </StaggerItem>
+
+          {/* Deep Insight Tables */}
+          <StaggerItem>
+            <div className="grid gap-4 sm:grid-cols-1">
+              <TopAppsSection apps={dashboard.saasApps || []} />
+            </div>
+          </StaggerItem>
+        </StaggerContainer>
+      </PageContainer>
     </AuthGuard>
   );
 }

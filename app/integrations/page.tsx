@@ -3,9 +3,12 @@
 import { useState, useEffect } from 'react';
 import { IntegrationCard } from '@/components/integrations/integration-card';
 import { fetchFromApi } from '@/lib/api';
-import { Building2 } from 'lucide-react';
+import { Building2, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { LoadingState } from '@/components/ui/loading-state';
 
 interface IntegrationStatus {
     provider: 'microsoft' | 'google';
@@ -90,18 +93,11 @@ export default function IntegrationsPage() {
 
     if (loading) {
         return (
-            <>
-                <div className="max-w-7xl mx-auto">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-muted rounded w-64 mb-2"></div>
-                        <div className="h-4 bg-muted rounded w-96 mb-8"></div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="h-64 bg-muted rounded-lg"></div>
-                            <div className="h-64 bg-muted rounded-lg"></div>
-                        </div>
-                    </div>
+            <PageContainer>
+                <div className="animate-pulse">
+                    <LoadingState message="Loading integration status..." />
                 </div>
-            </>
+            </PageContainer>
         );
     }
 
@@ -109,15 +105,13 @@ export default function IntegrationsPage() {
     const googleStatus = getGoogleStatus();
 
     return (
-        <>
-            <div className="max-w-7xl mx-auto">
-                {/* Page Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-foreground mb-2">{t('integrations.title')}</h1>
-                    <p className="text-muted-foreground">
-                        {t('integrations.subtitle')}
-                    </p>
-                </div>
+        <PageContainer>
+            {/* Page Header */}
+            <PageHeader
+                title={t('integrations.title')}
+                description={t('integrations.subtitle')}
+                icon={Link2}
+            />
 
                 {/* Integration Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -198,7 +192,6 @@ export default function IntegrationsPage() {
                         </li>
                     </ul>
                 </div>
-            </div>
-        </>
+        </PageContainer>
     );
 }

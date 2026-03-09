@@ -10,6 +10,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Search, Users, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAdminUsers } from '@/lib/hooks/use-admin-users';
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
 
 function UsersPageContent() {
   const searchParams = useSearchParams();
@@ -28,23 +31,21 @@ function UsersPageContent() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Users</h1>
-          <p className="text-muted-foreground mt-1">
-            {tenantIdFilter ? 'Managing users for selected company' : 'Manage all platform users'}
-          </p>
-        </div>
+    <PageContainer>
+      <PageHeader
+        title="Users"
+        description={tenantIdFilter ? 'Managing users for selected company' : 'Manage all platform users'}
+        icon={Users}
+      >
         <Link href={`/admin/users/create${tenantIdFilter ? `?tenantId=${tenantIdFilter}` : ''}`}>
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
             Add User
           </Button>
         </Link>
-      </div>
+      </PageHeader>
 
-      <div className="flex max-w-sm items-center relative">
+      <div className="flex max-w-sm items-center relative mb-6">
         <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Search users..."
@@ -55,7 +56,7 @@ function UsersPageContent() {
       </div>
 
       {isError && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive mb-6">
           Failed to load users. Please try again.
         </div>
       )}
@@ -127,15 +128,18 @@ function UsersPageContent() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  No users found.
-                </div>
+                <EmptyState
+                  icon={Users}
+                  title="No users found"
+                  description={searchTerm ? "No users matched your search." : "No users exist in the system yet."}
+                  className="border-none"
+                />
               )}
             </div>
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageContainer>
   );
 }
 

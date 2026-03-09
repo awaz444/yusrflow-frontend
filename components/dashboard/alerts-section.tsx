@@ -1,7 +1,8 @@
-import { AlertCircle, AlertTriangle, PaletteIcon as AlertIcon } from 'lucide-react';
+import { AlertCircle, AlertTriangle, PaletteIcon as AlertIcon, BellOff } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/lib/i18n/language-context';
 import Link from 'next/link';
+import { EmptyState } from '@/components/ui/empty-state';
 
 function getSeverityIcon(severity: string) {
   switch (severity) {
@@ -35,39 +36,48 @@ export function AlertsSection({ alerts }: { alerts: any[] }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {alerts.map((alert) => (
-            <Link
-              href="/compliance"
-              key={alert.id}
-              className="flex gap-3 rounded-lg border border-border/50 bg-secondary/20 p-3 hover:bg-secondary/40 transition-colors"
-            >
-              <div className="flex-shrink-0 pt-0.5">
-                {getSeverityIcon(alert.severity)}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">
-                      {alert.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {alert.description}
-                    </p>
-                  </div>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${getSeverityBadgeClass(
-                      alert.severity
-                    )}`}
-                  >
-                    {alert.severity}
-                  </span>
+          {alerts.length === 0 ? (
+            <EmptyState
+              icon={BellOff}
+              title="No active alerts"
+              description="Your environment is secure and compliant."
+              className="min-h-[200px] border-none bg-transparent"
+            />
+          ) : (
+            alerts.map((alert) => (
+              <Link
+                href="/compliance"
+                key={alert.id}
+                className="flex gap-3 rounded-lg border border-border/50 bg-secondary/20 p-3 hover:bg-secondary/40 transition-colors"
+              >
+                <div className="flex-shrink-0 pt-0.5">
+                  {getSeverityIcon(alert.severity)}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {alert.source} • {alert.time === 'Just now' ? t('dashboard.alerts.justNow') : alert.time}
-                </p>
-              </div>
-            </Link>
-          ))}
+                <div className="flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">
+                        {alert.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {alert.description}
+                      </p>
+                    </div>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${getSeverityBadgeClass(
+                        alert.severity
+                      )}`}
+                    >
+                      {alert.severity}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {alert.source} • {alert.time === 'Just now' ? t('dashboard.alerts.justNow') : alert.time}
+                  </p>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </CardContent>
     </Card>

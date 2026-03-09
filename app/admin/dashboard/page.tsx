@@ -5,16 +5,22 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Building2, Users, AppWindow, CheckCircle2 } from 'lucide-react';
 import { useAdminDashboard } from '@/lib/hooks/use-admin-dashboard';
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function AdminDashboardPage() {
   const { data: stats, isLoading: loading, isError, error } = useAdminDashboard();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-foreground">Super Admin Dashboard</h1>
+    <PageContainer>
+      <PageHeader
+        title="Super Admin Dashboard"
+        description="Overview of system-wide metrics and tenant statistics."
+      />
 
       {isError && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive mb-6">
           Failed to load dashboard: {(error as Error)?.message}
         </div>
       )}
@@ -74,7 +80,12 @@ export default function AdminDashboardPage() {
             {loading ? (
               <div className="space-y-3">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-md" />)}</div>
             ) : !stats?.recentCompanies?.length ? (
-              <p className="text-muted-foreground text-sm">No companies yet.</p>
+              <EmptyState
+                icon={Building2}
+                title="No companies yet"
+                description="No companies have registered yet."
+                className="min-h-[200px]"
+              />
             ) : (
               <div className="space-y-3">
                 {stats.recentCompanies.map((company) => (
@@ -143,6 +154,6 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   );
 }

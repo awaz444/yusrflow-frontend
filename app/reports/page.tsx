@@ -2,9 +2,13 @@
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FileText, Download, Calendar, RefreshCw } from 'lucide-react';
+import { FileText, Download, Calendar, RefreshCw, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
+import { StaggerContainer, StaggerItem } from '@/components/ui/fade-in';
 
 interface ReportCard {
   id: string;
@@ -120,64 +124,62 @@ export default function ReportsPage() {
   ];
 
   return (
-    <>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <FileText className="w-8 h-8 text-accent" />
-            <h1 className="text-3xl font-bold text-foreground">{t('reports.title')}</h1>
-          </div>
-          <p className="text-muted-foreground">{t('reports.subtitle')}</p>
-        </div>
+    <PageContainer>
+      <PageHeader
+        title={t('reports.title')}
+        description={t('reports.subtitle')}
+        icon={FileText}
+      />
 
-        {/* Reports Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Reports Grid */}
+      <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reports.map((report) => {
             const IconComponent = report.icon;
             return (
-              <Card key={report.id} className="bg-card border-border p-6 hover:border-accent transition-colors">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="p-3 bg-accent/10 rounded-lg">
-                    <IconComponent className="w-6 h-6 text-accent" />
+              <StaggerItem key={report.id}>
+                <Card className="bg-card border-border p-6 hover:border-accent transition-colors">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="p-3 bg-accent/10 rounded-lg">
+                      <IconComponent className="w-6 h-6 text-accent" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground">{report.title}</h3>
+                      {report.lastGenerated && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {t('reports.lastGenerated')}: {report.lastGenerated} {t('reports.daysAgo')}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">{report.title}</h3>
-                    {report.lastGenerated && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {t('reports.lastGenerated')}: {report.lastGenerated} {t('reports.daysAgo')}
-                      </p>
-                    )}
+
+                  <p className="text-sm text-muted-foreground mb-6">{report.description}</p>
+
+                  <div className="space-y-2">
+                    {report.actions.map((action, index) => {
+                      const ActionIcon = action.icon;
+                      return (
+                        <Button
+                          key={index}
+                          variant={action.variant || 'default'}
+                          className="w-full justify-start gap-2"
+                          onClick={action.onClick}
+                          disabled={isGenerating[report.id] && action.label.includes('Generate')}
+                        >
+                          {isGenerating[report.id] && action.onClick ? (
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <ActionIcon className="w-4 h-4" />
+                          )}
+                          {isGenerating[report.id] && action.onClick ? t('reports.generating') : action.label}
+                        </Button>
+                      );
+                    })}
                   </div>
-                </div>
-
-                <p className="text-sm text-muted-foreground mb-6">{report.description}</p>
-
-                <div className="space-y-2">
-                  {report.actions.map((action, index) => {
-                    const ActionIcon = action.icon;
-                    return (
-                      <Button
-                        key={index}
-                        variant={action.variant || 'default'}
-                        className="w-full justify-start gap-2"
-                        onClick={action.onClick}
-                        disabled={isGenerating[report.id] && action.label.includes('Generate')}
-                      >
-                        {isGenerating[report.id] && action.onClick ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <ActionIcon className="w-4 h-4" />
-                        )}
-                        {isGenerating[report.id] && action.onClick ? t('reports.generating') : action.label}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </Card>
+                </Card>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
 
         {/* Scheduled Reports Section */}
         <div className="mt-12">
@@ -186,62 +188,33 @@ export default function ReportsPage() {
             <h2 className="text-2xl font-bold text-foreground">{t('reports.scheduledReports')}</h2>
           </div>
 
-          <Card className="bg-card border-border p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">{t('reports.complianceHealthCheck')}</h3>
-                <p className="text-sm text-muted-foreground">{t('reports.everyMonday')}</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  {t('reports.edit')}
-                </Button>
-                <Button variant="outline" size="sm">
-                  {t('reports.pause')}
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <EmptyState
+            icon={Calendar}
+            title="No scheduled reports"
+            description="You don't have any recurring reports set up yet."
+            className="min-h-[150px]"
+            action={
+              <Button variant="outline" size="sm">
+                Schedule a Report
+              </Button>
+            }
+          />
         </div>
 
         {/* Report Generation History */}
         <div className="mt-12">
           <div className="flex items-center gap-3 mb-6">
-            <RefreshCw className="w-6 h-6 text-accent" />
+            <Clock className="w-6 h-6 text-accent" />
             <h2 className="text-2xl font-bold text-foreground">{t('reports.recentReports')}</h2>
           </div>
 
-          <div className="space-y-2">
-            {[
-              {
-                name: t('reports.demoReport1'),
-                date: t('reports.demoDate1'),
-              },
-              {
-                name: t('reports.demoReport2'),
-                date: t('reports.demoDate2'),
-              },
-              {
-                name: t('reports.demoReport3'),
-                date: t('reports.demoDate3'),
-              },
-            ].map((item, index) => (
-              <Card key={index} className="bg-card border-border p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{item.date}</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <Download className="w-4 h-4" />
-                </Button>
-              </Card>
-            ))}
-          </div>
+          <EmptyState
+            icon={Clock}
+            title="No report history"
+            description="Generated reports will appear here."
+            className="min-h-[150px]"
+          />
         </div>
-      </div>
-    </>
+    </PageContainer>
   );
 }

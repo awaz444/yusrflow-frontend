@@ -52,8 +52,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark" dir="ltr">
-      <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
+    <html lang="en" suppressHydrationWarning dir="ltr">
+      <body suppressHydrationWarning className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
         <script
           dangerouslySetInnerHTML={{
             __html: `

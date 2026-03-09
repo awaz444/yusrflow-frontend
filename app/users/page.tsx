@@ -8,6 +8,10 @@ import { Users, MoreHorizontal, Mail, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { fetchFromApi } from '@/lib/api';
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
 
 interface User {
   id: string;
@@ -95,18 +99,21 @@ export default function UsersPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <PageContainer>
+        <LoadingState message={t('common.loading') || "Loading users..."} />
+      </PageContainer>
+    );
+  }
+
   return (
-    <>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="w-8 h-8 text-accent" />
-              <h1 className="text-3xl font-bold text-foreground">{t('users.title')}</h1>
-            </div>
-            <p className="text-muted-foreground">{t('users.subtitle')}</p>
-          </div>
+    <PageContainer>
+      <PageHeader
+        title={t('users.title')}
+        description={t('users.subtitle')}
+        icon={Users}
+      >
           {['admin', 'manager'].includes(currentUser?.role || '') && (
             <Link href="/users/create">
               <Button className="gap-2">
@@ -115,7 +122,7 @@ export default function UsersPage() {
               </Button>
             </Link>
           )}
-        </div>
+      </PageHeader>
 
         {/* Search Bar */}
         <div className="mb-6">
@@ -152,50 +159,63 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, index) => (
-                  <tr key={user.id || `user-${index}`} className="border-b border-border hover:bg-secondary/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-foreground">{user.name}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getRoleBadgeColor(user.role)}`}>
-                        {getRoleLabel(user.role)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-muted-foreground">{user.lastActive}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`text-xs font-semibold px-3 py-1 rounded-full ${user.status === 'active'
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400'
-                          }`}
-                      >
-                        {user.status === 'active' ? t('users.active') : t('users.inactive')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm">
-                          {t('users.edit')}
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-500">
-                          {t('users.deactivate')}
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </div>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-0 border-none">
+                      <EmptyState
+                        icon={Users}
+                        title="No users found"
+                        description="There are no users in this tenant yet."
+                        className="rounded-none border-x-0 border-b-0 border-t"
+                      />
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  users.map((user, index) => (
+                    <tr key={user.id || `user-${index}`} className="border-b border-border hover:bg-secondary/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-medium text-foreground">{user.name}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getRoleBadgeColor(user.role)}`}>
+                          {getRoleLabel(user.role)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-sm text-muted-foreground">{user.lastActive}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`text-xs font-semibold px-3 py-1 rounded-full ${user.status === 'active'
+                            ? 'bg-green-500/20 text-green-400'
+                            : 'bg-red-500/20 text-red-400'
+                            }`}
+                        >
+                          {user.status === 'active' ? t('users.active') : t('users.inactive')}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm">
+                            {t('users.edit')}
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-500">
+                            {t('users.deactivate')}
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -216,7 +236,6 @@ export default function UsersPage() {
             <p className="text-2xl font-bold text-green-400">{users.filter((u) => u.status === 'active').length}</p>
           </Card>
         </div>
-      </div>
-    </>
+    </PageContainer>
   );
 }

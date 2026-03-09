@@ -20,7 +20,9 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from './language-switcher';
 
-export function Sidebar() {
+import { ThemeToggle } from '@/components/theme-toggle';
+
+export function Sidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose?: () => void }) {
     const pathname = usePathname();
     const { t } = useLanguage();
 
@@ -75,8 +77,11 @@ export function Sidebar() {
     ];
 
     return (
-        <div className="flex flex-col h-screen w-64 bg-card border-r border-border fixed left-0 top-0 z-40">
-            <div className="p-6 border-b border-border">
+        <div className={cn(
+            "flex flex-col h-screen w-64 bg-card border-r border-border fixed left-0 top-0 z-40 transition-transform duration-300 md:translate-x-0",
+            isOpen ? "translate-x-0" : "-translate-x-full"
+        )}>
+            <div className="p-6 border-b border-border flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
                     <Shield className="w-8 h-8 text-accent" />
                     <span>Yusrflow</span>
@@ -92,6 +97,7 @@ export function Sidebar() {
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={() => onClose && onClose()}
                             className={cn(
                                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium',
                                 isActive
@@ -109,6 +115,7 @@ export function Sidebar() {
             <div className="p-4 border-t border-border space-y-4">
                 <div className="flex items-center justify-between">
                     <LanguageSwitcher />
+                    <ThemeToggle />
                 </div>
 
                 <div className="pt-2 border-t border-border mt-2">

@@ -9,6 +9,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Search, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useTenants } from '@/lib/hooks/use-tenants';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
 
 export default function CompaniesPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,21 +24,21 @@ export default function CompaniesPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Companies</h1>
-          <p className="text-muted-foreground mt-1">Manage all tenant companies</p>
-        </div>
+    <PageContainer>
+      <PageHeader
+        title="Companies"
+        description="Manage all tenant companies"
+        icon={Building2}
+      >
         <Link href="/admin/companies/create">
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
             Add Company
           </Button>
         </Link>
-      </div>
+      </PageHeader>
 
-      <div className="flex max-w-sm items-center relative">
+      <div className="flex max-w-sm items-center relative mb-6">
         <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Search companies..."
@@ -46,7 +49,7 @@ export default function CompaniesPage() {
       </div>
 
       {isError && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive mb-6">
           Failed to load companies. Please try again.
         </div>
       )}
@@ -96,12 +99,26 @@ export default function CompaniesPage() {
           ))}
 
           {filteredCompanies.length === 0 && (
-            <div className="col-span-full text-center py-12 text-muted-foreground bg-secondary/20 rounded-lg border border-dashed">
-              No companies found. Create one to get started.
+            <div className="col-span-full">
+              <EmptyState
+                icon={Building2}
+                title="No companies found"
+                description={searchTerm ? "No companies matched your search criteria." : "Create your first company to get started."}
+                action={
+                  !searchTerm ? (
+                    <Link href="/admin/companies/create">
+                      <Button className="mt-4 gap-2">
+                        <Plus className="w-4 h-4" />
+                        Add Company
+                      </Button>
+                    </Link>
+                  ) : undefined
+                }
+              />
             </div>
           )}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

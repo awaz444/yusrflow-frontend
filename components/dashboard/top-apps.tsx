@@ -19,8 +19,10 @@ import {
   ArrowDown,
   ArrowUp,
   Search,
-  Filter
+  Filter,
+  AppWindow
 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 
 function getRiskLevelColor(level: string) {
   switch (level?.toLowerCase()) {
@@ -262,8 +264,13 @@ export function TopAppsSection({ apps }: { apps: any[] }) {
             <tbody>
               {filteredAndSortedApps.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                    {t('dashboard.table.noAppsFound')}
+                  <td colSpan={5} className="p-0 border-none">
+                    <EmptyState
+                      icon={AppWindow}
+                      title="No applications found"
+                      description="Adjust your filters or add some SaaS applications."
+                      className="border-none min-h-[250px] bg-transparent"
+                    />
                   </td>
                 </tr>
               ) : (

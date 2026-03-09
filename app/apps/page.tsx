@@ -13,6 +13,10 @@ import { useApps, useAddApp, useDeleteApps } from '@/lib/hooks/use-apps';
 import { useQueryClient } from '@tanstack/react-query';
 import { appsKeys } from '@/lib/query-keys';
 import type { App } from '@/lib/types';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
+import { AppWindow } from 'lucide-react';
+import { PageContainer } from '@/components/layout/page-container';
 
 type SortColumn = 'name' | 'category' | 'complianceScore' | 'riskLevel' | 'status' | 'users';
 
@@ -197,15 +201,28 @@ export default function AppsPage() {
 
 
   if (isLoading) {
-    return <div className="p-8">{t('applications.loading')}</div>;
+    return (
+      <PageContainer>
+        <LoadingState message={t('applications.loading') || "Loading applications..."} />
+      </PageContainer>
+    );
   }
 
   if (error) {
-    return <div className="p-8 text-red-500">Error loading applications: {String(error)}</div>;
+    return (
+      <PageContainer>
+        <EmptyState
+          icon={AppWindow}
+          title="Error Loading Applications"
+          description={String(error)}
+          className="border-destructive/20 bg-destructive/5"
+        />
+      </PageContainer>
+    );
   }
 
   return (
-    <>
+    <PageContainer>
       <div className="max-w-7xl mx-auto">
         <AppsHeader
           searchTerm={searchTerm}
@@ -234,15 +251,28 @@ export default function AppsPage() {
 
           <div className="lg:col-span-3 space-y-4 flex flex-col">
             <div className="flex-1">
-              <AppsTable
-                apps={filteredAndSortedApps}
-                selectedIds={selectedAppIds}
-                onSelectAll={handleSelectAll}
-                onSelectApp={handleSelectApp}
-                onSort={handleSort}
-                sortColumn={sortColumn}
-                sortDirection={sortDirection}
-              />
+              {filteredAndSortedApps.length === 0 ? (
+                <EmptyState
+                  icon={AppWindow}
+                  title="No applications found"
+                  description="We couldn't find any SaaS applications matching your search or filters."
+                  action={
+                    <button onClick={handleResetFilters} className="text-primary hover:underline">
+                      Clear filters
+                    </button>
+                  }
+                />
+              ) : (
+                <AppsTable
+                  apps={filteredAndSortedApps}
+                  selectedIds={selectedAppIds}
+                  onSelectAll={handleSelectAll}
+                  onSelectApp={handleSelectApp}
+                  onSort={handleSort}
+                  sortColumn={sortColumn}
+                  sortDirection={sortDirection}
+                />
+              )}
             </div>
 
             {selectedAppIds.length > 0 && (
@@ -274,6 +304,6 @@ export default function AppsPage() {
         onClose={() => setIsReviewRisksModalOpen(false)}
         apps={selectedAppsData}
       />
-    </>
+    </PageContainer>
   );
 }

@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "install-framer-motion",
+			"type": "shell",
+			"command": "npm install framer-motion",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "yurflow-frontend-install-framer",
+			"type": "shell",
+			"command": "npm install framer-motion"
+		}
+	]
+}
