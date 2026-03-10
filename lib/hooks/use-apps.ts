@@ -17,6 +17,7 @@ function mapApp(app: any): App {
     monthlySpend: app.monthlySpend,
     billingCycle: app.billingCycle,
     renewalDate: app.renewalDate,
+    detailedScores: app.detailedScores,
   };
 }
 

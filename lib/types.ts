@@ -11,4 +11,12 @@ export interface App {
     monthlySpend?: number;
     billingCycle?: 'monthly' | 'annual';
     renewalDate?: string | Date;
+    detailedScores?: Array<{
+        id: string;
+        rule_code: string;
+        category: string;
+        score: number;
+        status: string;
+        reason?: string;
+    }>;
 }
