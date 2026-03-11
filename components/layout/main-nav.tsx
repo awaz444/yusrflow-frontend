@@ -7,6 +7,7 @@ import { Shield, BarChart3, ListChecks as ListCheck, ShieldCheck, User, LogOut, 
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from './language-switcher';
+import { Logo } from './logo';
 
 export function MainNav() {
   const pathname = usePathname();
@@ -72,9 +73,8 @@ export function MainNav() {
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-foreground">
-            <Shield className="w-6 h-6 text-accent" />
-            <span>Yusrflow</span>
+          <Link href="/" className="flex items-center">
+            <Logo width={140} height={32} />
           </Link>
 
           {/* Nav Items */}

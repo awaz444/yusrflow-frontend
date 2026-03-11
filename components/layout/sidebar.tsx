@@ -22,6 +22,8 @@ import { LanguageSwitcher } from './language-switcher';
 
 import { ThemeToggle } from '@/components/theme-toggle';
 
+import { Logo } from './logo';
+
 export function Sidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose?: () => void }) {
     const pathname = usePathname();
     const { t } = useLanguage();
@@ -82,9 +84,8 @@ export function Sidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose
             isOpen ? "translate-x-0" : "-translate-x-full"
         )}>
             <div className="p-6 border-b border-border flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
-                    <Shield className="w-8 h-8 text-accent" />
-                    <span>Yusrflow</span>
+                <Link href="/" className="flex items-center">
+                    <Logo width={160} height={40} />
                 </Link>
             </div>
 

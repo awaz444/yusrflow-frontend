@@ -7,6 +7,8 @@ import { Shield } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
 
+import { Logo } from '@/components/layout/logo';
+
 interface AuthLayoutProps {
   children: React.ReactNode;
   title: string;
@@ -59,12 +61,9 @@ export function AuthLayout({ children, title }: AuthLayoutProps) {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="flex items-center justify-center gap-3 mb-4"
+            className="flex items-center justify-center"
           >
-            <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 shadow-inner">
-              <Shield className="w-7 h-7 text-accent" />
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{t('auth.title')}</h1>
+            <Logo width={220} height={60} priority />
           </motion.div>
         </div>
 

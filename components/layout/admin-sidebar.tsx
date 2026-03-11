@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { BarChart3, Building2, Users, Settings, LogOut, Shield, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
+import { Logo } from './logo';
 
 interface AdminSidebarProps {
   isOpen?: boolean;
@@ -50,9 +51,8 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
       <div className="p-6 border-b border-border">
-        <Link href="/admin/dashboard" className="flex items-center gap-2 text-xl font-bold text-foreground">
-          <Shield className="w-8 h-8 text-red-500" />
-          <span>Admin Portal</span>
+        <Link href="/admin/dashboard" className="flex items-center">
+          <Logo width={160} height={40} />
         </Link>
       </div>
 
