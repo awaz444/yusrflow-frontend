@@ -97,7 +97,7 @@ export interface AdminUser {
 }
 
 export interface AdminUsersResponse {
-  data: AdminUser[];
+  users: AdminUser[];
   pagination: { page: number; limit: number; total: number; totalPages: number };
 }
 

@@ -22,7 +22,7 @@ function UsersPageContent() {
   const { data, isLoading: loading, isError } = useAdminUsers(
     tenantIdFilter ? { tenantId: tenantIdFilter } : undefined
   );
-  const users = data?.data ?? [];
+  const users = data?.users ?? [];
 
   const filteredUsers = users.filter(user =>
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
