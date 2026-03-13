@@ -13,6 +13,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     // Don't show sidebar on auth pages, admin pages, or tenant setup
     const shouldHideSidebar =
         !pathname ||
+        pathname === '/' ||
         pathname.startsWith('/auth') ||
         pathname.startsWith('/admin') ||
         pathname === '/tenant-setup';

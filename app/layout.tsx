@@ -1,23 +1,17 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter, Tajawal } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AppLayout } from '@/components/layout/app-layout'
 import { LanguageProvider } from '@/lib/i18n/language-context'
 import { Providers } from '@/components/providers';
 import './globals.css'
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-});
+const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
+const tajawal = Tajawal({ weight: ['300', '400', '500', '700'], subsets: ["arabic"], variable: '--font-tajawal' });
 
 export const metadata: Metadata = {
-  title: 'Yusrflow - Compliance Dashboard',
-  description: 'AI-driven compliance and SaaS management platform for GCC enterprises',
+  title: 'Yusrflow | The First Saudi-Specific SaaS Compliance Platform',
+  description: 'Automate NDMO/PDPL compliance and optimize SaaS spend for Saudi SMEs.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -53,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning dir="ltr">
-      <body suppressHydrationWarning className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
+      <body suppressHydrationWarning className={`antialiased bg-background text-foreground font-sans ${inter.variable} ${tajawal.variable}`}>
         <script
           dangerouslySetInnerHTML={{
             __html: `
