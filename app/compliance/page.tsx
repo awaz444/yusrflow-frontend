@@ -8,7 +8,7 @@ import { ComplianceTimeline } from '@/components/compliance/compliance-timeline'
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, CheckCircle2, Clock, Download, FileText, ShieldCheck, Loader2, RefreshCw } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, Download, FileText, ShieldCheck, Loader2, RefreshCw, Info } from 'lucide-react';
 import { fetchFromApi, downloadFile } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { useComplianceDashboard } from '@/lib/hooks/use-compliance-dashboard';
@@ -24,6 +24,7 @@ import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingState } from '@/components/ui/loading-state';
+import { ComplianceMethodology } from '@/components/compliance/compliance-methodology';
 
 export default function CompliancePage() {
   const { t } = useLanguage();
@@ -160,6 +161,17 @@ export default function CompliancePage() {
             {isScanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             {isScanning ? t('compliance.scanning') : t('compliance.runScan')}
           </Button>
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2 border border-primary/20 hover:bg-primary/10"
+            onClick={() => {
+              const el = document.getElementById('methodology-section');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            <Info className="w-4 h-4" />
+            {t('common.methodology') || 'Methodology'}
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="flex items-center gap-2" disabled={downloading}>
@@ -261,6 +273,11 @@ export default function CompliancePage() {
               <li>• {t('compliance.r4')}</li>
             </ul>
           </Card>
+        </div>
+
+        {/* Methodology Section */}
+        <div id="methodology-section" className="mt-16 pt-16 border-t">
+          <ComplianceMethodology />
         </div>
     </PageContainer>
   );

@@ -27,11 +27,11 @@ export function Logo({ className, width = 150, height = 40, priority = false }: 
 
     const isDarkMode = resolvedTheme === 'dark';
 
-    // Light Mode: 1200 by 630.png
-    // Dark Mode: yusrflow dark bg.png
+    // Dark Theme: light-logo.png
+    // Light Theme: dark-logo.png
     const src = isDarkMode
-        ? "/yusrflow dark bg.png"
-        : "/1200 by 630.png";
+        ? "/light-logo.png"
+        : "/dark-logo.png";
 
     return (
         <div className={cn("relative flex items-center justify-center", className)}>
