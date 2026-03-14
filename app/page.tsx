@@ -199,19 +199,15 @@ export default function LandingPage() {
               <h2 className="text-2xl font-bold text-white md:text-4xl">{t.videoSub}</h2>
             </div>
             {/* Video Placeholder Box matching Storyboard */}
-            <div className="relative aspect-video w-full rounded-2xl border border-white/10 bg-black overflow-hidden shadow-2xl flex items-center justify-center group cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none"></div>
-              <div className="text-center">
-                <PlayCircle className="w-20 h-20 text-primary/80 group-hover:text-primary transition-colors duration-300 mx-auto mb-4" />
-                <span className="text-white/60 text-sm font-medium tracking-wide">(60s Video Placeholder)</span>
-                <div className="mt-4 flex gap-4 justify-center text-xs text-white/40">
-                  <span>0-15s: The Pain</span>
-                  <span>•</span>
-                  <span>16-45s: The Solution</span>
-                  <span>•</span>
-                  <span>46-60s: The Result</span>
-                </div>
-              </div>
+            <div className="relative aspect-video w-full rounded-2xl border border-white/10 bg-black overflow-hidden shadow-2xl">
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/51c-VXN3gu4"
+                title="Yusrflow Intro Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
             </div>
           </FadeIn>
         </section>
