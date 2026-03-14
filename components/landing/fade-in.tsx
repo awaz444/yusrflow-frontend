@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, type Variants } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface FadeInProps {
@@ -11,7 +11,7 @@ interface FadeInProps {
 }
 
 export function FadeIn({ children, className, delay = 0, direction = "up" }: FadeInProps) {
-  const variants = {
+  const variants: Variants = {
     hidden: {
       opacity: 0,
       y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
@@ -24,7 +24,7 @@ export function FadeIn({ children, className, delay = 0, direction = "up" }: Fad
       transition: {
         duration: 0.5,
         delay: delay,
-        ease: "easeOut",
+        ease: "easeOut" as const,
       },
     },
   }
