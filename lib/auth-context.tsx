@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         console.log('auth/me data received successfully');
-        return data.user; // Assumes backend returns user object directly
+        return data.user || data; // Handle both { user: {...} } and flat response shapes
       } else {
         const text = await response.text();
         console.error('auth/me failed. Status:', response.status, 'Body:', text);
