@@ -5,10 +5,13 @@ import { StatCard } from '@/components/dashboard/stat-card';
 import { ComplianceScores } from '@/components/dashboard/compliance-scores';
 import { AlertsSection } from '@/components/dashboard/alerts-section';
 import { TopAppsSection } from '@/components/dashboard/top-apps';
+import { SpendChart } from '@/components/dashboard/spend-chart';
+import { AppSpendList } from '@/components/dashboard/app-spend-list';
 import {
   BarChart3,
   AlertTriangle,
   TrendingUp,
+  CreditCard,
   Loader2
 } from 'lucide-react';
 import { AuthGuard } from '@/components/auth/auth-guard';
@@ -86,77 +89,57 @@ export default function Home() {
         <StaggerContainer>
           {/* Key Metrics */}
           <StaggerItem>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
               <StatCard
                 title={t('dashboard.stats.totalApps')}
                 value={dashboard.saasApps.length}
-              icon={<BarChart3 className="h-5 w-5" />}
-              description={t('dashboard.stats.appsInUse')}
-            />
-            <StatCard
-              title={t('dashboard.stats.avgCompliance')}
-              value={`${averageComplianceScore}%`}
-              icon={<TrendingUp className="h-5 w-5" />}
-              trend={5}
-            />
-            <StatCard
-              title={t('dashboard.stats.highRiskApps')}
-              value={highRiskApps}
-              icon={<AlertTriangle className="h-5 w-5" />}
-              trend={-2}
-              description={t('dashboard.stats.immediateAttention')}
-            />
+                icon={<BarChart3 className="h-5 w-5" />}
+                description={t('dashboard.stats.appsInUse')}
+              />
+              <StatCard
+                title={t('dashboard.stats.avgCompliance')}
+                value={`${averageComplianceScore}%`}
+                icon={<TrendingUp className="h-5 w-5" />}
+                trend={5}
+              />
+              <StatCard
+                title={t('dashboard.stats.highRiskApps')}
+                value={highRiskApps}
+                icon={<AlertTriangle className="h-5 w-5" />}
+                trend={-2}
+                description={t('dashboard.stats.immediateAttention')}
+              />
+              <StatCard
+                title={t('dashboard.stats.monthlySpend')}
+                value={`${dashboard.totalSpend?.toLocaleString() || 0}`}
+                unit="SAR"
+                icon={<CreditCard className="h-5 w-5" />}
+                trend={dashboard.spendTrend}
+                description={t('dashboard.stats.spendIncrease')}
+              />
+            </div>
+          </StaggerItem>
+
+          {/* Spend Analysis Row */}
+          <StaggerItem>
+            <div className="grid gap-6 lg:grid-cols-3 mb-6">
+              <div className="lg:col-span-2">
+                <SpendChart data={dashboard.spendData || []} />
+              </div>
+              <div className="lg:col-span-1">
+                <AppSpendList apps={dashboard.saasApps || []} />
+              </div>
             </div>
           </StaggerItem>
 
           {/* Compliance & Alerts Row */}
           <StaggerItem>
             <div className="grid gap-6 lg:grid-cols-3 mb-6">
-              <ComplianceScores scores={complianceScores} />
-              <AlertsSection alerts={dashboard.alerts || []} />
-            </div>
-          </StaggerItem>
-
-          {/* Charts Row */}
-          <StaggerItem>
-            <div className="grid gap-6 lg:grid-cols-1 mb-6">
-              <div className="rounded-lg border border-border bg-card p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  {t('dashboard.overview.quickStats')}
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">{t('dashboard.overview.totalUsers')}</span>
-                    <span className="font-bold text-foreground">{totalUsers}</span>
-                  </div>
-                  <div className="h-px bg-border" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      {t('dashboard.overview.compliantApps')}
-                    </span>
-                    <span className="font-bold text-green-400">
-                      {dashboard.saasApps.filter((a: any) => a.status === 'compliant').length}
-                    </span>
-                  </div>
-                  <div className="h-px bg-border" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      {t('dashboard.overview.partialCompliance')}
-                    </span>
-                    <span className="font-bold text-yellow-400">
-                      {dashboard.saasApps.filter((a: any) => a.status === 'partial').length}
-                    </span>
-                  </div>
-                  <div className="h-px bg-border" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      {t('dashboard.overview.nonCompliantApps')}
-                    </span>
-                    <span className="font-bold text-red-400">
-                      {dashboard.saasApps.filter((a: any) => a.status === 'non_compliant').length}
-                    </span>
-                  </div>
-                </div>
+              <div className="lg:col-span-1">
+                <ComplianceScores scores={complianceScores} />
+              </div>
+              <div className="lg:col-span-2">
+                <AlertsSection alerts={dashboard.alerts || []} />
               </div>
             </div>
           </StaggerItem>

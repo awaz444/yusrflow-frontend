@@ -101,7 +101,9 @@
       "appsInUse": "Applications in use",
       "avgCompliance": "Avg Compliance",
       "highRiskApps": "High Risk Apps",
-      "immediateAttention": "Immediate attention"
+      "immediateAttention": "Immediate attention",
+      "monthlySpend": "Monthly Spend",
+      "spendIncrease": "Increase from last month"
     },
     "table": {
       "searchPlaceholder": "Search apps, category...",

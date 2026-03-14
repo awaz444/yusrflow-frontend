@@ -35,18 +35,11 @@ export function SpendChart({ data }: { data: any[] }) {
                 color: '#f5f5f5',
               }}
             />
-            <Legend />
             <Bar
               dataKey="spend"
               fill="#6d5cff"
               radius={[8, 8, 0, 0]}
               name={t('dashboard.monthlySpend')}
-            />
-            <Bar
-              dataKey="budget"
-              fill="#4a39a3"
-              radius={[8, 8, 0, 0]}
-              name="Budget"
             />
           </BarChart>
         </ResponsiveContainer>

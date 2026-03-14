@@ -101,7 +101,9 @@
       "appsInUse": "التطبيقات قيد الاستخدام",
       "avgCompliance": "متوسط الامتثال",
       "highRiskApps": "تطبيقات عالية المخاطر",
-      "immediateAttention": "تتطلب انتباهاً فورياً"
+      "immediateAttention": "تتطلب انتباهاً فورياً",
+      "monthlySpend": "النفقات الشهرية",
+      "spendIncrease": "زيادة عن الشهر الماضي"
     },
     "table": {
       "searchPlaceholder": "ابحث عن التطبيقات، الفئة...",
