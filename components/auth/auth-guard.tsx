@@ -20,7 +20,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                 }
             } else if (!user?.is_super_admin && pathname?.startsWith('/admin')) {
                 // Prevent regular users from accessing admin
-                router.push('/');
+                router.push('/dashboard');
             }
         }
     }, [user, loading, isAuthenticated, router, pathname]);

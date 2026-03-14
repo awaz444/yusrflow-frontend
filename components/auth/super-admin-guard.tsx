@@ -12,7 +12,7 @@ export function SuperAdminGuard({ children }: { children: React.ReactNode }) {
         if (!loading && isAuthenticated) {
              if (!user?.is_super_admin) {
                  // Redirect regular users out of admin area
-                 router.push('/');
+                 router.push('/dashboard');
              }
         } else if (!loading && !isAuthenticated) {
             router.push('/auth/login');

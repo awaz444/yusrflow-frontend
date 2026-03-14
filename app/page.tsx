@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -25,6 +26,17 @@ import { Logo } from "@/components/layout/logo"
 export default function LandingPage() {
   const [isArabic, setIsArabic] = useState(false)
   const [spotsLeft, setSpotsLeft] = useState(12)
+  const router = useRouter()
+
+  // Redirect authenticated users away from the landing page
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      // Decode token to check role, or just redirect to a safe auth-checked route
+      // We redirect to /dashboard; the AuthGuard there will forward super admins to /admin/dashboard
+      router.replace('/dashboard')
+    }
+  }, [])
 
   // Dictionary for translations
   const t = {

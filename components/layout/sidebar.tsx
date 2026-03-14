@@ -37,7 +37,7 @@ export function Sidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose
 
     const navItems = [
         {
-            href: '/',
+            href: '/dashboard',
             label: t('common.dashboard'),
             icon: BarChart3,
         },
@@ -71,11 +71,6 @@ export function Sidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose
             label: t('integrations.title'),
             icon: Plug,
         },
-        {
-            href: '/admin/settings',
-            label: t('common.settings'),
-            icon: Settings,
-        },
     ];
 
     return (
@@ -84,7 +79,7 @@ export function Sidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose
             isOpen ? "translate-x-0" : "-translate-x-full"
         )}>
             <div className="p-6 border-b border-border flex items-center justify-between">
-                <Link href="/" className="flex items-center">
+                <Link href="/dashboard" className="flex items-center">
                     <Logo width={160} height={40} />
                 </Link>
             </div>
