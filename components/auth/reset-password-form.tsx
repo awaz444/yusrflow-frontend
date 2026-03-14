@@ -69,7 +69,7 @@ export function ResetPasswordForm() {
     if (success) {
         return (
             <div className="text-center space-y-4">
-                <h3 className="text-lg font-medium text-green-400">Password Set Successfully!</h3>
+                <h3 className="text-lg font-medium text-green-400">Account Activated Successfully!</h3>
                 <p className="text-muted-foreground">Redirecting to login...</p>
             </div>
         );
@@ -85,7 +85,7 @@ export function ResetPasswordForm() {
             )}
 
             <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password">Secure Access Key</Label>
                 <Input
                     id="password"
                     type="password"
@@ -97,7 +97,7 @@ export function ResetPasswordForm() {
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">Confirm Access Key</Label>
                 <Input
                     id="confirmPassword"
                     type="password"
@@ -109,7 +109,7 @@ export function ResetPasswordForm() {
             </div>
 
             <Button type="submit" className="w-full bg-accent text-white" disabled={loading}>
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Set Password'}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Complete Setup'}
             </Button>
         </form>
     );

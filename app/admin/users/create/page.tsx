@@ -38,8 +38,6 @@ function CreateUserContent() {
   // ... (keep existing state/effects) ...
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    confirmPassword: '',
     firstName: '',
     lastName: '',
     role: 'viewer',
@@ -48,6 +46,7 @@ function CreateUserContent() {
     jobTitle: '',
     sendWelcomeEmail: true
   });
+  const [setupUrl, setSetupUrl] = useState('');
 
   useEffect(() => {
     fetchTenants();
@@ -93,11 +92,6 @@ function CreateUserContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     setError('');
     setLoading(true);
 
@@ -111,7 +105,6 @@ function CreateUserContent() {
         },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password,
           firstName: formData.firstName,
           lastName: formData.lastName,
           role: formData.role,
@@ -125,6 +118,7 @@ function CreateUserContent() {
       const data = await response.json();
 
       if (response.ok) {
+        setSetupUrl(data.setupUrl || '');
         setShowCredentials(true);
       } else {
         setError(data.message || 'Failed to create user');
@@ -137,11 +131,9 @@ function CreateUserContent() {
   };
 
   const handleCopyCredentials = () => {
-    const text = `Here are your login credentials for Yusrflow:
-
-URL: ${window.location.origin}/auth/login
-Email: ${formData.email}
-Password: ${formData.password}`;
+    const text = setupUrl 
+      ? `Welcome to Yusrflow! Please set your password using the link below:\n\nLink: ${setupUrl}\nEmail: ${formData.email}`
+      : `Welcome to Yusrflow! Your account has been created.\n\nEmail: ${formData.email}`;
 
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -237,31 +229,6 @@ Password: ${formData.password}`;
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="password">Temporary Password *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <Select onValueChange={(val) => handleSelectChange(val, 'role')} value={formData.role} disabled={loading}>
                   <SelectTrigger>
@@ -303,7 +270,7 @@ Password: ${formData.password}`;
                 disabled={loading}
               />
               <Label htmlFor="sendWelcomeEmail" className="text-sm font-normal cursor-pointer">
-                Send welcome email with credentials
+                Send welcome email with setup link
               </Label>
             </div>
 
@@ -327,7 +294,9 @@ Password: ${formData.password}`;
           <DialogHeader>
             <DialogTitle>User Created Successfully</DialogTitle>
             <DialogDescription>
-              Copy the credentials below to share with the new user.
+              {setupUrl 
+                ? "A setup link has been generated. You can share it manually or via the automated email."
+                : "The user has been created successfully."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -337,12 +306,18 @@ Password: ${formData.password}`;
                 {formData.email}
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Password</Label>
-              <div className="p-3 bg-secondary/30 rounded-md border border-border font-mono text-sm">
-                {formData.password}
+            {setupUrl ? (
+              <div className="space-y-2">
+                <Label>Setup Link</Label>
+                <div className="p-3 bg-secondary/30 rounded-md border border-border font-mono text-xs break-all">
+                  {setupUrl}
+                </div>
               </div>
-            </div>
+            ) : (
+                <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-md">
+                    <p className="text-sm text-blue-400">Welcome email will be sent to the user.</p>
+                </div>
+            )}
           </div>
           <DialogFooter className="sm:justify-between gap-2">
             <Button
@@ -351,7 +326,7 @@ Password: ${formData.password}`;
               onClick={handleCopyCredentials}
             >
               {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-              {copied ? "Copied!" : "Copy Credentials"}
+              {copied ? "Copied!" : "Copy Details"}
             </Button>
             <Button onClick={handleCloseDialog} className="w-full sm:w-auto">
               Done

@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         if (pathname === '/auth/login' || pathname === '/') {
-          router.push('/');
+          router.push('/dashboard');
         }
       }
     } else {
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Fallback redirect even if the user profile fetch timed out, 
       // the `checkAuth` guard will re-verify it later without breaking the loop.
       if (pathname === '/auth/login') {
-        router.push('/');
+        router.push('/dashboard');
       }
     }
   };
