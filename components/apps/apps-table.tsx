@@ -159,12 +159,12 @@ export function AppsTable({
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRiskLevelColor(app.riskLevel)}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap inline-block ${getRiskLevelColor(app.riskLevel)}`}>
                     {translateRisk(app.riskLevel)}
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(app.status)}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap inline-block ${getStatusColor(app.status)}`}>
                     {translateStatus(app.status)}
                   </span>
                 </td>

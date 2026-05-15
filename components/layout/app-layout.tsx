@@ -5,10 +5,12 @@ import { Sidebar } from './sidebar';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     // Don't show sidebar on auth pages, admin pages, or tenant setup
     const shouldHideSidebar =
@@ -37,7 +39,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Sidebar with mobile drawer state */}
-            <Sidebar isOpen={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
+            <Sidebar 
+                isOpen={isMobileOpen} 
+                onClose={() => setIsMobileOpen(false)} 
+                isCollapsed={isCollapsed}
+                onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+            />
 
             {/* Backdrop for mobile */}
             {isMobileOpen && (
@@ -47,7 +54,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 />
             )}
 
-            <main className="flex-1 w-full md:ml-64 mt-16 md:mt-0 relative overflow-x-hidden min-h-screen">
+            <main className={cn(
+                "flex-1 w-full mt-16 md:mt-0 relative overflow-x-hidden min-h-screen transition-all duration-300",
+                isCollapsed ? "md:ml-20" : "md:ml-64"
+            )}>
                 {children}
             </main>
         </div>
