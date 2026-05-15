@@ -24,6 +24,14 @@ import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingState } from '@/components/ui/loading-state';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { ComplianceMethodology } from '@/components/compliance/compliance-methodology';
 
 export default function CompliancePage() {
@@ -34,6 +42,7 @@ export default function CompliancePage() {
 
   // Compliance Scan state
   const [isScanning, setIsScanning] = useState(false);
+  const [showScanConfirm, setShowScanConfirm] = useState(false);
   const [scanProgress, setScanProgress] = useState<{ scanned: number; total: number; lastApp: string }>({ scanned: 0, total: 0, lastApp: '' });
   const [scanComplete, setScanComplete] = useState(false);
   const [resolvedIssueIds, setResolvedIssueIds] = useState<Set<string>>(new Set());
@@ -58,7 +67,7 @@ export default function CompliancePage() {
     refetchOnWindowFocus: false,
   });
 
-  const handleRunScan = async () => {
+  const startScan = async () => {
     setScanComplete(false);
     setIsScanning(true);
     setScanProgress({ scanned: 0, total: 0, lastApp: 'Starting...' });
@@ -69,6 +78,14 @@ export default function CompliancePage() {
       console.error('Failed to trigger scan', e);
       setIsScanning(false);
       return;
+    }
+  };
+
+  const handleRunScan = async () => {
+    if (complianceData?.subscriptionTier === 'enterprise') {
+      setShowScanConfirm(true);
+    } else {
+      startScan();
     }
   };
 
@@ -279,6 +296,34 @@ export default function CompliancePage() {
         <div id="methodology-section" className="mt-16 pt-16 border-t">
           <ComplianceMethodology />
         </div>
+
+        {/* Enterprise Scan Confirmation Dialog */}
+        <Dialog open={showScanConfirm} onOpenChange={setShowScanConfirm}>
+          <DialogContent className="sm:max-w-md border-purple-500/30 bg-background/95 backdrop-blur-md">
+            <DialogHeader>
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck className="w-6 h-6 text-purple-400" />
+                <DialogTitle className="text-xl">Enterprise Scan Limit</DialogTitle>
+              </div>
+              <DialogDescription className="text-muted-foreground text-base leading-relaxed">
+                For now, the <span className="text-purple-400 font-semibold uppercase">Enterprise</span> plan allows scanning <span className="text-foreground font-bold">up to 12 apps</span> per session.
+                <br /><br />
+                Clicking <span className="text-foreground font-semibold">Okay</span> will proceed with scanning the first 12 applications in your inventory.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="mt-6 flex gap-3 sm:justify-end">
+              <Button variant="ghost" onClick={() => setShowScanConfirm(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={startScan}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 shadow-lg shadow-purple-500/20"
+              >
+                Okay
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
     </PageContainer>
   );
 }
