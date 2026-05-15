@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { ShieldAlert, ShieldCheck, Shield, CheckCircle2, Loader2, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import { fetchFromApi } from '@/lib/api';
+import { useQueryClient } from '@tanstack/react-query';
+import { appsKeys } from '@/lib/query-keys';
 
 interface ReviewRisksModalProps {
     isOpen: boolean;
@@ -49,7 +51,9 @@ const getStatusColor = (status: string) => {
 
 function AppRiskCard({ app }: { app: any }) {
     const { t } = useLanguage();
+    const queryClient = useQueryClient();
     const [isScanning, setIsScanning] = useState(false);
+    const [isFixing, setIsFixing] = useState<string | null>(null);
 
     const mapScores = (a: any) => {
         if (a.detailedScores && a.detailedScores.length > 0) {
@@ -76,38 +80,51 @@ function AppRiskCard({ app }: { app: any }) {
     }, [app.detailedScores, app.complianceScore]);
 
     const handleFix = async (id: string) => {
+        setIsFixing(id);
         try {
             // Persist the fix to the database so it survives a refresh
             await fetchFromApi(`/reports/engine/score/${id}/resolve`, { method: 'PATCH' });
+            
+            // Optimistically update local UI
+            setCompliances((prev: any[]) => prev.map(c =>
+                c.id === id ? { ...c, score: 100, isFixed: true, status: 'pass', reason: 'Manually resolved by administrator.' } : c
+            ));
+            
+            // Refresh parent data
+            queryClient.invalidateQueries({ queryKey: appsKeys.list() });
         } catch (e) {
             console.error('Failed to save fix', e);
+        } finally {
+            setIsFixing(null);
         }
-        // Optimistically update local UI regardless
-        setCompliances((prev: any[]) => prev.map(c =>
-            c.id === id ? { ...c, score: 100, isFixed: true, status: 'pass', reason: 'Manually resolved by administrator.' } : c
-        ));
     };
 
     const handleScanApp = async () => {
         setIsScanning(true);
         try {
-            const response = await fetchFromApi(`/reports/engine/scan/${app.id}`, {
+            await fetchFromApi(`/reports/engine/scan/${app.id}`, {
                 method: 'POST'
             });
 
-            if (response.success && response.app && response.app.detailedScores) {
-                // Overwrite the local mock UI state with the real AI results immediately
-                setCompliances(response.app.detailedScores.map((score: any) => ({
-                    id: score.id,
-                    name: score.rule_code || 'Compliance Check',
-                    score: score.score,
-                    isFixed: score.score === 100,
-                    status: score.status,
-                    reason: score.reason
-                })));
-            }
-
-            setIsScanning(false);
+            // Poll for completion since evaluation is async on the backend
+            const poll = async () => {
+                try {
+                    const status = await fetchFromApi(`/reports/engine/scan/${app.id}/status`);
+                    if (status.isRunning) {
+                        setTimeout(poll, 2000);
+                    } else {
+                        // Evaluation finished, refresh data to get real scores
+                        queryClient.invalidateQueries({ queryKey: appsKeys.list() });
+                        setIsScanning(false);
+                    }
+                } catch (e) {
+                    console.error('Polling failed', e);
+                    setIsScanning(false);
+                }
+            };
+            
+            // Start polling after a short delay
+            setTimeout(poll, 1000);
 
         } catch (error) {
             console.error('Scan failed', error);
@@ -172,6 +189,7 @@ function AppRiskCard({ app }: { app: any }) {
                         key={compliance.id}
                         compliance={compliance}
                         onFix={() => handleFix(compliance.id)}
+                        isFixing={isFixing === compliance.id}
                         t={t}
                     />
                 ))}
@@ -180,7 +198,7 @@ function AppRiskCard({ app }: { app: any }) {
     );
 }
 
-function ComplianceItem({ compliance, onFix, t }: { compliance: any, onFix: () => void, t: any }) {
+function ComplianceItem({ compliance, onFix, isFixing, t }: { compliance: any, onFix: () => void, isFixing: boolean, t: any }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -196,7 +214,9 @@ function ComplianceItem({ compliance, onFix, t }: { compliance: any, onFix: () =
                         size="sm"
                         onClick={(e) => { e.stopPropagation(); onFix(); }}
                         className="h-7 text-xs"
+                        disabled={isFixing}
                     >
+                        {isFixing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
                         {t('applications.fixIssue')}
                     </Button>
                 ) : (

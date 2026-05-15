@@ -68,6 +68,7 @@ export default function CompliancePage() {
   });
 
   const startScan = async () => {
+    setShowScanConfirm(false);
     setScanComplete(false);
     setIsScanning(true);
     setScanProgress({ scanned: 0, total: 0, lastApp: 'Starting...' });
