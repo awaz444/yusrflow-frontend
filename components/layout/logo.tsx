@@ -10,9 +10,10 @@ interface LogoProps {
     width?: number;
     height?: number;
     priority?: boolean;
+    theme?: 'light' | 'dark';
 }
 
-export function Logo({ className, width = 150, height = 40, priority = false }: LogoProps) {
+export function Logo({ className, width = 150, height = 40, priority = false, theme }: LogoProps) {
     const { resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -25,7 +26,7 @@ export function Logo({ className, width = 150, height = 40, priority = false }: 
         return <div style={{ width, height }} className={cn("bg-transparent", className)} />;
     }
 
-    const isDarkMode = resolvedTheme === 'dark';
+    const isDarkMode = theme ? theme === 'dark' : resolvedTheme === 'dark';
 
     // Dark Theme: light-logo.png
     // Light Theme: dark-logo.png

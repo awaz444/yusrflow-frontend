@@ -160,7 +160,7 @@ export default function LandingPage() {
 
   return (
     <div
-      className={`relative min-h-screen selection:bg-primary/30 scroll-smooth pb-20 md:pb-0`}
+      className={`dark relative min-h-screen selection:bg-primary/30 scroll-smooth pb-20 md:pb-0 bg-background text-foreground`}
       style={{ fontFamily: isArabic ? "var(--font-tajawal), sans-serif" : "var(--font-inter), sans-serif" }}
       dir={isArabic ? "rtl" : "ltr"}
     >
