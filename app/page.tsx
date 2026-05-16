@@ -18,10 +18,8 @@ import {
   Lock,
   Heart,
 } from "lucide-react"
-import Link from "next/link"
-import { FadeIn } from "@/components/landing/fade-in"
-import { AnimatedGridBackground } from "@/components/landing/animated-grid-background"
-import { Logo } from "@/components/layout/logo"
+import { FadeIn } from "@/components/fade-in"
+import { AnimatedGridBackground } from "@/components/animated-grid-background"
 
 export default function LandingPage() {
   const [isArabic, setIsArabic] = useState(false)
@@ -44,7 +42,6 @@ export default function LandingPage() {
     platform: isArabic ? "المنصة" : "Platform",
     compliance: isArabic ? "الامتثال" : "Compliance",
     trust: isArabic ? "الثقة" : "Trust",
-    login: isArabic ? "تسجيل الدخول" : "Login",
     toggleLang: isArabic ? "English" : "عربي",
 
     // Hero strings
@@ -63,7 +60,7 @@ export default function LandingPage() {
       : "The first bilingual platform designed for KSA SMEs to automate NDMO/PDPL compliance and optimize digital well-being.",
     applyCTA: isArabic ? "قدم للحصول على وصول مبكر" : "Apply for Early Access",
     trialCTA: isArabic ? "ابدأ التجربة المجانية" : "Start Free Trial",
-    spotsText1: isArabic ? "نقبل 50 شركة صغيرة ومتوسطة لبرنامج המتبنين الأوائل Hebrew." : "Accepting 50 Saudi SMEs for our 2026 Early Adopter Program.",
+    spotsText1: isArabic ? "نقبل 50 شركة صغيرة ومتوسطة لبرنامج המتبنين الأوائل." : "Accepting 50 Saudi SMEs for our 2026 Early Adopter Program.",
     spotsText2: isArabic ? `المتبقي ${spotsLeft} مقاعد.` : `${spotsLeft} spots remaining.`,
 
     // Video 
@@ -113,8 +110,8 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-8">
-            <a href="#hero" className="flex items-center">
-              <Logo width={140} height={35} priority />
+            <a href="#hero" className="text-xl font-bold tracking-tighter text-white">
+              Yusrflow
             </a>
             <div className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
               <a href="#platform" className="transition-colors hover:text-white">
@@ -138,11 +135,6 @@ export default function LandingPage() {
               <Globe className="w-4 h-4" />
               {t.toggleLang}
             </Button>
-            <Link href="/auth/login">
-              <Button variant="ghost" size="sm" className="text-sm font-bold text-white hover:text-primary transition-colors">
-                {t.login}
-              </Button>
-            </Link>
             <Button size="sm" className="hidden md:inline-flex bg-white text-black hover:bg-white/90">
               {t.applyCTA}
             </Button>
@@ -371,9 +363,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
             <div className="space-y-4 text-center md:text-left">
-              <div className="flex items-center mb-6">
-                <Logo width={120} height={30} />
-              </div>
+              <span className="text-xl font-bold tracking-tighter text-white">Yusrflow</span>
               <p className="text-xs text-muted-foreground max-w-xs">
                 {t.footerDesc}
               </p>
