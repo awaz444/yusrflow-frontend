@@ -27,6 +27,7 @@ import {
   Search,
   LayoutDashboard,
   ArrowRight,
+  Heart,
 } from "lucide-react"
 import { FadeIn } from "@/components/ui/fade-in"
 import { AnimatedGridBackground } from "@/components/ui/animated-grid-background"
