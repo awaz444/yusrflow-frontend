@@ -24,6 +24,9 @@ import { AnimatedGridBackground } from "@/components/animated-grid-background"
 export default function LandingPage() {
   const [isArabic, setIsArabic] = useState(false)
   const [spotsLeft, setSpotsLeft] = useState(12)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" })
   const router = useRouter()
 
   // Redirect authenticated users away from the landing page
@@ -94,8 +97,30 @@ export default function LandingPage() {
     fEmail: isArabic ? "البريد الإلكتروني للعمل" : "Business Email",
     fPhone: isArabic ? "رقم التواصل" : "Contact Number",
     fSubmit: isArabic ? "انضم لأول 50" : "Join the First 50",
+    fSuccess: isArabic ? "شكراً لك! سنتواصل معك قريباً." : "Thank you! We will contact you shortly.",
+    signIn: isArabic ? "تسجيل الدخول" : "Sign In",
 
     footerDesc: isArabic ? "مبني ليتوافق مع أهداف المملكة 2030." : "Built to align with Vision 2030."
+  }
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      if (response.ok) {
+        setIsSubmitted(true)
+        setFormData({ name: "", email: "", phone: "" })
+      }
+    } catch (error) {
+      console.error("Form submission error:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -132,10 +157,21 @@ export default function LandingPage() {
               onClick={() => setIsArabic(!isArabic)}
               className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-2"
             >
-              <Globe className="w-4 h-4" />
               {t.toggleLang}
             </Button>
-            <Button size="sm" className="hidden md:inline-flex bg-white text-black hover:bg-white/90">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/auth')}
+              className="text-sm font-bold text-white border-white/20 hover:bg-white/10"
+            >
+              {t.signIn}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => router.push('/auth')}
+              className="hidden md:inline-flex bg-white text-black hover:bg-white/90"
+            >
               {t.applyCTA}
             </Button>
           </div>
@@ -179,12 +215,17 @@ export default function LandingPage() {
               </div>
 
               <div className="flex flex-col items-center justify-center gap-4 pt-6 sm:flex-row">
-                <Button size="lg" className="h-14 w-full bg-primary text-black hover:bg-primary/90 font-bold text-lg sm:w-auto shadow-[0_0_20px_rgba(21,128,61,0.3)]">
+                <Button
+                  size="lg"
+                  onClick={() => router.push('/auth')}
+                  className="h-14 w-full bg-primary text-black hover:bg-primary/90 font-bold text-lg sm:w-auto shadow-[0_0_20px_rgba(21,128,61,0.3)]"
+                >
                   {t.applyCTA}
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
+                  onClick={() => router.push('/auth')}
                   className="h-14 w-full border-white/20 bg-white/5 px-8 text-white hover:bg-white/10 font-semibold sm:w-auto"
                 >
                   {t.trialCTA}
@@ -326,23 +367,60 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <form className="relative space-y-5" onSubmit={(e) => e.preventDefault()}>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-white/80 ml-1">{t.fName}</label>
-                  <Input className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/50 text-white placeholder:text-white/20" placeholder={t.fName} />
+              {isSubmitted ? (
+                <div className="relative p-6 bg-primary/10 border border-primary/20 rounded-2xl text-center animate-in fade-in zoom-in duration-300">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 mb-4">
+                    <Check className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-white font-bold">{t.fSuccess}</p>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-white/80 ml-1">{t.fEmail}</label>
-                  <Input type="email" className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/50 text-white placeholder:text-white/20" placeholder={t.fEmail} />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-white/80 ml-1">{t.fPhone}</label>
-                  <Input type="tel" className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/50 text-white placeholder:text-white/20" placeholder="+966 5X XXX XXXX" dir="ltr" />
-                </div>
-                <Button className="w-full h-14 bg-primary text-black font-bold text-lg hover:bg-primary/90 mt-4 transition-all hover:scale-[1.02]">
-                  {t.fSubmit}
-                </Button>
-              </form>
+              ) : (
+                <form className="relative space-y-5" onSubmit={handleContactSubmit}>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-white/80 ml-1">{t.fName}</label>
+                    <Input
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/50 text-white placeholder:text-white/20"
+                      placeholder={t.fName}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-white/80 ml-1">{t.fEmail}</label>
+                    <Input
+                      required
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/50 text-white placeholder:text-white/20"
+                      placeholder={t.fEmail}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-white/80 ml-1">{t.fPhone}</label>
+                    <Input
+                      required
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="h-12 bg-white/5 border-white/10 focus-visible:ring-primary/50 text-white placeholder:text-white/20"
+                      placeholder="+966 5X XXX XXXX"
+                      dir="ltr"
+                    />
+                  </div>
+                  <Button
+                    disabled={isSubmitting}
+                    className="w-full h-14 bg-primary text-black font-bold text-lg hover:bg-primary/90 mt-4 transition-all hover:scale-[1.02]"
+                  >
+                    {isSubmitting ? (
+                      <div className="h-5 w-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    ) : (
+                      t.fSubmit
+                    )}
+                  </Button>
+                </form>
+              )}
             </div>
           </FadeIn>
         </section>
@@ -353,7 +431,10 @@ export default function LandingPage() {
         <div className="text-center text-xs text-red-400 font-bold animate-pulse">
           {t.spotsText1} {t.spotsText2}
         </div>
-        <Button className="w-full h-12 bg-primary text-black font-bold text-base hover:bg-primary/90 shadow-[0_0_15px_rgba(21,128,61,0.2)]">
+        <Button
+          onClick={() => router.push('/auth')}
+          className="w-full h-12 bg-primary text-black font-bold text-base hover:bg-primary/90 shadow-[0_0_15px_rgba(21,128,61,0.2)]"
+        >
           {t.applyCTA}
         </Button>
       </div>
