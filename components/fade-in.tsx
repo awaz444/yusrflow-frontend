@@ -24,7 +24,7 @@ export function FadeIn({ children, className, delay = 0, direction = "up" }: Fad
       transition: {
         duration: 0.5,
         delay: delay,
-        ease: "easeOut",
+        ease: "easeOut" as const,
       },
     },
   }

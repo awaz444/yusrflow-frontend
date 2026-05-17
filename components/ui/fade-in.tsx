@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { ReactNode } from "react";
 
 interface FadeInProps {
@@ -18,30 +18,30 @@ export function FadeIn({
   className = "",
   fullWidth,
 }: FadeInProps) {
-  const directions = {
-    up: { y: 20, x: 0 },
-    down: { y: -20, x: 0 },
-    left: { x: 20, y: 0 },
-    right: { x: -20, y: 0 },
-    none: { x: 0, y: 0 },
-  };
+  const variants: Variants = {
+    hidden: {
+      opacity: 0,
+      y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
+      x: direction === "left" ? 40 : direction === "right" ? -40 : 0,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        delay: delay,
+        ease: "easeOut" as const,
+      },
+    },
+  }
 
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-        ...directions[direction],
-      }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        x: 0,
-      }}
-      transition={{
-        duration: 0.5,
-        delay: delay,
-        ease: "easeOut",
-      }}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={variants}
       className={`${fullWidth ? "w-full" : ""} ${className}`}
     >
       {children}

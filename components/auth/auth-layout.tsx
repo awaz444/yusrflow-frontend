@@ -3,11 +3,13 @@
 import React from "react"
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Shield } from 'lucide-react';
+import { Shield, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
+import { useRouter } from 'next/navigation';
 
 import { Logo } from '@/components/layout/logo';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -16,6 +18,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title }: AuthLayoutProps) {
   const { t, language } = useLanguage();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center px-4 py-8">
@@ -44,8 +47,18 @@ export function AuthLayout({ children, title }: AuthLayoutProps) {
         <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
       </div>
 
-      {/* Language Switcher */}
-      <div className="absolute top-6 right-6 z-20">
+      {/* Back to Landing */}
+      <button
+        onClick={() => router.push('/')}
+        className="absolute top-6 left-6 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-muted-foreground hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200"
+        aria-label="Back to home"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+
+      {/* Language + Theme controls */}
+      <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
+        <ThemeToggle />
         <LanguageSwitcher />
       </div>
 

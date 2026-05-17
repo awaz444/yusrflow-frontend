@@ -27,7 +27,6 @@ import {
   Search,
   LayoutDashboard,
   ArrowRight,
-  Heart,
 } from "lucide-react"
 import { FadeIn } from "@/components/ui/fade-in"
 import { AnimatedGridBackground } from "@/components/ui/animated-grid-background"
@@ -46,13 +45,42 @@ export default function LandingPage() {
   })
   const router = useRouter()
 
+  const [isHidden, setIsHidden] = useState(false)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
+  // Scroll listener for sticky header
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setIsHidden(true)
+      } else {
+        setIsHidden(false)
+      }
+      setLastScrollY(currentScrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [lastScrollY])
+
+  // Force body to dark while landing page is mounted so the
+  // AnimatedGridBackground (z-index: -50) shows through the transparent page div
+  useEffect(() => {
+    const prev = document.body.style.backgroundColor
+    document.body.style.backgroundColor = '#000'
+    return () => { document.body.style.backgroundColor = prev }
+  }, [])
+
   // Redirect authenticated users away from the landing page
   useEffect(() => {
     const token = localStorage.getItem('accessToken')
     if (token) {
+      // Decode token to check role, or just redirect to a safe auth-checked route
+      // We redirect to /dashboard; the AuthGuard there will forward super admins to /admin/dashboard
       router.replace('/dashboard')
     }
-  }, [router])
+  }, [])
 
   // Dictionary for translations
   const t = {
@@ -61,44 +89,51 @@ export default function LandingPage() {
     compliance: isArabic ? "الامتثال" : "Compliance",
     trust: isArabic ? "الثقة" : "Trust",
     toggleLang: isArabic ? "English" : "عربي",
-    signIn: isArabic ? "تسجيل الدخول" : "Sign In",
 
     // Hero strings
-    hookLabel: isArabic ? "جديد" : "NEW",
-    hookSub: isArabic
-      ? "توجيه الشركات نحو الامتثال الكامل"
-      : "Guiding Companies Toward Complete Compliance",
     heroTitle: isArabic
-      ? "المنصة السعودية الأولى لتوفير تكاليف البرمجيات والامتثال لأنظمة (NDMO)."
-      : "The First Saudi-Specific, AI Based Platform for SaaS Savings & NDMO Compliance.",
+      ? "منصة ذكاء اصطناعي سعودية لرؤية وحوكمة البرمجيات (SaaS)"
+      : "Saudi-Built AI Platform for SaaS Visibility & Governance",
     heroSubtitle: isArabic
-      ? "صفر هدر للبرمجيات. امتثال كامل للأنظمة السعودية. منصة واحدة."
-      : "Zero SaaS Waste. Total Saudi Compliance. One Platform.",
-    heroDesc: isArabic
-      ? "المنصة الأولى ثنائية اللغة المصممة للشركات الصغيرة والمتوسطة السعودية لأتمتة الامتثال لأنظمة NDMO/PDPL وتحسين الرفاهية الرقمية."
-      : "The first bilingual platform designed for KSA SMEs to automate NDMO/PDPL compliance and optimize digital well-being.",
-    applyCTA: isArabic ? "قدم للحصول على وصول مبكر" : "Apply for Early Access",
-    trialCTA: isArabic ? "ابدأ التجربة المجانية" : "Start Free Trial",
-    spotsText1: isArabic ? "نقبل 50 شركة صغيرة ومتوسطة لبرنامج المتبنين الأوائل." : "Accepting 50 Saudi SMEs for our 2026 Early Adopter Program.",
-    spotsText2: isArabic ? `المتبقي ${spotsLeft} مقاعد.` : `${spotsLeft} spots remaining.`,
+      ? "تساعد YusrFlow المؤسسات على كشف هدر البرمجيات، وتحديد التراخيص المكررة، وتعزيز رؤية الحوكمة من خلال منصة عربية-إنجليزية بالكامل مبنية للسوق السعودي."
+      : "YusrFlow helps organizations uncover SaaS waste, identify redundant licenses, and strengthen governance visibility through a bilingual Arabic–English platform, built for the Saudi market.",
+    loginCTA: isArabic ? "تسجيل الدخول" : "Login",
+    applyCTA: isArabic ? "طلب وصول مبكر للبرنامج التجريبي" : "Request Early Pilot Access",
+    demoCTA: isArabic ? "شاهد عرضاً لمدة دقيقتين" : "Watch 2-Minute Demo",
 
-    // Video 
-    videoTitle: isArabic ? "الحل في 60 ثانية" : "The 60-Second Solution",
-    videoSub: isArabic ? "اكتشف كيف نحول التحدي إلى فرصة." : "See how we turn challenges into opportunities.",
+    // Built for Saudi Organizations
+    saudiTitle: isArabic ? "بنيت للمنظمات السعودية" : "Built for Saudi Organizations",
+    saudiBullet1: isArabic ? "منصة ثنائية اللغة (عربي – إنجليزي)" : "Arabic–English bilingual platform",
+    saudiBullet2: isArabic ? "نهج نشر يركز على السوق السعودي" : "Saudi-focused deployment approach",
+    saudiBullet3: isArabic ? "رؤية الحوكمة متوافقة مع PDPL / NDMO" : "Governance visibility aligned with PDPL / NDMO",
+    saudiBullet4: isArabic ? "مصممة لفرق تقنية المعلومات والعمليات الحديثة" : "Designed for modern IT and operations teams",
 
-    // Value Prop
-    valuePillarT1: isArabic ? "توفير التكاليف / المراجعة المالية للبرمجيات SaaS" : "SaaS Wastage / SaaS Financial Audit",
-    valuePillarD1: isArabic ? "تحديد تراخيص البرمجيات غير المستخدمة والاشتراكات المكررة فورياً. أوقف النزيف 'الخفي' في ميزانية شركتك." : "Instantly identify unused software licenses and redundant subscriptions. Stop the 'hidden' drain on your company budget.",
-    valuePillarT2: isArabic ? "أتمتة الامتثال / الدرع التنظيمي" : "Compliance Automation / The Regulatory Shield",
-    valuePillarD2: isArabic ? "ابق في الصدارة مع أنظمة (NDMO) ونظام حماية البيانات الشخصية (PDPL). قلل من مخاطر الغرامات التي تصل إلى 5 ملايين ريال سعودي بسبب عدم الامتثال." : "Stay ahead of NDMO (Data Management) and PDPL (Personal Data Protection) mandates. Minimize the risk of the SAR 5M non-compliance fines.",
-    valuePillarT3: isArabic ? "الرفاهية الرقمية (غير السريرية)" : "Digital Well-being (Non-Clinical)",
-    valuePillarD3: isArabic ? "تحسين تركيز الفريق والاحتفاظ به من خلال أدوات الرفاهية الرقمية غير المتطفلة. تعزيز العادات التقنية الصحية دون المساس بالخصوصية." : "Improve team focus and retention through non-intrusive digital well-being tools. Promote healthy tech habits without invading privacy.",
+    // Platform Capabilities
+    capabilitiesTitle: isArabic ? "قدرات المنصة" : "Platform Capabilities",
+    cap1Title: isArabic ? "رؤية البرمجيات والادخار" : "SaaS Visibility & Savings",
+    cap1Desc: isArabic ? "تحديد التراخيص غير المستخدمة، والأدوات المكررة، والإنفاق غير المستغل على البرمجيات." : "Identify unused licenses, redundant tools, and underutilized SaaS spend.",
+    cap2Title: isArabic ? "رؤية الحوكمة والامتثال" : "Governance & Compliance Visibility",
+    cap2Desc: isArabic ? "تعزيز الرقابة على الوصول والسياسات وحوكمة العمليات." : "Strengthen oversight of access, policy, and operational governance.",
+    cap3Title: isArabic ? "تجربة الموظف الرقمية (قريباً)" : "Digital Employee Experience (Coming Soon)",
+    cap3Desc: isArabic ? "تسليط الضوء على نقاط الاحتكاك، والعبء الزائد، وفجوات الاعتماد عبر مكان العمل الرقمي." : "Highlight friction, overload, and adoption gaps across the digital workplace.",
+    comingSoon: isArabic ? "قريباً" : "Coming Soon",
 
-    // How it works
+    // AI Section
+    aiTitle: isArabic ? "رؤى مدعومة بالذكاء الاصطناعي" : "AI-Powered Insights",
+    aiDesc: isArabic ? "تحلل YusrFlow نشاط البرمجيات والإشارات التشغيلية للكشف عن الهدر والتكرار ونقاط ضعف الحوكمة بشكل أسرع." : "YusrFlow analyzes SaaS activity and operational signals to reveal waste, redundancy, and governance blind spots faster.",
+    aiBullet1: isArabic ? "كشف هدر وتكرار البرمجيات" : "Detect SaaS waste and redundancy",
+    aiBullet2: isArabic ? "تسليط الضوء على فجوات الحوكمة مبكراً" : "Highlight governance gaps early",
+    aiBullet3: isArabic ? "تحويل الإشارات إلى رؤى قابلة للتنفيذ" : "Turn signals into actionable insight",
+
+    // Demo Section
+    videoTitle: isArabic ? "شاهد YusrFlow أثناء العمل" : "See YusrFlow in Action",
+    videoSub: isArabic ? "نظرة سريعة على كيفية كشف YusrFlow لهدر البرمجيات، والتراخيص المكررة، ونقاط ضعف الحوكمة." : "A quick look at how YusrFlow reveals SaaS waste, redundant licenses, and governance blind spots.",
+
+    // How YusrFlow Works
     howTitle: isArabic ? "كيف يعمل YusrFlow" : "How YusrFlow Works",
-    step1Title: isArabic ? "المسح والاتصال" : "Scan & Connect",
-    step2Title: isArabic ? "التحليل والكشف" : "Analyze & Detect",
-    step3Title: isArabic ? "التحكم والامتثال" : "Control & Comply",
+    step1Title: isArabic ? "ربط بيئتك" : "Connect your environment",
+    step2Title: isArabic ? "إنشاء لقطة للرؤية" : "Generate a visibility snapshot",
+    step3Title: isArabic ? "مراجعة الرؤى واتخاذ الإجراءات" : "Review insights and take action",
 
     // Trust Section
     trustTitle: isArabic ? "بنيت من أجل الثقة" : "Built for Trust",
@@ -130,49 +165,43 @@ export default function LandingPage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, {
+      const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       })
 
       if (response.ok) {
         setIsSuccess(true)
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          employeeSize: ''
-        })
+        setFormData({ name: '', email: '', phone: '', employeeSize: '' })
+      } else {
+        alert('Something went wrong. Please try again.')
       }
     } catch (error) {
       console.error('Submission error:', error)
+      alert('Failed to send. Please check your connection.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const scrollToApply = () => {
-    document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
     <div
-      className={`dark relative min-h-screen selection:bg-primary/30 scroll-smooth pb-20 md:pb-0 bg-background text-foreground`}
-      style={{ fontFamily: isArabic ? "var(--font-tajawal), sans-serif" : "var(--font-inter), sans-serif" }}
+      className={`dark relative min-h-screen selection:bg-primary/30 scroll-smooth overflow-x-hidden text-white bg-transparent`}
+      style={{
+        fontFamily: isArabic ? "var(--font-tajawal), sans-serif" : "var(--font-inter), sans-serif"
+      }}
       dir={isArabic ? "rtl" : "ltr"}
     >
       <AnimatedGridBackground />
 
       {/* Navigation */}
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <Logo width={120} height={30} theme="dark" />
-            </div>
+      <header className={`fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[oklch(0.05_0_0)]/80 backdrop-blur-md transition-transform duration-300 ${isHidden ? '-translate-y-full' : 'translate-y-0'}`}>
+        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
+          <div className="flex items-center gap-4 md:gap-8">
+            <a href="#hero" className="flex items-center">
+              <Logo width={120} height={30} priority theme="dark" className="md:w-[140px] md:h-[35px]" />
+            </a>
             <div className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
               <a href="#platform" className="transition-colors hover:text-white">
                 {t.platform}
@@ -185,30 +214,22 @@ export default function LandingPage() {
               </a>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 md:gap-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsArabic(!isArabic)}
-              className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-2"
+              className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-1 md:gap-2 px-2 md:px-3"
             >
               <Globe className="w-4 h-4" />
-              {t.toggleLang}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/auth')}
-              className="text-sm font-bold text-white border-white/20 hover:bg-white/10"
-            >
-              {t.signIn}
+              <span className="hidden sm:inline">{t.toggleLang}</span>
             </Button>
             <Button
               size="sm"
-              onClick={scrollToApply}
+              onClick={() => router.push('/auth/login')}
               className="hidden md:inline-flex bg-white text-black hover:bg-white/90"
             >
-              {t.applyCTA}
+              {t.loginCTA}
             </Button>
           </div>
         </nav>
@@ -216,143 +237,178 @@ export default function LandingPage() {
 
       <main>
         {/* 1. Hero Section */}
-        <section id="hero" className="relative px-6 pt-24 pb-20 md:pt-22 md:pb-32 text-center">
+        <section id="hero" className="relative px-6 pt-24 pb-20 md:pt-32 md:pb-40 text-center overflow-hidden">
           <FadeIn>
-            <div className="mx-auto max-w-4xl space-y-8">
-              <h1 className="text-balance text-4xl font-extrabold tracking-tight text-white md:text-6xl leading-tight">
+            <div className="mx-auto max-w-5xl space-y-10">
+              <h1 className="text-balance text-4xl font-extrabold tracking-tight text-white md:text-7xl leading-[1.1]">
                 {t.heroTitle}
               </h1>
 
-              <div className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-xl md:text-2xl font-bold text-transparent">
+              <p className="mx-auto max-w-3xl text-balance text-lg text-muted-foreground md:text-2xl leading-relaxed">
                 {t.heroSubtitle}
-              </div>
-
-              <p className="mx-auto max-w-2xl text-balance text-lg text-muted-foreground md:text-xl">
-                {t.heroDesc}
               </p>
 
-              {/* Scarcity Counter */}
-              <div className="mt-8 flex justify-center">
-                <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-full text-sm font-bold shadow-[0_0_15px_rgba(239,68,68,0.2)] animate-pulse flex items-center gap-2">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                  </span>
-                  {t.spotsText1} <span className="text-white mx-1">{t.spotsText2}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center justify-center gap-4 pt-6 sm:flex-row">
-                <Button
-                  size="lg"
-                  onClick={scrollToApply}
-                  className="h-14 w-full bg-primary text-black hover:bg-primary/90 font-bold text-lg sm:w-auto shadow-[0_0_20px_rgba(21,128,61,0.3)]"
-                >
-                  {t.applyCTA}
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={scrollToApply}
-                  className="h-14 w-full border-white/20 bg-white/5 px-8 text-white hover:bg-white/10 font-semibold sm:w-auto"
-                >
-                  {t.trialCTA}
-                </Button>
+              <div className="flex flex-col items-center justify-center gap-6 pt-8 sm:flex-row">
+                <a href="#apply" className="w-full sm:w-auto">
+                  <Button size="lg" className="h-auto min-h-[4rem] w-full py-3 px-4 sm:px-8 bg-primary text-black hover:bg-primary/90 font-bold text-base sm:text-lg md:text-xl shadow-[0_0_30px_rgba(21,128,61,0.4)] transition-all hover:scale-105 whitespace-normal text-center">
+                    {t.applyCTA}
+                  </Button>
+                </a>
+                <a href="#demo" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-auto min-h-[4rem] py-3 w-full border-white/20 bg-white/5 px-4 sm:px-10 text-white hover:bg-white/10 font-semibold text-base sm:text-lg shadow-xl backdrop-blur-sm whitespace-normal text-center"
+                  >
+                    <PlayCircle className="mr-2 h-6 w-6 text-primary" />
+                    {t.demoCTA}
+                  </Button>
+                </a>
               </div>
             </div>
           </FadeIn>
         </section>
 
-        {/* 2. Video Section */}
-        <section className="mx-auto max-w-5xl px-6 pb-24 md:pb-32">
-          <FadeIn delay={0.2}>
-            <div className="mb-10 text-center">
-              <Badge className="mb-4 bg-primary/20 text-primary hover:bg-primary/20">{t.videoTitle}</Badge>
-              <h2 className="text-2xl font-bold text-white md:text-4xl">{t.videoSub}</h2>
+        {/* 2. Section: Built for Saudi Organizations */}
+        <section className="relative py-24 md:py-32 border-y border-white/5 bg-white/[0.02]">
+          <div className="mx-auto max-w-7xl px-6">
+            <FadeIn>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl font-bold text-white md:text-5xl tracking-tight">{t.saudiTitle}</h2>
+              </div>
+            </FadeIn>
+
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+              <FadeIn delay={0.1}>
+                <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+                    <Languages className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-white font-medium text-lg leading-tight">{t.saudiBullet1}</p>
+                </div>
+              </FadeIn>
+              <FadeIn delay={0.2}>
+                <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+                    <MapPin className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-white font-medium text-lg leading-tight">{t.saudiBullet2}</p>
+                </div>
+              </FadeIn>
+              <FadeIn delay={0.3}>
+                <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-white font-medium text-lg leading-tight">{t.saudiBullet3}</p>
+                </div>
+              </FadeIn>
+              <FadeIn delay={0.4}>
+                <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-white font-medium text-lg leading-tight">{t.saudiBullet4}</p>
+                </div>
+              </FadeIn>
             </div>
-            <div className="relative aspect-video w-full rounded-2xl border border-white/10 bg-black overflow-hidden shadow-2xl">
+          </div>
+        </section>
+
+
+        {/* 3. Demo Section */}
+        <section id="demo" className="mx-auto max-w-6xl px-6 py-24 md:py-32">
+          <FadeIn>
+            <div className="mb-16 text-center">
+              <h2 className="text-3xl font-bold text-white md:text-5xl mb-6">{t.videoTitle}</h2>
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">{t.videoSub}</p>
+            </div>
+            <div className="relative aspect-video w-full rounded-2xl border border-white/10 bg-black overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
               <iframe
                 className="absolute inset-0 w-full h-full"
                 src="https://www.youtube.com/embed/51c-VXN3gu4"
-                title="Yusrflow Intro Video"
+                title="YusrFlow Demo"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               ></iframe>
+              {/* Overlay for English Subtitles mention if needed, or just let the video handle it */}
             </div>
           </FadeIn>
         </section>
 
-        {/* 3. Value Proposition */}
+        {/* 4. Platform Capabilities */}
         <section id="platform" className="mx-auto max-w-7xl px-6 py-24 md:py-32 border-t border-white/5">
           <FadeIn>
             <div className="mb-16 text-center">
-              <h2 className="text-3xl font-bold text-white md:text-5xl">3 Pillars to Optimize Your Stack</h2>
+              <h2 className="text-3xl font-bold text-white md:text-5xl">{t.capabilitiesTitle}</h2>
             </div>
           </FadeIn>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <FadeIn delay={0.2} className="h-full">
+            <FadeIn delay={0.1}>
               <FeatureCard
                 icon={<BarChart3 className="h-6 w-6 text-primary" />}
-                title={t.valuePillarT1}
-                description={t.valuePillarD1}
-                badge="Savings"
+                title={t.cap1Title}
+                description={t.cap1Desc}
               />
             </FadeIn>
-            <FadeIn delay={0.4} className="h-full">
+            <FadeIn delay={0.2}>
               <FeatureCard
                 icon={<ShieldCheck className="h-6 w-6 text-primary" />}
-                title={t.valuePillarT2}
-                description={t.valuePillarD2}
-                badge="Compliance"
+                title={t.cap2Title}
+                description={t.cap2Desc}
               />
             </FadeIn>
-            <FadeIn delay={0.6} className="h-full">
+            <FadeIn delay={0.3}>
               <FeatureCard
-                icon={<Heart className="h-6 w-6 text-primary" />}
-                title={t.valuePillarT3}
-                description={t.valuePillarD3}
-                badge="Culture"
+                icon={<MousePointerClick className="h-6 w-6 text-primary" />}
+                title={t.cap3Title}
+                description={t.cap3Desc}
+                badge={t.comingSoon}
               />
             </FadeIn>
           </div>
         </section>
 
-        {/* 4. Dashboard Preview */}
-        <section className="px-6 py-24 md:py-32 overflow-hidden bg-white/[0.02]">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid md:grid-cols-2 gap-16 items-center">
-              <FadeIn direction={isArabic ? "right" : "left"}>
+        {/* 5. AI Section */}
+        <section className="relative py-24 md:py-32 overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 blur-[120px] rounded-full -z-10" />
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="grid items-center gap-16 md:grid-cols-2">
+              <FadeIn direction={isArabic ? "left" : "right"}>
                 <div className="space-y-8">
-                  <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-                    {isArabic ? "تحكم كامل في بيئة البرمجيات الخاصة بك" : "Complete Visibility into your SaaS Stack"}
+                  <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary px-4 py-1">
+                    <Zap className="w-3 h-3 mr-2" />
+                    {t.aiTitle}
+                  </Badge>
+                  <h2 className="text-3xl font-bold text-white md:text-5xl leading-tight">
+                    {t.aiTitle}
                   </h2>
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    {isArabic 
-                      ? "احصل على لوحة تحكم واحدة تجمع كل اشتراكاتك، وتكشف الهدر، وتضمن بقاء بياناتك داخل المملكة."
-                      : "Get a unified dashboard that tracks every subscription, detects wastage, and ensures your data stays within the Kingdom."
-                    }
+                  <p className="text-xl text-muted-foreground leading-relaxed">
+                    {t.aiDesc}
                   </p>
-                  <div className="flex gap-4">
-                    <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-                      <LayoutDashboard className="w-8 h-8 text-primary" />
-                    </div>
-                    <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-                      <Workflow className="w-8 h-8 text-primary" />
-                    </div>
-                  </div>
+                  <ul className="space-y-4">
+                    {[t.aiBullet1, t.aiBullet2, t.aiBullet3].map((bullet, i) => (
+                      <li key={i} className="flex items-center gap-3 text-white/90">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                          <Check className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="text-lg font-medium">{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </FadeIn>
-              <FadeIn direction={isArabic ? "left" : "right"}>
+              <FadeIn direction={isArabic ? "right" : "left"} delay={0.2}>
                 <div className="relative group">
-                  <div className="absolute -inset-4 bg-primary/20 blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-500 rounded-full" />
-                  <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm p-4 shadow-2xl">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="h-32 rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0s' }} />
-                      <div className="h-32 rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0.2s' }} />
-                      <div className="h-32 rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0.4s' }} />
-                      <div className="h-32 rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0.6s' }} />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-primary/10 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000" />
+                  <div className="relative aspect-square rounded-2xl border border-white/10 bg-black/50 backdrop-blur-xl p-8 flex items-center justify-center overflow-hidden">
+                    <div className="grid grid-cols-2 gap-4 w-full h-full opacity-40">
+                      <div className="rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0s' }} />
+                      <div className="rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0.2s' }} />
+                      <div className="rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0.4s' }} />
+                      <div className="rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0.6s' }} />
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-32 h-32 rounded-full bg-primary/20 backdrop-blur-2xl border border-primary/30 flex items-center justify-center animate-bounce">
@@ -366,7 +422,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 5. How YusrFlow Works */}
+        {/* 6. How YusrFlow Works */}
         <section className="mx-auto max-w-7xl px-6 py-24 md:py-32 border-t border-white/5">
           <FadeIn>
             <div className="mb-20 text-center">
@@ -375,6 +431,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <div className="relative grid gap-12 md:grid-cols-3">
+            {/* Connection Line */}
             <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent hidden md:block" />
 
             <FadeIn delay={0.1}>
@@ -409,7 +466,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 6. Trust Section */}
+        {/* 7. Trust Section */}
         <section id="compliance" className="bg-white/5 py-24 md:py-32 backdrop-blur-sm border-t border-white/5">
           <div className="mx-auto max-w-7xl px-6">
             <div className="grid items-center gap-16 md:grid-cols-2">
@@ -461,7 +518,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 7. Early Pilot Section (Form) */}
+        {/* 8. Early Pilot Section (Form) */}
         <section id="apply" className="px-4 md:px-6 py-24 md:py-40">
           <FadeIn>
             <div className="mx-auto max-w-4xl rounded-[40px] border border-white/10 bg-black shadow-[0_0_100px_rgba(0,0,0,1)] p-6 md:p-20 relative overflow-hidden backdrop-blur-sm">
