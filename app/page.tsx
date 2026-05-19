@@ -1,6 +1,6 @@
 "use client"
 //new
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -46,23 +46,23 @@ export default function LandingPage() {
   const router = useRouter()
 
   const [isHidden, setIsHidden] = useState(false)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const lastScrollY = useRef(0)
 
-  // Scroll listener for sticky header
+  // Scroll listener for sticky header — uses ref to avoid re-render on every scroll tick
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
         setIsHidden(true)
       } else {
         setIsHidden(false)
       }
-      setLastScrollY(currentScrollY)
+      lastScrollY.current = currentScrollY
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [lastScrollY])
+  }, [])
 
   // Force body to dark while landing page is mounted so the
   // AnimatedGridBackground (z-index: -50) shows through the transparent page div
@@ -219,9 +219,10 @@ export default function LandingPage() {
               variant="ghost"
               size="sm"
               onClick={() => setIsArabic(!isArabic)}
+              aria-label={isArabic ? "Switch to English" : "التبديل إلى العربية"}
               className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-1 md:gap-2 px-2 md:px-3"
             >
-              <Globe className="w-4 h-4" />
+              <Globe className="w-4 h-4" aria-hidden="true" />
               <span className="hidden sm:inline">{t.toggleLang}</span>
             </Button>
             <Button
@@ -326,13 +327,13 @@ export default function LandingPage() {
             <div className="relative aspect-video w-full rounded-2xl border border-white/10 bg-black overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
               <iframe
                 className="absolute inset-0 w-full h-full"
-                src="https://www.youtube.com/embed/51c-VXN3gu4"
-                title="YusrFlow Demo"
+                src="https://www.youtube.com/embed/51c-VXN3gu4?rel=0"
+                title="YusrFlow – 2-minute platform demo"
                 frameBorder="0"
+                loading="lazy"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               ></iframe>
-              {/* Overlay for English Subtitles mention if needed, or just let the video handle it */}
             </div>
           </FadeIn>
         </section>
@@ -411,7 +412,7 @@ export default function LandingPage() {
                       <div className="rounded-xl bg-white/5 border border-white/10 animate-pulse" style={{ animationDelay: '0.6s' }} />
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-32 h-32 rounded-full bg-primary/20 backdrop-blur-2xl border border-primary/30 flex items-center justify-center animate-bounce">
+                      <div className="w-32 h-32 rounded-full bg-primary/20 backdrop-blur-2xl border border-primary/30 flex items-center justify-center" style={{ animation: 'bounce 1s infinite' }}>
                         <Zap className="w-16 h-16 text-primary" />
                       </div>
                     </div>
@@ -551,7 +552,7 @@ export default function LandingPage() {
                 <div className="relative w-full min-w-0">
                   {isSuccess ? (
                     <div className="text-center py-12 space-y-6">
-                      <div className="mx-auto w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center text-primary mb-6 ring-1 ring-primary/30 animate-bounce">
+                      <div className="mx-auto w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center text-primary mb-6 ring-1 ring-primary/30 animate-pulse">
                         <Check className="w-10 h-10" />
                       </div>
                       <h3 className="text-3xl font-bold text-white">{t.successTitle}</h3>

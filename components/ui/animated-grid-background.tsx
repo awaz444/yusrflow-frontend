@@ -1,88 +1,81 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export function AnimatedGridBackground({ className }: { className?: string }) {
-  const [reduceMotion, setReduceMotion] = useState(false)
-
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 768px), (prefers-reduced-motion: reduce)")
-    const update = () => setReduceMotion(media.matches)
-
-    update()
-    media.addEventListener("change", update)
-    return () => media.removeEventListener("change", update)
-  }, [])
-
   return (
-    <div className={cn("fixed inset-0 -z-50 overflow-hidden bg-black pointer-events-none [transform:translateZ(0)]", className)}>
+    <div
+      className={cn(
+        "fixed inset-0 -z-50 overflow-hidden bg-black pointer-events-none",
+        className
+      )}
+      style={{ transform: "translateZ(0)" }}
+      aria-hidden="true"
+    >
       {/* Grid Pattern */}
       <div
-        className="absolute inset-0 bg-[linear-gradient(to_right,#8080801a_1px,transparent_1px),linear-gradient(to_bottom,#8080801a_1px,transparent_1px)] bg-[size:24px_24px]"
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right,#8080801a 1px,transparent 1px),linear-gradient(to bottom,#8080801a 1px,transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
       />
 
-      {/* Radial Gradient Mask for Grid - makes it fade out at edges */}
-      <div className="absolute inset-0 bg-black [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,transparent_70%,#000_100%)]" />
+      {/* Radial Gradient Mask */}
+      <div
+        className="absolute inset-0 bg-black"
+        style={{
+          maskImage:
+            "radial-gradient(ellipse 60% 50% at 50% 0%,transparent 70%,#000 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 60% 50% at 50% 0%,transparent 70%,#000 100%)",
+        }}
+      />
 
-      {/* On mobile/reduced-motion, keep static blobs to avoid GPU flicker. */}
-      {reduceMotion ? (
-        <>
-          <div className="absolute -top-[20%] -left-[10%] h-[520px] w-[520px] rounded-full bg-primary/25 blur-[90px]" />
-          <div className="absolute top-[20%] right-[10%] h-[420px] w-[420px] rounded-full bg-blue-500/15 blur-[100px]" />
-          <div className="absolute bottom-[10%] left-[20%] h-[560px] w-[560px] rounded-full bg-indigo-500/15 blur-[100px]" />
-        </>
-      ) : (
-        <>
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 0.8, 0.5],
-              x: [0, 150, 0],
-              y: [0, 100, 0],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute -top-[20%] -left-[10%] h-[600px] w-[600px] rounded-full bg-primary/30 blur-[100px]"
-          />
+      {/* CSS-only animated blobs — runs on compositor thread, zero JS TBT */}
+      <div
+        className="landing-blob-1 absolute -top-[20%] -left-[10%] h-[600px] w-[600px] rounded-full bg-primary/30"
+        style={{
+          filter: "blur(100px)",
+          willChange: "transform, opacity",
+          animation: "blobFloat1 10s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="landing-blob-2 absolute top-[20%] right-[10%] h-[500px] w-[500px] rounded-full bg-blue-500/20"
+        style={{
+          filter: "blur(120px)",
+          willChange: "transform, opacity",
+          animation: "blobFloat2 15s ease-in-out 2s infinite",
+        }}
+      />
+      <div
+        className="landing-blob-3 absolute bottom-[10%] left-[20%] h-[700px] w-[700px] rounded-full bg-indigo-500/20"
+        style={{
+          filter: "blur(120px)",
+          willChange: "transform, opacity",
+          animation: "blobFloat3 12s ease-in-out 5s infinite",
+        }}
+      />
 
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.4, 0.6, 0.4],
-              x: [0, -100, 0],
-              y: [0, 150, 0],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 2,
-            }}
-            className="absolute top-[20%] right-[10%] h-[500px] w-[500px] rounded-full bg-blue-500/20 blur-[120px]"
-          />
-
-          <motion.div
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.3, 0.5, 0.3],
-              x: [0, 100, 0],
-              y: [0, -50, 0],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 5,
-            }}
-            className="absolute bottom-[10%] left-[20%] h-[700px] w-[700px] rounded-full bg-indigo-500/20 blur-[120px]"
-          />
-        </>
-      )}
+      <style>{`
+        @keyframes blobFloat1 {
+          0%,100% { transform:translate(0,0) scale(1);   opacity:0.5; }
+          50%      { transform:translate(150px,100px) scale(1.2); opacity:0.8; }
+        }
+        @keyframes blobFloat2 {
+          0%,100% { transform:translate(0,0) scale(1);    opacity:0.4; }
+          50%      { transform:translate(-100px,150px) scale(1.1); opacity:0.6; }
+        }
+        @keyframes blobFloat3 {
+          0%,100% { transform:translate(0,0) scale(1);   opacity:0.3; }
+          50%      { transform:translate(100px,-50px) scale(1.3); opacity:0.5; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .landing-blob-1,.landing-blob-2,.landing-blob-3 { animation:none !important; }
+        }
+      `}</style>
     </div>
   )
 }

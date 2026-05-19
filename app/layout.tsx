@@ -6,8 +6,8 @@ import { LanguageProvider } from '@/lib/i18n/language-context'
 import { Providers } from '@/components/providers';
 import './globals.css'
 
-const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
-const tajawal = Tajawal({ weight: ['300', '400', '500', '700'], subsets: ["arabic"], variable: '--font-tajawal' });
+const inter = Inter({ subsets: ["latin"], variable: '--font-inter', display: 'swap' });
+const tajawal = Tajawal({ weight: ['300', '400', '500', '700'], subsets: ["arabic"], variable: '--font-tajawal', display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'Yusrflow | The First Saudi-Specific SaaS Compliance Platform',
@@ -28,8 +28,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
   themeColor: '#6d5cff',
 }
 

@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
-import { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 interface FadeInProps {
   children: ReactNode;
@@ -18,36 +17,61 @@ export function FadeIn({
   className = "",
   fullWidth,
 }: FadeInProps) {
-  const variants: Variants = {
-    hidden: {
-      opacity: 0,
-      y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
-      x: direction === "left" ? 40 : direction === "right" ? -40 : 0,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      x: 0,
-      transition: {
-        duration: 0.5,
-        delay: delay,
-        ease: "easeOut" as const,
+  const ref = useRef<HTMLDivElement>(null);
+
+  const getInitialTransform = () => {
+    switch (direction) {
+      case "up":    return "translateY(40px)";
+      case "down":  return "translateY(-40px)";
+      case "left":  return "translateX(40px)";
+      case "right": return "translateX(-40px)";
+      default:      return "none";
+    }
+  };
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // Respect prefers-reduced-motion — skip animation entirely
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      el.style.opacity = "1";
+      el.style.transform = "none";
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.style.transition = `opacity 0.5s ease-out ${delay}s, transform 0.5s ease-out ${delay}s`;
+          el.style.opacity = "1";
+          el.style.transform = "none";
+          observer.disconnect();
+        }
       },
-    },
-  }
+      { rootMargin: "-100px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [delay]);
 
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
-      variants={variants}
+    <div
+      ref={ref}
+      style={{
+        opacity: 0,
+        transform: getInitialTransform(),
+        willChange: "opacity, transform",
+      }}
       className={`${fullWidth ? "w-full" : ""} ${className}`}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
+
+/* ---- Stagger helpers (unchanged API, no framer-motion) ---- */
 
 interface StaggerContainerProps {
   children: ReactNode;
@@ -61,23 +85,9 @@ export function StaggerContainer({
   className = "",
 }: StaggerContainerProps) {
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: {
-            staggerChildren: 0.1,
-            delayChildren: delay,
-          },
-        },
-      }}
-      className={className}
-    >
+    <div className={className} style={{ transitionDelay: `${delay}s` }}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -88,19 +98,5 @@ export function StaggerItem({
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.4, ease: "easeOut" },
-        },
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={className}>{children}</div>;
 }
