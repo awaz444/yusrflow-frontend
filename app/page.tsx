@@ -228,7 +228,7 @@ export default function LandingPage() {
             <Button
               size="sm"
               onClick={() => router.push('/auth/login')}
-              className="hidden md:inline-flex bg-white text-black hover:bg-white/90"
+              className="inline-flex bg-white text-black hover:bg-white/90 px-3 md:px-4"
             >
               {t.loginCTA}
             </Button>

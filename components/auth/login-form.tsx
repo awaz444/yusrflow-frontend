@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { useAuth } from '@/lib/auth-context';
@@ -13,7 +12,7 @@ import { useAuth } from '@/lib/auth-context';
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { t } = useLanguage();
@@ -52,7 +51,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
           <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
@@ -82,29 +81,30 @@ export function LoginForm() {
             {t('auth.forgotPassword')}
           </Link>
         </div>
-        <Input
-          id="password"
-          type="password"
-          placeholder={t('auth.passwordPlaceholder')}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={loading}
-          className="bg-background/50 border-white/10 focus:border-accent transition-all duration-300 h-11 text-foreground placeholder:text-muted-foreground/70"
-        />
-      </div>
-
-      <div className="flex items-center gap-2 pt-2">
-        <Checkbox
-          id="remember"
-          checked={rememberMe}
-          onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-          disabled={loading}
-          className="data-[state=checked]:bg-accent data-[state=checked]:border-accent"
-        />
-        <Label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors font-medium">
-          {t('auth.rememberMe')}
-        </Label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder={t('auth.passwordPlaceholder')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
+            className="bg-background/50 border-white/10 focus:border-accent transition-all duration-300 h-11 text-foreground placeholder:text-muted-foreground/70 pr-11"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            disabled={loading}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            className="absolute inset-y-0 right-0 flex items-center justify-center w-11 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+          >
+            {showPassword
+              ? <EyeOff className="w-4 h-4" aria-hidden="true" />
+              : <Eye className="w-4 h-4" aria-hidden="true" />
+            }
+          </button>
+        </div>
       </div>
 
       <Button
@@ -114,23 +114,13 @@ export function LoginForm() {
       >
         {loading ? (
           <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
             {t('auth.signingIn')}
           </>
         ) : (
           t('auth.signIn')
         )}
       </Button>
-
-      {/* Public signup removed - only admin can create accounts */}
-      {/*
-      <p className="text-center text-sm text-muted-foreground">
-        {t('auth.noAccount')}{' '}
-        <Link href="/auth/signup" className="text-accent hover:text-accent/80 font-medium">
-          Sign up
-        </Link>
-      </p>
-      */}
     </form>
   );
 }
