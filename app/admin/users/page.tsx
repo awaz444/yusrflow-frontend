@@ -86,31 +86,31 @@ function UsersPageContent() {
             <div className="space-y-4">
               {filteredUsers.length > 0 ? (
                 <div className="relative w-full overflow-auto">
-                  <table className="w-full caption-bottom text-sm text-left">
+                  <table className="w-full caption-bottom text-sm text-left min-w-[500px] sm:min-w-0">
                     <thead className="[&_tr]:border-b">
                       <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                         <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Name</th>
-                        <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Email</th>
+                        <th className="h-12 px-4 align-middle font-medium text-muted-foreground hidden sm:table-cell">Email</th>
                         <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Role</th>
-                        {!tenantIdFilter && <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Company</th>}
+                        {!tenantIdFilter && <th className="h-12 px-4 align-middle font-medium text-muted-foreground hidden md:table-cell">Company</th>}
                         <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Status</th>
-                        <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Joined</th>
+                        <th className="h-12 px-4 align-middle font-medium text-muted-foreground hidden lg:table-cell">Joined</th>
                       </tr>
                     </thead>
                     <tbody className="[&_tr:last-child]:border-0">
                       {filteredUsers.map((user) => (
                         <tr key={user.id} className="border-b transition-colors hover:bg-muted/50">
-                          <td className="p-4 align-middle font-medium">
+                          <td className="p-4 align-middle font-medium font-sans whitespace-nowrap">
                             <Link href={`/admin/users/${user.id}`} className="hover:underline">
                               {user.first_name} {user.last_name}
                             </Link>
                           </td>
-                          <td className="p-4 align-middle">{user.email}</td>
-                          <td className="p-4 align-middle">
+                          <td className="p-4 align-middle hidden sm:table-cell">{user.email}</td>
+                          <td className="p-4 align-middle font-medium">
                             <Badge variant="outline">{user.role}</Badge>
                           </td>
                           {!tenantIdFilter && (
-                            <td className="p-4 align-middle">
+                            <td className="p-4 align-middle hidden md:table-cell">
                               {user.tenant?.name || 'N/A'}
                             </td>
                           )}
@@ -119,7 +119,7 @@ function UsersPageContent() {
                               {user.is_active ? 'Active' : 'Inactive'}
                             </Badge>
                           </td>
-                          <td className="p-4 align-middle">
+                          <td className="p-4 align-middle hidden lg:table-cell">
                             {new Date(user.created_at).toLocaleDateString()}
                           </td>
                         </tr>

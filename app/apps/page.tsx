@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { AppWindow } from 'lucide-react';
 import { PageContainer } from '@/components/layout/page-container';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type SortColumn = 'name' | 'category' | 'complianceScore' | 'riskLevel' | 'status' | 'users';
 
@@ -29,6 +30,7 @@ export default function AppsPage() {
   const [selectedAppIds, setSelectedAppIds] = useState<string[]>([]);
   const [sortColumn, setSortColumn] = useState<SortColumn>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -231,10 +233,11 @@ export default function AppsPage() {
           onImportApp={() => setIsImportModalOpen(true)}
           onExport={handleExport}
           appCount={filteredAndSortedApps?.length || 0}
+          onToggleFilters={() => setIsFiltersOpen(true)}
         />
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <aside>
+          <aside className="hidden lg:block">
             <FilterSidebar
               categories={categories}
               riskLevels={riskLevels}
@@ -287,6 +290,28 @@ export default function AppsPage() {
           </div>
         </div>
       </div>
+
+      <Dialog open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+        <DialogContent className="max-w-md p-6 max-h-[85vh] overflow-y-auto bg-card border-border">
+          <DialogHeader>
+            <DialogTitle>Filter Applications</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <FilterSidebar
+              categories={categories}
+              riskLevels={riskLevels}
+              statuses={statuses}
+              selectedCategories={selectedCategories}
+              selectedRiskLevels={selectedRiskLevels}
+              selectedStatuses={selectedStatuses}
+              onCategoryChange={handleCategoryChange}
+              onRiskLevelChange={handleRiskLevelChange}
+              onStatusChange={handleStatusChange}
+              onReset={handleResetFilters}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Modals */}
       <AddAppModal

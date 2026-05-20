@@ -135,19 +135,19 @@ export default function UsersPage() {
         {/* Users Table */}
         <Card className="bg-card border-border overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full text-sm min-w-[500px] sm:min-w-0">
               <thead>
                 <tr className="border-b border-border">
                   <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
                     {t('users.name')}
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground hidden sm:table-cell">
                     {t('users.email')}
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
                     {t('users.role')}
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground hidden md:table-cell">
                     {t('users.lastActive')}
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
@@ -173,10 +173,10 @@ export default function UsersPage() {
                 ) : (
                   users.map((user, index) => (
                     <tr key={user.id || `user-${index}`} className="border-b border-border hover:bg-secondary/50 transition-colors">
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <p className="text-sm font-medium text-foreground">{user.name}</p>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 hidden sm:table-cell">
                         <div className="flex items-center gap-2">
                           <Mail className="w-4 h-4 text-muted-foreground" />
                           <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -187,7 +187,7 @@ export default function UsersPage() {
                           {getRoleLabel(user.role)}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 hidden md:table-cell">
                         <p className="text-sm text-muted-foreground">{user.lastActive}</p>
                       </td>
                       <td className="px-6 py-4">
@@ -201,14 +201,14 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm">
+                        <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                          <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
                             {t('users.edit')}
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-500">
+                          <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-500 h-8 px-2 text-xs">
                             {t('users.deactivate')}
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </div>

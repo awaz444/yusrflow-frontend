@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Building2, Users, Mail, Phone, Calendar, Loader2, Ban, CheckCircle } from 'lucide-react';
 import { updateAdminTenantStatus } from '@/lib/services/admin.service';
 import { toast } from 'sonner';
+import { PageContainer } from '@/components/layout/page-container';
 
 interface Tenant {
     id: string;
@@ -100,46 +101,47 @@ export default function CompanyDetailsPage() {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Link href="/admin/companies">
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="w-5 h-5" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            {company.name}
-                            <Badge variant={
-                                company.onboardingStatus === 'active' ? 'default' :
-                                    company.onboardingStatus === 'suspended' ? 'destructive' : 'secondary'
-                            }>
-                                {company.onboardingStatus}
-                            </Badge>
-                        </h1>
-                        <p className="text-muted-foreground text-sm">Created on {new Date(company.createdAt).toLocaleDateString()}</p>
+        <PageContainer>
+            <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <Link href="/admin/companies">
+                            <Button variant="ghost" size="icon">
+                                <ArrowLeft className="w-5 h-5" />
+                            </Button>
+                        </Link>
+                        <div>
+                            <h1 className="text-2xl font-bold text-foreground flex items-center gap-3 flex-wrap">
+                                {company.name}
+                                <Badge variant={
+                                    company.onboardingStatus === 'active' ? 'default' :
+                                        company.onboardingStatus === 'suspended' ? 'destructive' : 'secondary'
+                                }>
+                                    {company.onboardingStatus}
+                                </Badge>
+                            </h1>
+                            <p className="text-muted-foreground text-sm">Created on {new Date(company.createdAt).toLocaleDateString()}</p>
+                        </div>
                     </div>
+                    <Button
+                        variant={company.onboardingStatus === 'active' ? 'destructive' : 'default'}
+                        size="sm"
+                        onClick={toggleCompanyStatus}
+                        disabled={updating}
+                        className="gap-2 w-full sm:w-auto justify-center"
+                    >
+                        {updating ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : company.onboardingStatus === 'active' ? (
+                            <Ban className="w-4 h-4" />
+                        ) : (
+                            <CheckCircle className="w-4 h-4" />
+                        )}
+                        {company.onboardingStatus === 'active' ? 'Block Company' : 'Activate Company'}
+                    </Button>
                 </div>
-                <Button
-                    variant={company.onboardingStatus === 'active' ? 'destructive' : 'default'}
-                    size="sm"
-                    onClick={toggleCompanyStatus}
-                    disabled={updating}
-                    className="gap-2"
-                >
-                    {updating ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : company.onboardingStatus === 'active' ? (
-                        <Ban className="w-4 h-4" />
-                    ) : (
-                        <CheckCircle className="w-4 h-4" />
-                    )}
-                    {company.onboardingStatus === 'active' ? 'Block Company' : 'Activate Company'}
-                </Button>
-            </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-2">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -199,7 +201,8 @@ export default function CompanyDetailsPage() {
                         </div>
                     </CardContent>
                 </Card>
+                </div>
             </div>
-        </div>
+        </PageContainer>
     );
 }

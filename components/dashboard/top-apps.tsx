@@ -172,9 +172,9 @@ export function TopAppsSection({ apps }: { apps: any[] }) {
       : <ArrowDown className="ml-1 h-3 w-3 inline text-foreground" />;
   };
 
-  const Th = ({ field, label, align = 'left' }: { field: SortField, label: string, align?: 'left' | 'right' }) => (
+  const Th = ({ field, label, align = 'left', className }: { field: SortField, label: string, align?: 'left' | 'right', className?: string }) => (
     <th
-      className={`py-3 px-4 font-semibold cursor-pointer hover:bg-secondary/30 transition-colors ${align === 'right' ? 'text-right' : 'text-left'}`}
+      className={`py-3 px-4 font-semibold cursor-pointer hover:bg-secondary/30 transition-colors ${align === 'right' ? 'text-right' : 'text-left'} ${className || ''}`}
       onClick={() => handleSort(field)}
     >
       <div className={`flex items-center ${align === 'right' ? 'justify-end' : 'justify-start'}`}>
@@ -185,7 +185,7 @@ export function TopAppsSection({ apps }: { apps: any[] }) {
   );
 
   return (
-    <Card className="border-border bg-card col-span-1 lg:col-span-2">
+    <Card className="border-border bg-card w-full min-w-0 overflow-hidden">
       <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center justify-between w-full sm:w-auto">
           <CardTitle className="text-lg">{t('dashboard.overview.saasApplications')}</CardTitle>
@@ -249,16 +249,16 @@ export function TopAppsSection({ apps }: { apps: any[] }) {
           </span>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto rounded-md border border-border/50">
-          <table className="w-full text-sm">
+      <CardContent className="p-4 sm:p-6 pt-0 overflow-hidden">
+        <div className="overflow-x-auto rounded-md border border-border/50 w-full">
+          <table className="w-full text-sm min-w-[450px] sm:min-w-0">
             <thead>
               <tr className="border-b border-border bg-secondary/10 text-muted-foreground">
                 <Th field="name" label={t('dashboard.table.application')} />
-                <Th field="category" label={t('dashboard.table.category')} />
+                <Th field="category" label={t('dashboard.table.category')} className="hidden md:table-cell" />
                 <Th field="complianceScore" label={t('dashboard.table.score')} />
                 <Th field="riskLevel" label={t('dashboard.table.risk')} />
-                <Th field="status" label={t('dashboard.table.status')} />
+                <Th field="status" label={t('dashboard.table.status')} className="hidden sm:table-cell" />
               </tr>
             </thead>
             <tbody>
@@ -282,7 +282,7 @@ export function TopAppsSection({ apps }: { apps: any[] }) {
                     <td className="py-3 px-4">
                       <span className="font-medium text-foreground">{app.name}</span>
                     </td>
-                    <td className="py-3 px-4 text-muted-foreground">
+                    <td className="py-3 px-4 text-muted-foreground hidden md:table-cell">
                       {translateCategory(app.category)}
                     </td>
                     <td className="py-3 px-4">
@@ -308,7 +308,7 @@ export function TopAppsSection({ apps }: { apps: any[] }) {
                         {translateRisk(app.riskLevel)}
                       </Badge>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 hidden sm:table-cell">
                       <Badge
                         variant="secondary"
                         className={`capitalize font-medium ${getStatusColor(app.status)}`}

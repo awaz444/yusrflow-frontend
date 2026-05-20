@@ -102,7 +102,7 @@ export function AppsTable({
   return (
     <Card className="bg-card border-border overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full text-sm min-w-[500px] sm:min-w-0">
           <thead>
             <tr className="border-b border-border bg-secondary/50">
               <th className="px-6 py-4 text-left">
@@ -114,7 +114,7 @@ export function AppsTable({
               <th className="px-6 py-4 text-left">
                 <SortHeader column="name" label={t('dashboard.table.application')} />
               </th>
-              <th className="px-6 py-4 text-left">
+              <th className="px-6 py-4 text-left hidden md:table-cell">
                 <SortHeader column="category" label={t('applications.category')} />
               </th>
               <th className="px-6 py-4 text-left">
@@ -123,16 +123,16 @@ export function AppsTable({
               <th className="px-6 py-4 text-left">
                 <SortHeader column="riskLevel" label={t('applications.riskLevel')} />
               </th>
-              <th className="px-6 py-4 text-left">
+              <th className="px-6 py-4 text-left hidden sm:table-cell">
                 <SortHeader column="status" label={t('dashboard.table.status')} />
               </th>
-              <th className="px-6 py-4 text-left">
+              <th className="px-6 py-4 text-left hidden lg:table-cell">
                 <SortHeader column="users" label={t('applications.users')} />
               </th>
-              <th className="px-6 py-4 text-left">
+              <th className="px-6 py-4 text-left hidden lg:table-cell">
                 <SortHeader column="monthlySpend" label="Monthly Spend" />
               </th>
-              <th className="px-6 py-4 text-left">Billing Cycle</th>
+              <th className="px-6 py-4 text-left hidden lg:table-cell">Billing Cycle</th>
               <th className="px-6 py-4 text-left">{t('applications.actions')}</th>
             </tr>
           </thead>
@@ -152,7 +152,7 @@ export function AppsTable({
                 <td className="px-6 py-4">
                   <div className="font-medium text-foreground">{app.name}</div>
                 </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">{translateCategory(app.category)}</td>
+                <td className="px-6 py-4 text-sm text-muted-foreground hidden md:table-cell">{translateCategory(app.category)}</td>
                 <td className="px-6 py-4">
                   <span className={`font-semibold ${getScoreColor(app.complianceScore)}`}>
                     {app.complianceScore}%
@@ -163,13 +163,13 @@ export function AppsTable({
                     {translateRisk(app.riskLevel)}
                   </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 hidden sm:table-cell">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap inline-block ${getStatusColor(app.status)}`}>
                     {translateStatus(app.status)}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">{app.users}</td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-sm text-muted-foreground hidden lg:table-cell">{app.users}</td>
+                <td className="px-6 py-4 hidden lg:table-cell">
                   {app.monthlySpend ? (
                     <span className="font-medium text-foreground">
                       {new Intl.NumberFormat('en-SA', { style: 'currency', currency: 'SAR' }).format(app.monthlySpend)}
@@ -187,7 +187,7 @@ export function AppsTable({
                     </span>
                   ) : null}
                 </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground capitalize">{app.billingCycle || 'Monthly'}</td>
+                <td className="px-6 py-4 text-sm text-muted-foreground capitalize hidden lg:table-cell">{app.billingCycle || 'Monthly'}</td>
                 <td className="px-6 py-4">
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                     <MoreVertical className="w-4 h-4" />

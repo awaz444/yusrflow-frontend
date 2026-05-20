@@ -16,11 +16,12 @@ import {
     Search
 } from "lucide-react";
 import { AuthGuard } from '@/components/auth/auth-guard';
+import { PageContainer } from '@/components/layout/page-container';
 
 export default function ComplianceScoringMethodology() {
     return (
         <AuthGuard>
-            <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <PageContainer className="max-w-5xl py-8">
                 {/* Header */}
                 <div className="mb-10 pb-6 border-b">
                     <h1 className="text-4xl font-bold tracking-tight mb-4 flex items-center gap-3">
@@ -363,7 +364,7 @@ export default function ComplianceScoringMethodology() {
                         </CardContent>
                     </Card>
                 </div>
-            </div>
+            </PageContainer>
         </AuthGuard>
     );
 }

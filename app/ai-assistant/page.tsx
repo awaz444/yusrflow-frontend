@@ -8,6 +8,7 @@ import { Send, MessageCircle, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { fetchFromApi } from '@/lib/api';
 import ReactMarkdown from 'react-markdown';
+import { PageContainer } from '@/components/layout/page-container';
 
 interface Message {
   id: string;
@@ -78,7 +79,7 @@ export default function AIAssistantPage() {
   };
 
   return (
-    <>
+    <PageContainer>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -89,10 +90,10 @@ export default function AIAssistantPage() {
           <p className="text-muted-foreground">{t('aiAssistant.subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-auto lg:h-[600px]">
           {/* Chat Interface */}
-          <div className="lg:col-span-3 flex flex-col">
-            <Card className="flex-1 bg-card border-border p-6 flex flex-col overflow-hidden">
+          <div className="lg:col-span-3 flex flex-col min-h-[500px] lg:min-h-0">
+            <Card className="flex-1 bg-card border-border p-6 flex flex-col overflow-hidden h-full">
               {/* Messages Container */}
               <div className="flex-1 overflow-y-auto mb-6 space-y-4">
                 {messages.length === 0 ? (
@@ -205,6 +206,6 @@ export default function AIAssistantPage() {
           </div>
         </div>
       </div>
-    </>
+    </PageContainer>
   );
 }

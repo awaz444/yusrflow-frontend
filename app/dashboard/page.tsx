@@ -145,8 +145,8 @@ export default function Home() {
           </StaggerItem>
 
           {/* Deep Insight Tables */}
-          <StaggerItem>
-            <div className="grid gap-4 sm:grid-cols-1">
+          <StaggerItem className="w-full min-w-0">
+            <div className="grid gap-4 grid-cols-1 w-full min-w-0">
               <TopAppsSection apps={dashboard.saasApps || []} />
             </div>
           </StaggerItem>

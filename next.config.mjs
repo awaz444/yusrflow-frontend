@@ -53,7 +53,7 @@ const nextConfig = {
               "img-src 'self' data: blob: https:",
               "media-src 'self' https:",
               "frame-src https://www.youtube.com https://youtube.com",
-              "connect-src 'self' https://api.yusrflow.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+              "connect-src 'self' http://localhost:8080, https://api.yusrflow.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
               "worker-src 'self' blob:",
             ].join('; '),
           },

@@ -169,7 +169,7 @@ export default function CompliancePage() {
         description={t('compliance.subtitle')}
         icon={ShieldCheck}
       >
-        <div className="flex gap-4">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             className="flex items-center gap-2"
