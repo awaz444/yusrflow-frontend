@@ -72,16 +72,6 @@ export default function LandingPage() {
     return () => { document.body.style.backgroundColor = prev }
   }, [])
 
-  // Redirect authenticated users away from the landing page
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      // Decode token to check role, or just redirect to a safe auth-checked route
-      // We redirect to /dashboard; the AuthGuard there will forward super admins to /admin/dashboard
-      router.replace('/dashboard')
-    }
-  }, [])
-
   // Dictionary for translations
   const t = {
     // Nav
@@ -96,7 +86,7 @@ export default function LandingPage() {
       : "Saudi-Built AI Platform for SaaS Visibility & Governance",
     heroSubtitle: isArabic
       ? "تساعد YusrFlow المؤسسات على كشف هدر البرمجيات، وتحديد التراخيص المكررة، وتعزيز رؤية الحوكمة من خلال منصة عربية-إنجليزية بالكامل مبنية للسوق السعودي."
-      : "YusrFlow helps organizations uncover SaaS waste, identify redundant licenses, and strengthen governance visibility through a bilingual Arabic–English platform, built for the Saudi market.",
+      : "YusrFlow connects to your Microsoft 365 or Google Workspace via read-only OAuth in 5 minutes — no agents, no installation. Automatically uncover SaaS waste, flag NCA / SDAIA compliance risks, and eliminate unused licenses from one bilingual dashboard hosted entirely within KSA.",
     loginCTA: isArabic ? "تسجيل الدخول" : "Login",
     applyCTA: isArabic ? "طلب وصول مبكر للبرنامج التجريبي" : "Request Early Pilot Access",
     demoCTA: isArabic ? "شاهد عرضاً لمدة دقيقتين" : "Watch 2-Minute Demo",
@@ -105,7 +95,8 @@ export default function LandingPage() {
     saudiTitle: isArabic ? "بنيت للمنظمات السعودية" : "Built for Saudi Organizations",
     saudiBullet1: isArabic ? "منصة ثنائية اللغة (عربي – إنجليزي)" : "Arabic–English bilingual platform",
     saudiBullet2: isArabic ? "نهج نشر يركز على السوق السعودي" : "Saudi-focused deployment approach",
-    saudiBullet3: isArabic ? "رؤية الحوكمة متوافقة مع PDPL / NDMO" : "Governance visibility aligned with PDPL / NDMO",
+    saudiBullet3Title: isArabic ? "جاهزية الامتثال لـ NCA / SDAIA / PDPL" : "NCA / SDAIA / PDPL Compliance Ready",
+    saudiBullet3Subtext: isArabic ? "تقارير حوكمة متوافقة مع الأطر التنظيمية السعودية جاهزة للاستخدام." : "Governance reports aligned to Saudi regulatory frameworks out of the box.",
     saudiBullet4: isArabic ? "مصممة لفرق تقنية المعلومات والعمليات الحديثة" : "Designed for modern IT and operations teams",
 
     // Platform Capabilities
@@ -114,9 +105,9 @@ export default function LandingPage() {
     cap1Desc: isArabic ? "تحديد التراخيص غير المستخدمة، والأدوات المكررة، والإنفاق غير المستغل على البرمجيات." : "Identify unused licenses, redundant tools, and underutilized SaaS spend.",
     cap2Title: isArabic ? "رؤية الحوكمة والامتثال" : "Governance & Compliance Visibility",
     cap2Desc: isArabic ? "تعزيز الرقابة على الوصول والسياسات وحوكمة العمليات." : "Strengthen oversight of access, policy, and operational governance.",
-    cap3Title: isArabic ? "تجربة الموظف الرقمية (قريباً)" : "Digital Employee Experience (Coming Soon)",
+    cap3Title: isArabic ? "تجربة الموظف الرقمية (خارطة الطريق — الربع الرابع 2026)" : "Digital Employee Experience (Roadmap — Q4 2026)",
     cap3Desc: isArabic ? "تسليط الضوء على نقاط الاحتكاك، والعبء الزائد، وفجوات الاعتماد عبر مكان العمل الرقمي." : "Highlight friction, overload, and adoption gaps across the digital workplace.",
-    comingSoon: isArabic ? "قريباً" : "Coming Soon",
+    comingSoon: isArabic ? "خارطة الطريق — الربع الرابع 2026" : "Roadmap — Q4 2026",
 
     // AI Section
     aiTitle: isArabic ? "رؤى مدعومة بالذكاء الاصطناعي" : "AI-Powered Insights",
@@ -131,7 +122,8 @@ export default function LandingPage() {
 
     // How YusrFlow Works
     howTitle: isArabic ? "كيف يعمل YusrFlow" : "How YusrFlow Works",
-    step1Title: isArabic ? "ربط بيئتك" : "Connect your environment",
+    step1Title: isArabic ? "ربط بيئتك في 5 دقائق" : "Connect your environment in 5 minutes",
+    step1Sub: isArabic ? "قراءة فقط عبر OAuth 2.0. بدون وكلاء صيانة أو تثبيت برامج." : "Read-only OAuth 2.0. No agents. No software installation.",
     step2Title: isArabic ? "إنشاء لقطة للرؤية" : "Generate a visibility snapshot",
     step3Title: isArabic ? "مراجعة الرؤى واتخاذ الإجراءات" : "Review insights and take action",
 
@@ -153,6 +145,7 @@ export default function LandingPage() {
     fPhone: isArabic ? "رقم التواصل" : "Contact Number",
     fEmployeeSize: isArabic ? "حجم المنظمة" : "Organization Size",
     fSubmit: isArabic ? "طلب الوصول للمشروع التجريبي" : "Request Early Pilot Access",
+    whatsappCTA: isArabic ? "تفضل التواصل المباشر؟ واتساب: +966 54 001 8388" : "Prefer to connect directly? WhatsApp us: +966 54 001 8388",
 
     footerDesc: isArabic ? "بني ليتوافق مع أهداف المملكة 2030." : "Built to align with Vision 2030.",
 
@@ -193,6 +186,11 @@ export default function LandingPage() {
       }}
       dir={isArabic ? "rtl" : "ltr"}
     >
+      <title>{t.heroTitle} | YusrFlow</title>
+      <meta name="description" content="YusrFlow connects to your Microsoft 365 or Google Workspace via read-only OAuth in 5 minutes. Automatically uncover SaaS waste and flag NCA / SDAIA compliance risks." />
+      <meta property="og:title" content="YusrFlow | SaaS Visibility & Governance" />
+      <meta property="og:description" content="YusrFlow connects to your Microsoft 365 or Google Workspace via read-only OAuth in 5 minutes — no agents, no installation." />
+
       <AnimatedGridBackground />
 
       {/* Navigation */}
@@ -220,7 +218,7 @@ export default function LandingPage() {
               size="sm"
               onClick={() => setIsArabic(!isArabic)}
               aria-label={isArabic ? "Switch to English" : "التبديل إلى العربية"}
-              className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-1 md:gap-2 px-2 md:px-3"
+              className="text-sm font-bold text-white hover:text-primary transition-all flex items-center gap-1 md:gap-2 px-2 md:px-3 hover:scale-105 hover:bg-white/5 rounded-full"
             >
               <Globe className="w-4 h-4" aria-hidden="true" />
               <span className="hidden sm:inline">{t.toggleLang}</span>
@@ -228,7 +226,7 @@ export default function LandingPage() {
             <Button
               size="sm"
               onClick={() => router.push('/auth/login')}
-              className="inline-flex bg-white text-black hover:bg-white/90 px-3 md:px-4"
+              className="inline-flex bg-white text-black hover:bg-white/90 hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,255,0.3)] transition-all px-3 md:px-4 rounded-full"
             >
               {t.loginCTA}
             </Button>
@@ -245,13 +243,13 @@ export default function LandingPage() {
                 {t.heroTitle}
               </h1>
 
-              <p className="mx-auto max-w-3xl text-balance text-lg text-muted-foreground md:text-2xl leading-relaxed">
+              <p className="mx-auto max-w-4xl text-lg text-muted-foreground md:text-2xl leading-relaxed">
                 {t.heroSubtitle}
               </p>
 
               <div className="flex flex-col items-center justify-center gap-6 pt-8 sm:flex-row">
                 <a href="#apply" className="w-full sm:w-auto">
-                  <Button size="lg" className="h-auto min-h-[4rem] w-full py-3 px-4 sm:px-8 bg-primary text-black hover:bg-primary/90 font-bold text-base sm:text-lg md:text-xl shadow-[0_0_30px_rgba(21,128,61,0.4)] transition-all hover:scale-105 whitespace-normal text-center">
+                  <Button size="lg" className="h-auto min-h-[4rem] w-full py-3 px-4 sm:px-8 bg-primary text-black hover:bg-primary/90 font-bold text-base sm:text-lg md:text-xl shadow-[0_0_30px_rgba(21,128,61,0.4)] hover:shadow-[0_0_40px_rgba(21,128,61,0.6)] transition-all hover:scale-105 whitespace-normal text-center rounded-2xl">
                     {t.applyCTA}
                   </Button>
                 </a>
@@ -259,12 +257,29 @@ export default function LandingPage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-auto min-h-[4rem] py-3 w-full border-white/20 bg-white/5 px-4 sm:px-10 text-white hover:bg-white/10 font-semibold text-base sm:text-lg shadow-xl backdrop-blur-sm whitespace-normal text-center"
+                    className="h-auto min-h-[4rem] py-3 w-full border-white/20 bg-white/5 px-4 sm:px-10 text-white hover:bg-white/10 hover:border-primary/50 hover:text-primary font-semibold text-base sm:text-lg shadow-xl hover:shadow-[0_0_20px_rgba(21,128,61,0.2)] backdrop-blur-sm whitespace-normal text-center transition-all hover:scale-105 rounded-2xl group"
                   >
-                    <PlayCircle className="mr-2 h-6 w-6 text-primary" />
+                    <PlayCircle className="mr-2 h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                     {t.demoCTA}
                   </Button>
                 </a>
+              </div>
+
+              <div className="pt-12 md:pt-16 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-sm font-medium text-white/70">
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
+                  <span>MISA Licensed — Kayan Logic Company</span>
+                </div>
+                <div className="hidden md:block w-1 h-1 rounded-full bg-white/20 shrink-0" />
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <Database className="w-5 h-5 text-primary shrink-0" />
+                  <span>100% KSA Data Residency — Oracle Cloud Riyadh</span>
+                </div>
+                <div className="hidden md:block w-1 h-1 rounded-full bg-white/20 shrink-0" />
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <Lock className="w-5 h-5 text-primary shrink-0" />
+                  <span>NCA / SDAIA / PDPL Aligned</span>
+                </div>
               </div>
             </div>
           </FadeIn>
@@ -280,36 +295,37 @@ export default function LandingPage() {
             </FadeIn>
 
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-              <FadeIn delay={0.1}>
-                <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+              <FadeIn delay={0.1} className="h-full">
+                <div className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors h-full">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20 shrink-0">
                     <Languages className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="text-white font-medium text-lg leading-tight">{t.saudiBullet1}</p>
+                  <p className="text-white font-bold text-lg leading-tight">{t.saudiBullet1}</p>
                 </div>
               </FadeIn>
-              <FadeIn delay={0.2}>
-                <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+              <FadeIn delay={0.2} className="h-full">
+                <div className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors h-full">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20 shrink-0">
                     <MapPin className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="text-white font-medium text-lg leading-tight">{t.saudiBullet2}</p>
+                  <p className="text-white font-bold text-lg leading-tight">{t.saudiBullet2}</p>
                 </div>
               </FadeIn>
-              <FadeIn delay={0.3}>
-                <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+              <FadeIn delay={0.3} className="h-full">
+                <div className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors h-full">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20 shrink-0">
                     <Shield className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="text-white font-medium text-lg leading-tight">{t.saudiBullet3}</p>
+                  <h3 className="text-white font-bold text-lg mb-2 leading-tight">{t.saudiBullet3Title}</h3>
+                  <p className="text-muted-foreground font-medium text-sm leading-relaxed">{t.saudiBullet3Subtext}</p>
                 </div>
               </FadeIn>
-              <FadeIn delay={0.4}>
-                <div className="flex flex-col items-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+              <FadeIn delay={0.4} className="h-full">
+                <div className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors h-full">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20 shrink-0">
                     <Users className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="text-white font-medium text-lg leading-tight">{t.saudiBullet4}</p>
+                  <p className="text-white font-bold text-lg leading-tight">{t.saudiBullet4}</p>
                 </div>
               </FadeIn>
             </div>
@@ -441,7 +457,8 @@ export default function LandingPage() {
                   <Search className="w-10 h-10 text-primary" />
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-black font-bold flex items-center justify-center shadow-lg">1</div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">{t.step1Title}</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">{t.step1Title}</h3>
+                <p className="text-muted-foreground text-sm max-w-xs">{t.step1Sub}</p>
               </div>
             </FadeIn>
 
@@ -613,7 +630,7 @@ export default function LandingPage() {
                       </div>
                       <Button
                         disabled={isSubmitting}
-                        className="w-full h-auto min-h-[4rem] py-3 px-4 bg-primary text-black font-bold text-base sm:text-lg md:text-xl hover:bg-primary/90 mt-6 transition-all rounded-xl shadow-2xl disabled:opacity-70 flex items-center justify-center gap-2 sm:gap-3 whitespace-normal text-center"
+                        className="w-full h-auto min-h-[4rem] py-3 px-4 bg-primary text-black font-bold text-base sm:text-lg md:text-xl hover:bg-primary/90 mt-6 transition-all rounded-xl shadow-2xl hover:shadow-[0_0_30px_rgba(21,128,61,0.4)] hover:scale-[1.02] disabled:opacity-70 disabled:hover:scale-100 disabled:hover:shadow-none flex items-center justify-center gap-2 sm:gap-3 whitespace-normal text-center"
                       >
                         {isSubmitting ? (
                           <>
@@ -627,6 +644,17 @@ export default function LandingPage() {
                           </>
                         )}
                       </Button>
+                      <div className="mt-6 flex flex-col items-center justify-center gap-3">
+                        <p className="text-sm text-muted-foreground">
+                          {isArabic ? "تفضل التواصل المباشر؟" : "Prefer to connect directly?"}
+                        </p>
+                        <a href="https://wa.me/966540018388" target="_blank" rel="noopener noreferrer">
+                          <Button type="button" variant="outline" className="border-white/10 bg-white/5 hover:bg-[#25D366]/20 hover:text-[#25D366] hover:border-[#25D366]/50 hover:shadow-[0_0_20px_rgba(37,211,102,0.2)] hover:scale-105 transition-all">
+                            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current mr-2"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.305-.885-.653-1.48-1.459-1.653-1.756-.173-.298-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.423-.272.347-1.04 1.018-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                            {isArabic ? "راسلنا على واتساب" : "WhatsApp Us"}
+                          </Button>
+                        </a>
+                      </div>
                     </form>
                   )}
                 </div>
@@ -644,11 +672,23 @@ export default function LandingPage() {
               <div className="flex items-center justify-center md:justify-start w-full mb-6">
                 <Logo width={120} height={30} theme="dark" />
               </div>
-              <p className="text-xs text-muted-foreground max-w-xs">
-                {t.footerDesc}
-              </p>
+              <div className="flex flex-col md:flex-row items-center gap-4 text-xs text-muted-foreground">
+                <p>{t.footerDesc}</p>
+                <div className="hidden md:block w-1 h-1 rounded-full bg-white/20" />
+                <p>MISA Licensed — Kayan Logic Company</p>
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground text-center md:text-right">© 2026 Yusrflow. All rights reserved.</div>
+            <div className="flex flex-col items-center md:items-end gap-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-4 mb-2">
+                <a href="https://www.linkedin.com/company/yusrflow" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:scale-110" aria-label="LinkedIn">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="https://wa.me/966540018388" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:scale-110" aria-label="WhatsApp">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.305-.885-.653-1.48-1.459-1.653-1.756-.173-.298-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.423-.272.347-1.04 1.018-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                </a>
+              </div>
+              <p>© 2026 Yusrflow. All rights reserved.</p>
+            </div>
           </div>
         </div>
       </footer>
