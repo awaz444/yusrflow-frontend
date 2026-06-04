@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BrainCircuit, Loader2, CheckCircle2, ArrowRight, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { BrainCircuit, Loader2, CheckCircle2, ArrowRight, ExternalLink, ShieldCheck, ClipboardCheck } from 'lucide-react';
 import { fetchFromApi } from '@/lib/api';
 import ReactMarkdown from 'react-markdown';
 import { ComplianceIssue } from './compliance-issues';
+import { usePermissions } from '@/lib/hooks/use-permissions';
 
 interface AlternativeApp {
     name: string;
@@ -24,16 +26,21 @@ interface IssueRemediationModalProps {
 }
 
 export function IssueRemediationModal({ isOpen, onClose, issue, onResolved }: IssueRemediationModalProps) {
+    const { can } = usePermissions();
     const [isLoading, setIsLoading] = useState(true);
     const [isResolving, setIsResolving] = useState(false);
     const [remediationPlan, setRemediationPlan] = useState<string | null>(null);
     const [alternatives, setAlternatives] = useState<AlternativeApp[]>([]);
+    const [notes, setNotes] = useState('');
+    const [showNotes, setShowNotes] = useState(false);
 
     useEffect(() => {
         if (isOpen && issue) {
             setIsLoading(true);
             setRemediationPlan(null);
             setAlternatives([]);
+            setNotes('');
+            setShowNotes(false);
 
             // Call the AI backend endpoint to generate a plan
             fetchFromApi(`/reports/engine/scan/${issue.appId}/remediate/${issue.ruleId}`, {
@@ -57,7 +64,8 @@ export function IssueRemediationModal({ isOpen, onClose, issue, onResolved }: Is
         setIsResolving(true);
         try {
             await fetchFromApi(`/reports/engine/score/${issue.id}/resolve`, {
-                method: 'PATCH'
+                method: 'PATCH',
+                body: JSON.stringify({ notes: notes.trim() })
             });
             onResolved(issue.id);
             onClose();
@@ -156,20 +164,57 @@ export function IssueRemediationModal({ isOpen, onClose, issue, onResolved }: Is
                     )}
                 </div>
 
-                <div className="flex justify-between items-center mt-6">
-                    <Button variant="outline" onClick={onClose}>Cancel</Button>
-                    <Button
-                        onClick={handleResolve}
-                        disabled={isLoading || isResolving}
-                        className="bg-green-600 hover:bg-green-700 text-white gap-2"
-                    >
-                        {isResolving ? (
-                            <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                {showNotes ? (
+                    <div className="mt-6 space-y-4 border-t pt-4">
+                        <div>
+                            <label className="text-xs font-semibold text-foreground mb-1 block">Remediation & Acceptance Notes (Required)</label>
+                            <p className="text-xs text-muted-foreground mb-2">
+                                Document the remediation action taken or the reason this finding is manually acknowledged.
+                            </p>
+                            <Textarea
+                                placeholder="Describe the remediation action taken or reason for acceptance..."
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                className="text-xs min-h-[80px]"
+                                rows={3}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <Button variant="outline" onClick={() => setShowNotes(false)}>
+                                Back
+                            </Button>
+                            <Button
+                                onClick={handleResolve}
+                                disabled={isLoading || isResolving || !notes.trim()}
+                                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                            >
+                                {isResolving ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" /> Acknowledging...</>
+                                ) : (
+                                    <><ClipboardCheck className="w-4 h-4" /> Confirm Acknowledgement</>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex justify-between items-center mt-6">
+                        <Button variant="outline" onClick={onClose}>Cancel</Button>
+                        {can('acknowledgeIssue') ? (
+                            <Button
+                                onClick={() => setShowNotes(true)}
+                                disabled={isLoading}
+                                className="bg-accent hover:bg-accent/90 text-white gap-2"
+                            >
+                                <ClipboardCheck className="w-4 h-4" />
+                                Acknowledge Issue
+                            </Button>
                         ) : (
-                            <><CheckCircle2 className="w-4 h-4" /> Mark as Resolved</>
+                            <span className="text-xs text-muted-foreground italic">
+                                Auditor or Admin privileges required to acknowledge compliance issues
+                            </span>
                         )}
-                    </Button>
-                </div>
+                    </div>
+                )}
             </DialogContent>
         </Dialog>
     );

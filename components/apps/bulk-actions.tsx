@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertCircle, Shield, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { usePermissions } from '@/lib/hooks/use-permissions';
 
 interface BulkActionsProps {
   selectedCount: number;
@@ -21,6 +22,7 @@ export function BulkActions({
   onClose,
 }: BulkActionsProps) {
   const { t } = useLanguage();
+  const { can } = usePermissions();
 
   if (selectedCount === 0) return null;
 
@@ -55,15 +57,17 @@ export function BulkActions({
             {t('applications.reviewRisks')}
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRemove}
-            className="border-red-500/30 text-red-400 hover:bg-red-500/10 bg-transparent"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            {t('common.delete')}
-          </Button>
+          {can('deleteApps') && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRemove}
+              className="border-red-500/30 text-red-400 hover:bg-red-500/10 bg-transparent"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {t('common.delete')}
+            </Button>
+          )}
 
           <div className="w-px h-6 bg-border mx-2" />
 

@@ -10,11 +10,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ onOpenChange }: { onOpenChange?: (open: boolean) => void }) {
   const { language, setLanguage, t } = useLanguage();
 
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"

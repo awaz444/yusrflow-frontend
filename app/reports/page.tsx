@@ -2,20 +2,19 @@
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FileText, Download, Calendar, RefreshCw, Clock } from 'lucide-react';
+import { FileText, Download, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
-import { EmptyState } from '@/components/ui/empty-state';
 import { StaggerContainer, StaggerItem } from '@/components/ui/fade-in';
+import { API_BASE_URL } from '@/lib/api';
 
 interface ReportCard {
   id: string;
   title: string;
   description: string;
   icon: any;
-  lastGenerated?: number;
   actions: Array<{
     label: string;
     icon: any;
@@ -37,12 +36,8 @@ export default function ReportsPage() {
   ) => {
     setIsGenerating((prev) => ({ ...prev, [reportId]: true }));
     try {
-      // Use native fetch to ensure pure Blob response is preserved
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const urlToFetch = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
       const token = localStorage.getItem('accessToken');
-
-      console.log('Fetching Report from', urlToFetch, 'Token exists:', !!token);
 
       const rawResponse = await fetch(urlToFetch, {
         method: 'GET',
@@ -66,7 +61,6 @@ export default function ReportsPage() {
 
       document.body.appendChild(link);
       link.click();
-
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -82,14 +76,12 @@ export default function ReportsPage() {
       title: t('reports.complianceHealthCheck'),
       description: t('reports.descHealthCheck'),
       icon: FileText,
-      lastGenerated: 2,
       actions: [
         {
           label: t('reports.generatePDF'),
           icon: Download,
-          onClick: () => handleDownload('health-check', '/reports/compliance-health/pdf', 'Compliance_Health_Check', 'application/pdf', 'pdf')
+          onClick: () => handleDownload('health-check', '/reports/compliance-health/pdf', 'Compliance_Health_Check', 'application/pdf', 'pdf'),
         },
-        { label: t('reports.scheduleReport'), icon: Calendar, variant: 'outline' },
       ],
     },
     {
@@ -97,14 +89,12 @@ export default function ReportsPage() {
       title: t('reports.saasInventory'),
       description: t('reports.descSaasInventory'),
       icon: FileText,
-      lastGenerated: 5,
       actions: [
         {
           label: t('reports.exportCSV'),
           icon: Download,
-          onClick: () => handleDownload('saas-inventory', '/reports/saas-inventory/csv', 'SaaS_Inventory', 'text/csv', 'csv')
+          onClick: () => handleDownload('saas-inventory', '/reports/saas-inventory/csv', 'SaaS_Inventory', 'text/csv', 'csv'),
         },
-        { label: t('reports.scheduleReport'), icon: Calendar, variant: 'outline' },
       ],
     },
     {
@@ -116,9 +106,8 @@ export default function ReportsPage() {
         {
           label: t('reports.generatePDF'),
           icon: Download,
-          onClick: () => handleDownload('executive-summary', '/reports/executive-summary/pdf', 'Executive_Summary', 'application/pdf', 'pdf')
+          onClick: () => handleDownload('executive-summary', '/reports/executive-summary/pdf', 'Executive_Summary', 'application/pdf', 'pdf'),
         },
-        { label: t('reports.scheduleReport'), icon: Calendar, variant: 'outline' },
       ],
     },
   ];
@@ -133,88 +122,48 @@ export default function ReportsPage() {
 
       {/* Reports Grid */}
       <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reports.map((report) => {
-            const IconComponent = report.icon;
-            return (
-              <StaggerItem key={report.id}>
-                <Card className="bg-card border-border p-6 hover:border-accent transition-colors">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="p-3 bg-accent/10 rounded-lg">
-                      <IconComponent className="w-6 h-6 text-accent" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground">{report.title}</h3>
-                      {report.lastGenerated && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {t('reports.lastGenerated')}: {report.lastGenerated} {t('reports.daysAgo')}
-                        </p>
-                      )}
-                    </div>
+        {reports.map((report) => {
+          const IconComponent = report.icon;
+          return (
+            <StaggerItem key={report.id}>
+              <Card className="bg-card border-border p-6 hover:border-accent transition-colors h-full flex flex-col">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="p-3 bg-accent/10 rounded-lg shrink-0">
+                    <IconComponent className="w-6 h-6 text-accent" />
                   </div>
-
-                  <p className="text-sm text-muted-foreground mb-6">{report.description}</p>
-
-                  <div className="space-y-2">
-                    {report.actions.map((action, index) => {
-                      const ActionIcon = action.icon;
-                      return (
-                        <Button
-                          key={index}
-                          variant={action.variant || 'default'}
-                          className="w-full justify-start gap-2"
-                          onClick={action.onClick}
-                          disabled={isGenerating[report.id] && action.label.includes('Generate')}
-                        >
-                          {isGenerating[report.id] && action.onClick ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <ActionIcon className="w-4 h-4" />
-                          )}
-                          {isGenerating[report.id] && action.onClick ? t('reports.generating') : action.label}
-                        </Button>
-                      );
-                    })}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground">{report.title}</h3>
                   </div>
-                </Card>
-              </StaggerItem>
-            );
-          })}
-        </StaggerContainer>
+                </div>
 
-        {/* Scheduled Reports Section */}
-        <div className="mt-12">
-          <div className="flex items-center gap-3 mb-6">
-            <Calendar className="w-6 h-6 text-accent" />
-            <h2 className="text-2xl font-bold text-foreground">{t('reports.scheduledReports')}</h2>
-          </div>
+                <p className="text-sm text-muted-foreground mb-6 flex-1">{report.description}</p>
 
-          <EmptyState
-            icon={Calendar}
-            title="No scheduled reports"
-            description="You don't have any recurring reports set up yet."
-            className="min-h-[150px]"
-            action={
-              <Button variant="outline" size="sm">
-                Schedule a Report
-              </Button>
-            }
-          />
-        </div>
-
-        {/* Report Generation History */}
-        <div className="mt-12">
-          <div className="flex items-center gap-3 mb-6">
-            <Clock className="w-6 h-6 text-accent" />
-            <h2 className="text-2xl font-bold text-foreground">{t('reports.recentReports')}</h2>
-          </div>
-
-          <EmptyState
-            icon={Clock}
-            title="No report history"
-            description="Generated reports will appear here."
-            className="min-h-[150px]"
-          />
-        </div>
+                <div className="space-y-2 mt-auto">
+                  {report.actions.map((action, index) => {
+                    const ActionIcon = action.icon;
+                    return (
+                      <Button
+                        key={index}
+                        variant={action.variant || 'default'}
+                        className="w-full justify-start gap-2"
+                        onClick={action.onClick}
+                        disabled={isGenerating[report.id]}
+                      >
+                        {isGenerating[report.id] ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <ActionIcon className="w-4 h-4" />
+                        )}
+                        {isGenerating[report.id] ? t('reports.generating') : action.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </Card>
+            </StaggerItem>
+          );
+        })}
+      </StaggerContainer>
     </PageContainer>
   );
 }

@@ -10,6 +10,7 @@ import { AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PageContainer } from '@/components/layout/page-container';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function CreateCompanyPage() {
     const router = useRouter();
@@ -47,7 +48,7 @@ export default function CreateCompanyPage() {
 
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/tenants/create`, {
+            const response = await fetch(`${API_BASE_URL}/admin/tenants/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

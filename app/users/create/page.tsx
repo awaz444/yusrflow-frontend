@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PageContainer } from '@/components/layout/page-container';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function CreateUserPage() {
   const router = useRouter();
@@ -74,7 +75,7 @@ export default function CreateUserPage() {
     try {
       const token = localStorage.getItem('accessToken');
       // POST /users/create
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/users/create`, {
+      const response = await fetch(`${API_BASE_URL}/users/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

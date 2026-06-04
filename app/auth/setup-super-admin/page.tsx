@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { AuthLayout } from '@/components/auth/auth-layout';
 import { AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 
+import { API_BASE_URL } from '@/lib/api';
+
 export default function SuperAdminSetupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -41,7 +43,7 @@ export default function SuperAdminSetupPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/auth/setup-super-admin`, {
+      const response = await fetch(`${API_BASE_URL}/auth/setup-super-admin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -13,27 +13,39 @@ import {
     Activity,
     Globe,
     Lock,
-    Search
+    Search,
+    ArrowLeft
 } from "lucide-react";
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { PageContainer } from '@/components/layout/page-container';
+import { PageHeader } from '@/components/layout/page-header';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function ComplianceScoringMethodology() {
     return (
         <AuthGuard>
             <PageContainer className="max-w-5xl py-8">
-                {/* Header */}
-                <div className="mb-10 pb-6 border-b">
-                    <h1 className="text-4xl font-bold tracking-tight mb-4 flex items-center gap-3">
-                        <Scale className="h-10 w-10 text-primary" />
-                        How Yusrflow Calculates Compliance Scores
-                    </h1>
-                    <p className="text-xl text-muted-foreground leading-relaxed">
-                        Yusrflow provides automated regulatory compliance analysis by evaluating digital services against structured legal and technical requirements. Each platform scanned by Yusrflow receives a compliance score that reflects how closely it aligns with regulatory frameworks such as PDPL, NDMO, and related data governance standards.
-                    </p>
-                    <div className="mt-6 inline-flex items-center rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                        Our scoring model is designed to be transparent, evidence-based, and auditable.
+                {/* Back Link & Header */}
+                <div className="mb-8 flex flex-col gap-6">
+                    <div>
+                        <Link href="/compliance">
+                            <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground pl-0 bg-transparent hover:bg-transparent">
+                                <ArrowLeft className="h-4 w-4" />
+                                Back to Compliance Dashboard
+                            </Button>
+                        </Link>
                     </div>
+
+                    <PageHeader
+                        title="Scoring Methodology & Calculation"
+                        description="Learn how Yusrflow's automated assessment engine calculates compliance scores, evaluates regulatory rules, and structures evidence-based scoring for data protection regulations like PDPL and NDMO."
+                        icon={Scale}
+                    >
+                        <div className="inline-flex items-center rounded-full border px-4 py-1.5 text-sm font-semibold border-transparent bg-secondary text-secondary-foreground">
+                            Reference Documentation
+                        </div>
+                    </PageHeader>
                 </div>
 
                 {/* Overview & Formula */}

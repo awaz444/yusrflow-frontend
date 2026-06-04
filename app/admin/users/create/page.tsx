@@ -18,6 +18,7 @@ import { Check, Copy, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Tenant {
   id: string;
@@ -55,7 +56,7 @@ function CreateUserContent() {
   const fetchTenants = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/tenants?limit=100`, {
+      const response = await fetch(`${API_BASE_URL}/admin/tenants?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -97,7 +98,7 @@ function CreateUserContent() {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/users/create`, {
+      const response = await fetch(`${API_BASE_URL}/admin/users/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
+import { API_BASE_URL } from '@/lib/api';
+
 export function SignupForm() {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -86,7 +88,7 @@ export function SignupForm() {
       // In production, you might want to handle this differently
       const tempTenantId = crypto.randomUUID();
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/signup`, {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

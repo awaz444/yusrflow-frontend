@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingState } from '@/components/ui/loading-state';
+import { usePermissions } from '@/lib/hooks/use-permissions';
 
 interface User {
   id: string;
@@ -24,9 +25,13 @@ interface User {
 
 export default function UsersPage() {
   const { t, language } = useLanguage();
+  const { can } = usePermissions();
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +77,21 @@ export default function UsersPage() {
     fetchData();
   }, []);
 
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchesSearch =
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
+    });
+  }, [users, searchTerm]);
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, currentPage]);
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -102,7 +122,7 @@ export default function UsersPage() {
   if (loading) {
     return (
       <PageContainer>
-        <LoadingState message={t('common.loading') || "Loading users..."} />
+        <LoadingState message={t('Loading') || "Loading users..."} />
       </PageContainer>
     );
   }
@@ -114,7 +134,7 @@ export default function UsersPage() {
         description={t('users.subtitle')}
         icon={Users}
       >
-          {['admin', 'manager'].includes(currentUser?.role || '') && (
+          {can('inviteUser') && (
             <Link href="/users/create">
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
@@ -129,6 +149,11 @@ export default function UsersPage() {
           <Input
             placeholder={t('common.search')}
             className="bg-card border-border text-foreground placeholder:text-muted-foreground max-w-md"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
           />
         </div>
 
@@ -159,19 +184,19 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.length === 0 ? (
+                {paginatedUsers.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="p-0 border-none">
                       <EmptyState
                         icon={Users}
                         title="No users found"
-                        description="There are no users in this tenant yet."
+                        description="There are no users matching your criteria."
                         className="rounded-none border-x-0 border-b-0 border-t"
                       />
                     </td>
                   </tr>
                 ) : (
-                  users.map((user, index) => (
+                  paginatedUsers.map((user, index) => (
                     <tr key={user.id || `user-${index}`} className="border-b border-border hover:bg-secondary/50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <p className="text-sm font-medium text-foreground">{user.name}</p>
@@ -202,12 +227,16 @@ export default function UsersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                          <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
-                            {t('users.edit')}
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-500 h-8 px-2 text-xs">
-                            {t('users.deactivate')}
-                          </Button>
+                          {can('inviteUser') && (
+                            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                              {t('users.edit')}
+                            </Button>
+                          )}
+                          {can('deactivateUser') && (
+                            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-500 h-8 px-2 text-xs">
+                              {t('users.deactivate')}
+                            </Button>
+                          )}
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
@@ -220,6 +249,37 @@ export default function UsersPage() {
             </table>
           </div>
         </Card>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+            <p className="text-sm text-muted-foreground text-center sm:text-left">
+              Showing <span className="font-semibold text-foreground">{Math.min(filteredUsers.length, (currentPage - 1) * pageSize + 1)}</span> to{' '}
+              <span className="font-semibold text-foreground">{Math.min(filteredUsers.length, currentPage * pageSize)}</span> of{' '}
+              <span className="font-semibold text-foreground">{filteredUsers.length}</span> users
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-border hover:bg-secondary disabled:opacity-50 text-xs h-8"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-border hover:bg-secondary disabled:opacity-50 text-xs h-8"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* User Count Summary */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">

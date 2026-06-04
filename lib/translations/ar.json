@@ -22,7 +22,8 @@
     "next": "التالي",
     "profile": "الملف الشخصي",
     "clear": "مسح",
-    "clearSelection": "مسح التحديد"
+    "clearSelection": "مسح التحديد",
+    "methodology": "المنهجية"
   },
   "auth": {
     "title": "يسرفلو",
@@ -167,6 +168,10 @@
   },
   "compliance": {
     "title": "لوحة تحكم الامتثال",
+    "runScan": "تشغيل الفحص",
+    "scanning": "جارٍ الفحص...",
+    "downloadReport": "تحميل التقرير",
+    "downloading": "جارٍ التحميل...",
     "overview": "نظرة عامة على الامتثال",
     "regulations": "القوانين",
     "issues": "المشاكل",

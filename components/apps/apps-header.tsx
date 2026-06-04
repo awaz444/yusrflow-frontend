@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Download, Filter, Plus, Search, UploadCloud } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { usePermissions } from '@/lib/hooks/use-permissions';
 
 interface AppsHeaderProps {
   searchTerm: string;
@@ -25,6 +26,7 @@ export function AppsHeader({
   onToggleFilters,
 }: AppsHeaderProps) {
   const { t } = useLanguage();
+  const { can } = usePermissions();
 
   return (
     <div className="space-y-6">
@@ -48,26 +50,32 @@ export function AppsHeader({
 
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           {onToggleFilters && (
-            <Button onClick={onToggleFilters} variant="outline" className="lg:hidden border-border hover:bg-background gap-2 bg-transparent">
+            <Button onClick={onToggleFilters} variant="outline" className="border-border hover:bg-background gap-2 bg-transparent">
               <Filter className="w-4 h-4" />
               Filter
             </Button>
           )}
 
-          <Button onClick={onExport} variant="outline" className="border-border hover:bg-background gap-2 bg-transparent">
-            <Download className="w-4 h-4" />
-            {t('common.export')}
-          </Button>
+          {can('exportApps') && (
+            <Button onClick={onExport} variant="outline" className="border-border hover:bg-background gap-2 bg-transparent">
+              <Download className="w-4 h-4" />
+              {t('common.export')}
+            </Button>
+          )}
 
-          <Button onClick={onImportApp} variant="outline" className="border-border hover:bg-background gap-2 bg-transparent">
-            <UploadCloud className="w-4 h-4" />
-            Import Application
-          </Button>
+          {can('importApps') && (
+            <Button onClick={onImportApp} variant="outline" className="border-border hover:bg-background gap-2 bg-transparent">
+              <UploadCloud className="w-4 h-4" />
+              Import Application
+            </Button>
+          )}
 
-          <Button onClick={onAddApp} className="bg-accent hover:bg-accent/90 text-white gap-2">
-            <Plus className="w-4 h-4" />
-            {t('applications.addApp')}
-          </Button>
+          {can('addApp') && (
+            <Button onClick={onAddApp} className="bg-accent hover:bg-accent/90 text-white gap-2">
+              <Plus className="w-4 h-4" />
+              {t('applications.addApp')}
+            </Button>
+          )}
         </div>
       </div>
     </div>

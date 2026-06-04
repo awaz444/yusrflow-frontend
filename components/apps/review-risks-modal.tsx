@@ -5,11 +5,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/lib/i18n/language-context';
-import { ShieldAlert, ShieldCheck, Shield, CheckCircle2, Loader2, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, Shield, CheckCircle2, Loader2, ChevronDown, ChevronUp, AlertCircle, ClipboardCheck } from 'lucide-react';
 import { fetchFromApi } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { appsKeys } from '@/lib/query-keys';
+import { usePermissions } from '@/lib/hooks/use-permissions';
 
 interface ReviewRisksModalProps {
     isOpen: boolean;
@@ -53,7 +55,9 @@ function AppRiskCard({ app }: { app: any }) {
     const { t } = useLanguage();
     const queryClient = useQueryClient();
     const [isScanning, setIsScanning] = useState(false);
-    const [isFixing, setIsFixing] = useState<string | null>(null);
+    const [isAcknowledging, setIsAcknowledging] = useState<string | null>(null);
+    const [acknowledgeNotes, setAcknowledgeNotes] = useState<Record<string, string>>({});
+    const [showNotes, setShowNotes] = useState<string | null>(null);
 
     const mapScores = (a: any) => {
         if (a.detailedScores && a.detailedScores.length > 0) {
@@ -79,23 +83,29 @@ function AppRiskCard({ app }: { app: any }) {
         setCompliances(mapScores(app));
     }, [app.detailedScores, app.complianceScore]);
 
-    const handleFix = async (id: string) => {
-        setIsFixing(id);
+    const handleAcknowledge = async (id: string) => {
+        const notes = acknowledgeNotes[id]?.trim();
+        if (!notes) return; // notes required
+        setIsAcknowledging(id);
         try {
-            // Persist the fix to the database so it survives a refresh
-            await fetchFromApi(`/reports/engine/score/${id}/resolve`, { method: 'PATCH' });
-            
+            // Persist the acknowledgement with remediation notes
+            await fetchFromApi(`/reports/engine/score/${id}/resolve`, {
+                method: 'PATCH',
+                body: JSON.stringify({ notes }),
+            });
+
             // Optimistically update local UI
             setCompliances((prev: any[]) => prev.map(c =>
-                c.id === id ? { ...c, score: 100, isFixed: true, status: 'pass', reason: 'Manually resolved by administrator.' } : c
+                c.id === id ? { ...c, score: 100, isFixed: true, status: 'pass', reason: `Acknowledged: ${notes}` } : c
             ));
-            
+            setShowNotes(null);
+
             // Refresh parent data
             queryClient.invalidateQueries({ queryKey: appsKeys.list() });
         } catch (e) {
-            console.error('Failed to save fix', e);
+            console.error('Failed to save acknowledgement', e);
         } finally {
-            setIsFixing(null);
+            setIsAcknowledging(null);
         }
     };
 
@@ -175,9 +185,9 @@ function AppRiskCard({ app }: { app: any }) {
                             ) : 'Run a Compliance Test'}
                         </Button>
                     ) : (
-                        <div className="flex items-center gap-1.5 text-sm text-green-500 font-medium bg-green-500/10 px-2 py-1 rounded-md">
-                            <CheckCircle2 className="w-4 h-4" />
-                            Verified by AI
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium bg-secondary/50 px-2 py-1 rounded-md">
+                            <ClipboardCheck className="w-4 h-4" />
+                            Scan Complete
                         </div>
                     )}
                 </div>
@@ -188,8 +198,12 @@ function AppRiskCard({ app }: { app: any }) {
                     <ComplianceItem
                         key={compliance.id}
                         compliance={compliance}
-                        onFix={() => handleFix(compliance.id)}
-                        isFixing={isFixing === compliance.id}
+                        onAcknowledge={() => handleAcknowledge(compliance.id)}
+                        isAcknowledging={isAcknowledging === compliance.id}
+                        notes={acknowledgeNotes[compliance.id] || ''}
+                        onNotesChange={(val) => setAcknowledgeNotes(prev => ({ ...prev, [compliance.id]: val }))}
+                        showNotes={showNotes === compliance.id}
+                        onToggleNotes={() => setShowNotes(prev => prev === compliance.id ? null : compliance.id)}
                         t={t}
                     />
                 ))}
@@ -198,7 +212,17 @@ function AppRiskCard({ app }: { app: any }) {
     );
 }
 
-function ComplianceItem({ compliance, onFix, isFixing, t }: { compliance: any, onFix: () => void, isFixing: boolean, t: any }) {
+function ComplianceItem({ compliance, onAcknowledge, isAcknowledging, notes, onNotesChange, showNotes, onToggleNotes, t }: {
+    compliance: any;
+    onAcknowledge: () => void;
+    isAcknowledging: boolean;
+    notes: string;
+    onNotesChange: (val: string) => void;
+    showNotes: boolean;
+    onToggleNotes: () => void;
+    t: any;
+}) {
+    const { can } = usePermissions();
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -208,20 +232,24 @@ function ComplianceItem({ compliance, onFix, isFixing, t }: { compliance: any, o
                     <div className="text-sm font-medium">{compliance.name}</div>
                     {isExpanded ? <ChevronUp className="w-3 h-3 text-muted-foreground" /> : <ChevronDown className="w-3 h-3 text-muted-foreground" />}
                 </div>
-                {!compliance.isFixed ? (
+                {!compliance.isFixed && can('acknowledgeIssue') ? (
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={(e) => { e.stopPropagation(); onFix(); }}
-                        className="h-7 text-xs"
-                        disabled={isFixing}
+                        onClick={(e) => { e.stopPropagation(); onToggleNotes(); }}
+                        className="h-7 text-xs gap-1"
                     >
-                        {isFixing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
-                        {t('applications.fixIssue')}
+                        <ClipboardCheck className="w-3 h-3" />
+                        Acknowledge
                     </Button>
+                ) : !compliance.isFixed ? (
+                    <span className="text-xs text-muted-foreground italic">
+                        Needs Auditor review
+                    </span>
                 ) : (
-                    <span className="text-xs text-green-500 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> {t('applications.sorted')}
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-green-500" />
+                        Acknowledged
                     </span>
                 )}
             </div>
@@ -241,6 +269,32 @@ function ComplianceItem({ compliance, onFix, isFixing, t }: { compliance: any, o
                     <div className="flex items-start gap-2">
                         <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
                         <p>{compliance.reason || 'AI evaluation complete. No detailed reasoning provided.'}</p>
+                    </div>
+                </div>
+            )}
+
+            {showNotes && !compliance.isFixed && (
+                <div className="mt-1 space-y-2 animate-in slide-in-from-top-1 duration-200" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-xs text-muted-foreground">
+                        This is a <strong>manual acknowledgement</strong>. Document the remediation actions taken or the reason this finding is accepted.
+                    </p>
+                    <Textarea
+                        placeholder="Describe the remediation action taken or reason for acceptance..."
+                        value={notes}
+                        onChange={(e) => onNotesChange(e.target.value)}
+                        className="text-xs min-h-[70px] resize-none"
+                        rows={3}
+                    />
+                    <div className="flex gap-2">
+                        <Button
+                            size="sm"
+                            className="h-7 text-xs gap-1 flex-1"
+                            onClick={onAcknowledge}
+                            disabled={isAcknowledging || !notes.trim()}
+                        >
+                            {isAcknowledging ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                            Confirm Acknowledgement
+                        </Button>
                     </div>
                 </div>
             )}

@@ -22,7 +22,8 @@
     "next": "Next",
     "profile": "Profile",
     "clear": "Clear",
-    "clearSelection": "Clear Selection"
+    "clearSelection": "Clear Selection",
+    "methodology": "Methodology"
   },
   "auth": {
     "title": "Yusrflow",
@@ -167,6 +168,10 @@
   },
   "compliance": {
     "title": "Compliance Dashboard",
+    "runScan": "Run Scan",
+    "scanning": "Scanning...",
+    "downloadReport": "Download Report",
+    "downloading": "Downloading...",
     "overview": "Compliance Overview",
     "regulations": "Regulations",
     "issues": "Issues",

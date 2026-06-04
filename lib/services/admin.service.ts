@@ -1,4 +1,5 @@
 import { fetchFromApi } from '../api';
+export { fetchFromApi };
 
 // ── Admin Dashboard ───────────────────────────────────────────────────────────
 
@@ -76,6 +77,13 @@ export function updateAdminTenantStatus(id: string, status: Tenant['onboardingSt
   return fetchFromApi(`/admin/tenants/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
+  });
+}
+
+export function updateAdminTenant(id: string, data: { name?: string; industry?: string; country?: string; subscriptionTier?: string }): Promise<any> {
+  return fetchFromApi(`/admin/tenants/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
   });
 }
 
