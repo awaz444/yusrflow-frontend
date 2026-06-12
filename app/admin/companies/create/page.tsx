@@ -65,7 +65,12 @@ export default function CreateCompanyPage() {
             if (response.ok) {
                 router.push('/admin/companies');
             } else {
-                setError(data.message || 'Failed to create company');
+                // NestJS validation errors come as an array in data.message
+                if (Array.isArray(data.message)) {
+                    setError(data.message.join(', '));
+                } else {
+                    setError(data.message || `Error ${response.status}: Failed to create company`);
+                }
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred');
@@ -73,6 +78,7 @@ export default function CreateCompanyPage() {
             setLoading(false);
         }
     };
+
 
     return (
         <PageContainer className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">

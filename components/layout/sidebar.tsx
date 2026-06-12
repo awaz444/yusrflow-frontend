@@ -191,13 +191,14 @@ export function Sidebar({
         </div>
 
         <div className="pt-2 border-t border-border mt-2 flex flex-col gap-1">
-          <Button
-            variant="ghost"
+          <Link
+            href="/profile"
+            onClick={() => onClose && onClose()}
             className={cn(
-              "text-muted-foreground hover:text-foreground whitespace-nowrap overflow-hidden transition-all duration-300",
+              "flex items-center text-muted-foreground hover:text-foreground whitespace-nowrap overflow-hidden transition-all duration-300 rounded-lg hover:bg-secondary/50",
               !isExpanded
                 ? "w-12 h-12 mx-auto justify-center p-0 gap-0"
-                : "w-full justify-start px-4 gap-3",
+                : "w-full justify-start px-4 gap-3 py-2",
             )}
             title={!isExpanded ? t("common.profile") : undefined}
           >
@@ -209,7 +210,7 @@ export function Sidebar({
             >
               {t("common.profile")}
             </span>
-          </Button>
+          </Link>
           <Button
             variant="ghost"
             className={cn(

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { useAuth } from '@/lib/auth-context';
 import { API_BASE_URL } from '@/lib/api';
@@ -78,9 +77,6 @@ export function LoginForm() {
           <Label htmlFor="password" className="text-sm text-foreground font-semibold">
             {t('auth.password')}
           </Label>
-          <Link href="/auth/forgot-password" className="text-sm text-accent hover:text-accent/80 transition-colors font-medium">
-            {t('auth.forgotPassword')}
-          </Link>
         </div>
         <div className="relative">
           <Input
