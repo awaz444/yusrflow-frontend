@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 interface IntegrationCardProps {
@@ -12,6 +12,7 @@ interface IntegrationCardProps {
     description: string;
     icon: React.ReactNode;
     isConnected: boolean;
+    requiresReconnect?: boolean;
     isComingSoon?: boolean;
     isLoading?: boolean;
     onConnect: () => void;
@@ -25,6 +26,7 @@ export function IntegrationCard({
     description,
     icon,
     isConnected,
+    requiresReconnect = false,
     isComingSoon = false,
     isLoading = false,
     onConnect,
@@ -56,6 +58,11 @@ export function IntegrationCard({
                                     <Badge variant="default" className="bg-green-500/10 text-green-600 dark:text-green-400">
                                         <CheckCircle2 className="w-3 h-3 mr-1" />
                                         {t('integrations.connected')}
+                                    </Badge>
+                                ) : requiresReconnect ? (
+                                    <Badge variant="default" className="bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                        <AlertTriangle className="w-3 h-3 mr-1" />
+                                        Token Expired — Reconnect Required
                                     </Badge>
                                 ) : (
                                     <Badge variant="secondary" className="bg-muted">
@@ -103,6 +110,16 @@ export function IntegrationCard({
                                 </Button>
                             )}
                         </>
+                    ) : requiresReconnect ? (
+                        <Button
+                            onClick={onReconnect || onConnect}
+                            disabled={isComingSoon || isLoading}
+                            className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+                        >
+                            {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            <AlertTriangle className="w-4 h-4 mr-2" />
+                            Reconnect {displayName}
+                        </Button>
                     ) : (
                         <Button
                             onClick={onConnect}

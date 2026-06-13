@@ -13,6 +13,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 interface IntegrationStatus {
     provider: 'microsoft' | 'google';
     isConnected: boolean;
+    requiresReconnect?: boolean;
     displayName?: string;
     lastSyncAt?: string;
 }
@@ -129,6 +130,7 @@ export default function IntegrationsPage() {
                             </svg>
                         }
                         isConnected={microsoftStatus.isConnected}
+                        requiresReconnect={microsoftStatus.requiresReconnect}
                         isLoading={connectingProvider === 'microsoft'}
                         onConnect={handleConnectMicrosoft}
                         onReconnect={handleConnectMicrosoft}
