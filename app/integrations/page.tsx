@@ -85,8 +85,8 @@ export default function IntegrationsPage() {
             const result = await fetchFromApi('integration/discover', { method: 'POST' });
 
             // Invalidate app and dashboard caches so they reflect fresh data immediately
-            await queryClient.invalidateQueries({ queryKey: appsKeys.list() });
-            await queryClient.invalidateQueries({ queryKey: tenantKeys.dashboard() });
+            await queryClient.invalidateQueries({ queryKey: appsKeys.all });
+            await queryClient.invalidateQueries({ queryKey: tenantKeys.all });
 
             setSyncToast({
                 type: 'success',

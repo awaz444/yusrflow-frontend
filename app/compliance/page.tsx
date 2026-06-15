@@ -26,7 +26,7 @@ import { fetchFromApi, downloadFile } from "@/lib/api";
 import { useLanguage } from "@/lib/i18n/language-context";
 import { useComplianceDashboard } from "@/lib/hooks/use-compliance-dashboard";
 import { usePermissions } from "@/lib/hooks/use-permissions";
-import { tenantKeys } from "@/lib/query-keys";
+import { tenantKeys, appsKeys } from "@/lib/query-keys";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
@@ -125,12 +125,15 @@ export default function CompliancePage() {
     if (!statusData.isRunning && statusData.total > 0) {
       setIsScanning(false);
       setScanComplete(true);
-      queryClient.invalidateQueries({ queryKey: tenantKeys.compliance() });
+      queryClient.invalidateQueries({ queryKey: tenantKeys.all });
+      queryClient.invalidateQueries({ queryKey: appsKeys.all });
     }
   }, [statusData, isScanning, queryClient]);
 
   const handleResolveIssue = (id: string) => {
     setResolvedIssueIds((prev) => new Set(prev).add(id));
+    queryClient.invalidateQueries({ queryKey: tenantKeys.all });
+    queryClient.invalidateQueries({ queryKey: appsKeys.all });
   };
 
   const handleDownloadReport = async (lang: string = "en") => {

@@ -19,6 +19,8 @@ import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { API_BASE_URL } from '@/lib/api';
+import { useQueryClient } from '@tanstack/react-query';
+import { adminKeys } from '@/lib/query-keys';
 
 interface Tenant {
   id: string;
@@ -29,6 +31,7 @@ function CreateUserContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preSelectedTenantId = searchParams.get('tenantId');
+  const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -143,6 +146,7 @@ function CreateUserContent() {
 
   const handleCloseDialog = () => {
     setShowCredentials(false);
+    queryClient.invalidateQueries({ queryKey: adminKeys.all });
     if (preSelectedTenantId) {
       router.push(`/admin/companies/${preSelectedTenantId}`);
     } else {

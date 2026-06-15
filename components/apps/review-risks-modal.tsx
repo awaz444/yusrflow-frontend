@@ -10,7 +10,7 @@ import { useLanguage } from '@/lib/i18n/language-context';
 import { ShieldAlert, ShieldCheck, Shield, CheckCircle2, Loader2, ChevronDown, ChevronUp, AlertCircle, ClipboardCheck } from 'lucide-react';
 import { fetchFromApi } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { appsKeys } from '@/lib/query-keys';
+import { appsKeys, tenantKeys } from '@/lib/query-keys';
 import { usePermissions } from '@/lib/hooks/use-permissions';
 
 interface ReviewRisksModalProps {
@@ -102,6 +102,7 @@ function AppRiskCard({ app }: { app: any }) {
 
             // Refresh parent data
             queryClient.invalidateQueries({ queryKey: appsKeys.list() });
+            queryClient.invalidateQueries({ queryKey: tenantKeys.all });
         } catch (e) {
             console.error('Failed to save acknowledgement', e);
         } finally {
@@ -125,6 +126,7 @@ function AppRiskCard({ app }: { app: any }) {
                     } else {
                         // Evaluation finished, refresh data to get real scores
                         queryClient.invalidateQueries({ queryKey: appsKeys.list() });
+                        queryClient.invalidateQueries({ queryKey: tenantKeys.all });
                         setIsScanning(false);
                     }
                 } catch (e) {

@@ -11,7 +11,7 @@ import { useLanguage } from "@/lib/i18n/language-context";
 import { ImportAppModal } from "@/components/apps/import-app-modal";
 import { useApps, useAddApp, useDeleteApps } from "@/lib/hooks/use-apps";
 import { useQueryClient } from "@tanstack/react-query";
-import { appsKeys } from "@/lib/query-keys";
+import { appsKeys, tenantKeys } from "@/lib/query-keys";
 import type { App } from "@/lib/types";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingState } from "@/components/ui/loading-state";
@@ -425,9 +425,10 @@ export default function AppsPage() {
       <ImportAppModal
         open={isImportModalOpen}
         onOpenChange={setIsImportModalOpen}
-        onSuccess={() =>
-          queryClient.invalidateQueries({ queryKey: appsKeys.list() })
-        }
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: appsKeys.all });
+          queryClient.invalidateQueries({ queryKey: tenantKeys.all });
+        }}
       />
       <ReviewRisksModal
         isOpen={isReviewRisksModalOpen}

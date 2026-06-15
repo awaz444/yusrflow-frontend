@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchFromApi } from '@/lib/api';
-import { appsKeys } from '@/lib/query-keys';
+import { appsKeys, tenantKeys } from '@/lib/query-keys';
 import type { App } from '@/lib/types';
 
 function mapApp(app: any): App {
@@ -41,7 +41,8 @@ export function useAddApp() {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: appsKeys.list() });
+      queryClient.invalidateQueries({ queryKey: appsKeys.all });
+      queryClient.invalidateQueries({ queryKey: tenantKeys.all });
     },
   });
 }
@@ -55,7 +56,8 @@ export function useDeleteApps() {
         body: JSON.stringify({ appIds }),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: appsKeys.list() });
+      queryClient.invalidateQueries({ queryKey: appsKeys.all });
+      queryClient.invalidateQueries({ queryKey: tenantKeys.all });
     },
   });
 }

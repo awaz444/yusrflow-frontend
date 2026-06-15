@@ -11,9 +11,12 @@ import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PageContainer } from '@/components/layout/page-container';
 import { API_BASE_URL } from '@/lib/api';
+import { useQueryClient } from '@tanstack/react-query';
+import { adminKeys } from '@/lib/query-keys';
 
 export default function CreateCompanyPage() {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -63,6 +66,7 @@ export default function CreateCompanyPage() {
             const data = await response.json();
 
             if (response.ok) {
+                queryClient.invalidateQueries({ queryKey: adminKeys.all });
                 router.push('/admin/companies');
             } else {
                 // NestJS validation errors come as an array in data.message
