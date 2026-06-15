@@ -3,9 +3,9 @@ import { useAuth } from '@/lib/auth-context';
 type Role = 'admin' | 'manager' | 'auditor' | 'viewer';
 
 const ROLE_HIERARCHY: Record<Role, number> = {
-  admin: 4,
-  manager: 3,
-  auditor: 2,
+  admin: 2,
+  manager: 1,
+  auditor: 1,
   viewer: 1,
 };
 
@@ -29,21 +29,21 @@ export function usePermissions() {
     switch (action) {
       // ── App management ───────────────────────────────────────────
       case 'addApp':
-        return level >= ROLE_HIERARCHY.manager;
+        return level >= ROLE_HIERARCHY.admin;
       case 'deleteApps':
         return level >= ROLE_HIERARCHY.admin;
       case 'importApps':
-        return level >= ROLE_HIERARCHY.manager;
+        return level >= ROLE_HIERARCHY.admin;
       case 'exportApps':
-        return level >= ROLE_HIERARCHY.auditor;
+        return level >= ROLE_HIERARCHY.viewer;
 
       // ── Compliance ───────────────────────────────────────────────
       case 'runComplianceScan':
-        return level >= ROLE_HIERARCHY.manager;
+        return level >= ROLE_HIERARCHY.admin;
       case 'acknowledgeIssue':
-        return level >= ROLE_HIERARCHY.auditor;
+        return level >= ROLE_HIERARCHY.admin;
       case 'downloadReport':
-        return level >= ROLE_HIERARCHY.auditor;
+        return level >= ROLE_HIERARCHY.viewer;
 
       // ── Users ────────────────────────────────────────────────────
       case 'inviteUser':

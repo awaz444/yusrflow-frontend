@@ -15,7 +15,7 @@ interface IntegrationCardProps {
     requiresReconnect?: boolean;
     isComingSoon?: boolean;
     isLoading?: boolean;
-    onConnect: () => void;
+    onConnect?: () => void;
     onReconnect?: () => void;
     onDisconnect?: () => void;
 }
@@ -111,16 +111,20 @@ export function IntegrationCard({
                             )}
                         </>
                     ) : requiresReconnect ? (
-                        <Button
-                            onClick={onReconnect || onConnect}
-                            disabled={isComingSoon || isLoading}
-                            className="w-full bg-amber-500 hover:bg-amber-600 text-white"
-                        >
-                            {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                            <AlertTriangle className="w-4 h-4 mr-2" />
-                            Reconnect {displayName}
-                        </Button>
-                    ) : (
+                        onReconnect || onConnect ? (
+                            <Button
+                                onClick={onReconnect || onConnect}
+                                disabled={isComingSoon || isLoading}
+                                className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+                            >
+                                {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                <AlertTriangle className="w-4 h-4 mr-2" />
+                                Reconnect {displayName}
+                            </Button>
+                        ) : (
+                            <p className="text-xs text-muted-foreground italic">Admin access required to reconnect.</p>
+                        )
+                    ) : onConnect ? (
                         <Button
                             onClick={onConnect}
                             disabled={isComingSoon || isLoading}
@@ -129,6 +133,8 @@ export function IntegrationCard({
                             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                             {t('integrations.connect').replace('{app}', displayName)}
                         </Button>
+                    ) : (
+                        <p className="text-xs text-muted-foreground italic">Admin access required to connect.</p>
                     )}
                 </div>
             </CardContent>

@@ -57,19 +57,24 @@ export default function Home() {
 
   const dashboard = data;
 
-  const averageComplianceScore =
-    Math.round(
-      dashboard.saasApps.reduce((sum: number, app: any) => sum + app.complianceScore, 0) /
-      (dashboard.saasApps.length || 1)
-    ) || 0;
+  // ── Single source of truth: use the overall score computed by the backend
+  // (same value shown on the Compliance page and in all PDF reports).
+  const overallComplianceScore = (dashboard as any).overallComplianceScore ?? 0;
+
+  // Real per-regulation scores from the compliance engine — no client-side offsets
+  const regulationScoresRaw: { regulation: string; score: number; trend?: number }[] =
+    (dashboard as any).regulationScores || [];
+
+  const getRegScore = (reg: string) =>
+    regulationScoresRaw.find(r => r.regulation === reg)?.score ?? overallComplianceScore;
 
   const complianceScores = {
-    overall: averageComplianceScore,
-    trend: 5,
-    pdpl: Math.min(100, Math.round(averageComplianceScore * 1.05)),
-    sdaia: Math.min(100, Math.round(averageComplianceScore * 0.95)),
-    nca: Math.min(100, Math.round(averageComplianceScore * 0.90)),
-    citc: Math.min(100, Math.round(averageComplianceScore * 1.02)),
+    overall: overallComplianceScore,
+    trend: regulationScoresRaw.find(r => r.regulation === 'PDPL')?.trend ?? 0,
+    pdpl:  getRegScore('PDPL'),
+    sdaia: getRegScore('SDAIA'),
+    nca:   getRegScore('NCA'),
+    ndmo:  getRegScore('NDMO'),
   };
 
   const highRiskApps = dashboard.saasApps.filter(
@@ -77,6 +82,17 @@ export default function Home() {
   ).length;
 
   const totalUsers = dashboard.totalUsers || 0;
+
+  // Derive correct labels for conditional stat cards
+  const highRiskDescription = highRiskApps > 0
+    ? t('dashboard.stats.immediateAttention')
+    : t('dashboard.stats.noRiskApps');
+
+  const spendDescription = dashboard.spendTrend > 0
+    ? t('dashboard.stats.spendIncrease')
+    : dashboard.spendTrend < 0
+      ? t('dashboard.stats.spendDecrease')
+      : t('dashboard.stats.spendNoChange');
 
   return (
     <AuthGuard>
@@ -98,24 +114,24 @@ export default function Home() {
               />
               <StatCard
                 title={t('dashboard.stats.avgCompliance')}
-                value={`${averageComplianceScore}%`}
+                value={`${overallComplianceScore}%`}
                 icon={<TrendingUp className="h-5 w-5" />}
-                trend={5}
+                trend={complianceScores.trend}
               />
               <StatCard
                 title={t('dashboard.stats.highRiskApps')}
                 value={highRiskApps}
                 icon={<AlertTriangle className="h-5 w-5" />}
-                trend={-2}
-                description={t('dashboard.stats.immediateAttention')}
+                trend={highRiskApps > 0 ? -2 : undefined}
+                description={highRiskDescription}
               />
               <StatCard
                 title={t('dashboard.stats.monthlySpend')}
                 value={`${dashboard.totalSpend?.toLocaleString() || 0}`}
                 unit="SAR"
                 icon={<CreditCard className="h-5 w-5" />}
-                trend={dashboard.spendTrend}
-                description={t('dashboard.stats.spendIncrease')}
+                trend={dashboard.spendTrend !== 0 ? dashboard.spendTrend : undefined}
+                description={spendDescription}
               />
             </div>
           </StaggerItem>

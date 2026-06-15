@@ -218,9 +218,8 @@ Password: ${formData.password}`;
                       <SelectValue placeholder="Select Role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="auditor">Auditor</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="viewer">Viewer</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

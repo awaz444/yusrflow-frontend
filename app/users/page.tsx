@@ -78,19 +78,23 @@ export default function UsersPage() {
         const me = profileData.user || profileData;
         setCurrentUserRole(me.role);
 
+        // GET /users is tenant-scoped on the backend: the JwtAuthGuard injects
+        // the caller's tenant_id from their JWT and the UsersController passes it
+        // to getAllUsers() as a WHERE filter — only users from the same tenant are returned.
         const usersData = await fetchFromApi('/users');
         const usersList = usersData.users || [];
         const mappedUsers = usersList.map((u: any) => ({
           id: u.id,
-          name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
+          // Backend getAllUsers() returns camelCase (firstName/lastName)
+          name: `${u.firstName || u.first_name || ''} ${u.lastName || u.last_name || ''}`.trim() || u.email,
           email: u.email,
           role: u.role,
-          lastActive: u.last_login_at
+          lastActive: u.lastLogin || u.last_login_at
             ? new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-US', {
                 month: 'short', day: 'numeric', year: 'numeric',
-              }).format(new Date(u.last_login_at))
+              }).format(new Date(u.lastLogin || u.last_login_at))
             : t('users.never'),
-          status: u.is_active ? 'active' : 'inactive',
+          status: (u.isActive ?? u.is_active) ? 'active' : 'inactive',
         }));
         setUsers(mappedUsers);
       } catch (err) {
@@ -102,7 +106,7 @@ export default function UsersPage() {
     fetchData();
   }, []);
 
-  const canResetPasswords = currentUserRole === 'admin' || currentUserRole === 'manager';
+  const canResetPasswords = currentUserRole === 'admin';
 
   const filteredUsers = useMemo(() =>
     users.filter((u) =>
@@ -121,8 +125,6 @@ export default function UsersPage() {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'admin': return 'bg-blue-500/20 text-blue-400';
-      case 'manager': return 'bg-yellow-500/20 text-yellow-400';
-      case 'auditor': return 'bg-purple-500/20 text-purple-400';
       case 'viewer': return 'bg-gray-500/20 text-gray-400';
       default: return 'bg-gray-500/20 text-gray-400';
     }
@@ -131,7 +133,6 @@ export default function UsersPage() {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'admin': return t('users.admin');
-      case 'auditor': return t('users.auditor');
       case 'viewer': return t('users.viewer');
       default: return role;
     }

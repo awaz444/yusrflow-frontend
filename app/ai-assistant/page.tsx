@@ -9,6 +9,7 @@ import { useLanguage } from '@/lib/i18n/language-context';
 import { fetchFromApi } from '@/lib/api';
 import ReactMarkdown from 'react-markdown';
 import { PageContainer } from '@/components/layout/page-container';
+import { useTenantDashboard } from '@/lib/hooks/use-tenant-dashboard';
 
 interface Message {
   id: string;
@@ -19,10 +20,15 @@ interface Message {
 
 export default function AIAssistantPage() {
   const { t, language } = useLanguage();
+  const { data: dashboardData } = useTenantDashboard();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Use live app count from dashboard — never a hardcoded value
+  const liveAppCount = dashboardData?.saasApps?.length ?? '...';
+
+  // Example questions reference apps that are actually in the inventory
   const exampleQuestions = [
     t('aiAssistant.whichAppsViolate'),
     t('aiAssistant.complianceScore'),
@@ -177,7 +183,7 @@ export default function AIAssistantPage() {
               <div className="space-y-2 text-sm">
                 <div>
                   <p className="text-muted-foreground">SaaS Apps</p>
-                  <p className="text-foreground font-semibold">47</p>
+                  <p className="text-foreground font-semibold">{liveAppCount}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">PDPL Rules</p>

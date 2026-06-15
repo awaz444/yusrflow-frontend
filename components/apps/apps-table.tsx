@@ -3,7 +3,7 @@
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, ArrowUp, ArrowDown, MoreVertical } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 import type { App } from '@/lib/types';
@@ -133,7 +133,6 @@ export function AppsTable({
                 <SortHeader column="monthlySpend" label="Monthly Spend" />
               </th>
               <th className="px-6 py-4 text-left hidden lg:table-cell">Billing Cycle</th>
-              <th className="px-6 py-4 text-left">{t('applications.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -188,12 +187,6 @@ export function AppsTable({
                   ) : null}
                 </td>
                 <td className="px-6 py-4 text-sm text-muted-foreground capitalize hidden lg:table-cell">{app.billingCycle || 'Monthly'}</td>
-                <td className="px-6 py-4">
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreVertical className="w-4 h-4" />
-                    <span className="sr-only">Open menu</span>
-                  </Button>
-                </td>
               </tr>
             ))}
           </tbody>

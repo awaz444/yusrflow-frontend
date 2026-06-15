@@ -90,12 +90,11 @@ export function InviteUserDialog({ onInvite }: InviteUserDialogProps) {
                             </SelectTrigger>
                             <SelectContent className="bg-secondary border-border text-foreground">
                                 <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="auditor">Auditor</SelectItem>
                                 <SelectItem value="viewer">Viewer</SelectItem>
                             </SelectContent>
                         </Select>
                         <p className="text-[0.8rem] text-muted-foreground">
-                            * Auditors can report and view logs. Viewers can only view dashboards.
+                            * Admins can connect integrations and manage settings. Viewers can only view dashboards and data.
                         </p>
                     </div>
                     <DialogFooter>

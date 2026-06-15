@@ -102,9 +102,12 @@
       "appsInUse": "Applications in use",
       "avgCompliance": "Avg Compliance",
       "highRiskApps": "High Risk Apps",
-      "immediateAttention": "Immediate attention",
+      "immediateAttention": "Requires immediate attention",
+      "noRiskApps": "No high-risk apps detected",
       "monthlySpend": "Monthly Spend",
-      "spendIncrease": "Increase from last month"
+      "spendIncrease": "Increase from last month",
+      "spendDecrease": "Decrease from last month",
+      "spendNoChange": "No change from last month"
     },
     "table": {
       "searchPlaceholder": "Search apps, category...",
@@ -206,10 +209,10 @@
     "bp3": "Monitor security patches",
     "bp4": "Document all compliance efforts",
     "upcomingDeadlines": "Upcoming Deadlines",
-    "d1": "PDPL Audit: March 15, 2025",
-    "d2": "SOC2 Review: April 30, 2025",
-    "d3": "SDAIA Compliance: June 1, 2025",
-    "d4": "Policy Review: February 28, 2025",
+    "d1": "PDPL Annual Review — Q1 2027",
+    "d2": "NDMO Compliance Audit — Q2 2027",
+    "d3": "SDAIA Framework Update — Q3 2026",
+    "d4": "NCA Policy Review — Q4 2026",
     "resources": "Resources",
     "r1": "PDPL Guidelines",
     "r2": "SOC2 Framework",
@@ -266,7 +269,7 @@
   "integrations": {
     "title": "Integrations",
     "subtitle": "Connect your cloud services to enable automated discovery and compliance monitoring",
-    "comingSoon": "Coming Soon",
+    "comingSoon": "Roadmap",
     "connected": "Connected",
     "notConnected": "Not Connected",
     "manage": "Manage",
@@ -289,8 +292,8 @@
     "complianceMonitoringDesc": "Track compliance with regulations like PDPL, GDPR, and internal policies",
     "securityInsightsTitle": "Security Insights",
     "securityInsightsDesc": "Identify shadow IT and assess security risks across your applications",
-    "userActivityTitle": "User Activity",
-    "userActivityDesc": "Monitor employee productivity and optimize application usage",
+    "userActivityTitle": "SaaS Adoption Insights",
+    "userActivityDesc": "Track SaaS adoption and identify unused licenses across your organization",
     "discoveryComplete": "✅ Discovery Complete! Found {count} SaaS applications",
     "discoveryFailed": "❌ Discovery Failed: {error}"
   },
@@ -333,8 +336,10 @@
     "exampleQuestions": "Example questions",
     "whichAppsViolate": "Which apps violate PDPL?",
     "complianceScore": "What's our compliance score?",
-    "howToFix": "How to fix Slack compliance?",
-    "whichAppsStoreOutside": "Which apps store data outside Saudi Arabia?"
+    "howToFix": "How to fix Dropbox Business compliance?",
+    "whichAppsStoreOutside": "Which apps store data outside Saudi Arabia?",
+    "zoomStatus": "What's the compliance status of Zoom?",
+    "githubCompliance": "Is GitHub Enterprise PDPL compliant?"
   },
   "users": {
     "title": "Users",

@@ -2,12 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 function getScoreColor(score: number) {
+  if (score <= 0) return 'text-muted-foreground';
   if (score >= 80) return 'text-green-400';
   if (score >= 60) return 'text-yellow-400';
   return 'text-red-400';
 }
 
 function getScoreBgColor(score: number) {
+  if (score <= 0) return 'from-secondary/30 to-secondary/0';
   if (score >= 80) return 'from-green-500/20 to-green-500/0';
   if (score >= 60) return 'from-yellow-500/20 to-yellow-500/0';
   return 'from-red-500/20 to-red-500/0';
@@ -16,11 +18,12 @@ function getScoreBgColor(score: number) {
 export function ComplianceScores({ scores }: { scores: any }) {
   const { t } = useLanguage();
 
+  // These keys must match what dashboard/page.tsx puts into complianceScores
   const regulations = [
-    { key: 'pdpl', label: 'PDPL' },
-    { key: 'ndmo', label: 'NDMO' },
+    { key: 'pdpl',  label: 'PDPL'  },
+    { key: 'ndmo',  label: 'NDMO'  },
     { key: 'sdaia', label: 'SDAIA' },
-    { key: 'nca', label: 'NCA' },
+    { key: 'nca',   label: 'NCA'   },
   ];
 
   return (
@@ -39,20 +42,23 @@ export function ComplianceScores({ scores }: { scores: any }) {
             <p className="text-sm text-muted-foreground mb-2">{t('dashboard.overview.overallScore')}</p>
             <div className="flex items-end gap-3">
               <div className={`text-4xl font-bold ${getScoreColor(scores.overall)}`}>
-                {scores.overall}
+                {scores.overall > 0 ? scores.overall : '—'}
               </div>
-              <div className="text-sm text-green-400 font-semibold">
-                ↑ {scores.trend}%
-              </div>
+              {scores.overall > 0 && scores.trend !== 0 && (
+                <div className={`text-sm font-semibold ${scores.trend > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {scores.trend > 0 ? '↑' : '↓'} {Math.abs(scores.trend)}%
+                </div>
+              )}
             </div>
+            {scores.overall === 0 && (
+              <p className="text-xs text-muted-foreground mt-1">Run compliance scan to generate scores</p>
+            )}
           </div>
 
           {/* Regulation Scores */}
           <div className="grid grid-cols-2 gap-2">
             {regulations.map((reg) => {
-              const score = scores[
-                reg.key as keyof typeof scores
-              ] as number;
+              const score = scores[reg.key as keyof typeof scores] as number;
               return (
                 <div
                   key={reg.key}
@@ -62,8 +68,11 @@ export function ComplianceScores({ scores }: { scores: any }) {
                     {reg.label}
                   </p>
                   <p className={`text-2xl font-bold mt-1 ${getScoreColor(score)}`}>
-                    {score}
+                    {score > 0 ? score : '—'}
                   </p>
+                  {score === 0 && (
+                    <p className="text-xs text-muted-foreground">Pending scan</p>
+                  )}
                 </div>
               );
             })}
