@@ -113,9 +113,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(data.user || data); // Store robust user profile
       } else if (response.status === 401 || response.status === 403) {
         // Token strictly invalid or expired
+        let isSuspended = false;
+        try {
+          const responseClone = response.clone();
+          const errData = await responseClone.json();
+          const msg = errData?.message || '';
+          if (
+            msg.includes('deactivated') || 
+            msg.includes('inactive') || 
+            msg.includes('suspended') || 
+            msg.includes('Organization is inactive')
+          ) {
+            isSuspended = true;
+          }
+        } catch (e) {
+          // Ignore
+        }
+
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         setUser(null);
+
+        if (isSuspended && typeof window !== 'undefined') {
+          window.location.href = '/auth/suspended';
+        }
       }
     } catch (error) {
       console.error('Network error during auth check, preserving token.');

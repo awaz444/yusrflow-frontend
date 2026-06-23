@@ -61,17 +61,41 @@ export async function fetchFromApi(endpoint: string, options: RequestInit = {}, 
             }
 
             console.warn(`[Auth Debug] API ${endpoint} triggered 401. Current Path: ${typeof window !== 'undefined' ? window.location.pathname : 'server'}`);
-            const isLoginPage = typeof window !== 'undefined' && window.location.pathname.includes('/auth/login');
+            
+            // Check if the response body contains organization deactivation or inactivity messages
+            let isSuspended = false;
+            try {
+                const responseClone = response.clone();
+                const errData = await responseClone.json();
+                const msg = errData?.message || '';
+                if (
+                    msg.includes('deactivated') || 
+                    msg.includes('inactive') || 
+                    msg.includes('suspended') || 
+                    msg.includes('Organization is inactive')
+                ) {
+                    isSuspended = true;
+                }
+            } catch (e) {
+                // Ignore parsing errors
+            }
 
-            if (typeof window !== 'undefined' && !isLoginPage) {
+            const isLoginPage = typeof window !== 'undefined' && window.location.pathname.includes('/auth/login');
+            const isSuspendedPage = typeof window !== 'undefined' && window.location.pathname.includes('/auth/suspended');
+
+            if (typeof window !== 'undefined' && !isLoginPage && !isSuspendedPage) {
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
 
                 setTimeout(() => {
-                    window.location.href = '/auth/login';
+                    if (isSuspended) {
+                        window.location.href = '/auth/suspended';
+                    } else {
+                        window.location.href = '/auth/login';
+                    }
                 }, 100);
             }
-            throw new Error('Unauthorized: Redirecting to login...');
+            throw new Error(isSuspended ? 'Unauthorized: Account Suspended...' : 'Unauthorized: Redirecting to login...');
         }
 
         const errorBody = await response.text();

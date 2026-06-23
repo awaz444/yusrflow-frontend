@@ -37,6 +37,16 @@ export function LoginForm() {
       if (response.ok && data.accessToken) {
         await login(data.accessToken, data.refreshToken);
       } else {
+        const msg = data.message || '';
+        if (
+          msg.includes('deactivated') || 
+          msg.includes('inactive') || 
+          msg.includes('suspended') || 
+          msg.includes('Organization is inactive')
+        ) {
+          window.location.href = '/auth/suspended';
+          return;
+        }
         setError(data.message || 'Invalid credentials');
       }
     } catch (err: any) {

@@ -48,7 +48,7 @@ export default function AdminSettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Platform Settings</CardTitle>
           <CardDescription>Global configuration options</CardDescription>
@@ -63,7 +63,7 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       <Card>
         <CardHeader>

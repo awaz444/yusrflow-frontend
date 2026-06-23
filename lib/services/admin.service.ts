@@ -92,16 +92,16 @@ export function updateAdminTenant(id: string, data: { name?: string; industry?: 
 export interface AdminUser {
   id: string;
   email: string;
-  first_name: string | null;
-  last_name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   role: string;
   department: string | null;
-  job_title: string | null;
-  is_active: boolean | null;
-  last_login_at: string | null;
-  created_at: string;
-  tenant_id: string | null;
-  tenant?: { name: string } | null;
+  jobTitle: string | null;
+  isActive: boolean | null;
+  lastLogin: string | null;
+  createdAt: string;
+  tenantId: string | null;
+  tenantName?: string | null;
 }
 
 export interface AdminUsersResponse {

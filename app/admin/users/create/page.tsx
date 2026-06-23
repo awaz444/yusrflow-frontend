@@ -240,8 +240,7 @@ function CreateUserContent() {
                     <SelectValue placeholder="Select Role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="auditor">Auditor</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="viewer">Viewer</SelectItem>
                   </SelectContent>
                 </Select>
